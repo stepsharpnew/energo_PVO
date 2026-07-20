@@ -1,0 +1,11 @@
+.env
+.venv/
+.uv-cache/
+.DS_Store
+__pycache__/
+.pytest_cache/
+*.pyc
+data/app.db*
+data/runs/*
+!data/runs/.gitkeep
+templates/approved/*.xlsx

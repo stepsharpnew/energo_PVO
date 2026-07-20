@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Задание {{ job.job_id }}</title><link rel="stylesheet" href="/static/app.css"></head>
+<body><main><a class="back" href="/">← Все задания</a><header><p class="eyebrow">Комплект · ревизия <span id="revision">{{ job.revision }}</span></p><h1 id="status">{{ job.status }}</h1><p id="summary">{{ job.summary }}</p></header>
+<section class="card" id="progress"><div class="progress"><i></i></div><p class="muted">Страница обновляет состояние автоматически.</p></section>
+<section class="card hidden" id="questions"><h2>Нужны сведения</h2><form id="answers-form"><div id="question-list"></div><button>Передать ответы и продолжить</button></form></section>
+<section class="card hidden" id="issues"><h2>Проверки</h2><div id="issue-list"></div></section>
+<section class="card hidden" id="previews"><h2>Предпросмотр</h2><div id="preview-list" class="previews"></div></section>
+<section class="card hidden" id="review"><h2>Решение специалиста</h2><div class="actions"><button id="approve">Подтвердить комплект</button><button class="secondary" id="revision-btn">Описать исправление</button></div><form id="revision-form" class="hidden"><label>Документ<input name="artifact" required></label><label>Место ошибки<input name="location" required></label><label>Текущее значение<input name="current_value"></label><label>Правильное значение<input name="expected_value" required></label><label>Почему это ошибка<textarea name="reason" required></textarea></label><label>Область правила<select name="scope"><option value="project">Только проект</option><option value="customer">Россети/филиал</option><option value="global">Общее правило</option></select></label><button>Создать новую ревизию</button></form></section>
+<section class="card hidden" id="download"><a class="button" href="/api/jobs/{{ job.job_id }}/download">Скачать финальный ZIP</a></section>
+</main>
+<script>const jobId={{ job.job_id|tojson }};</script><script src="/static/job.js"></script></body></html>
+

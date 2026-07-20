@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ИИ-агент ИД</title>
+  <link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+<main>
+  <header><p class="eyebrow">Локальный MVP</p><h1>Исполнительная документация</h1><p>Загрузите проект, исполнительные схемы и подтверждающие документы. Агент сформирует АОСР или вернёт только блокирующие вопросы.</p></header>
+  <section class="card">
+    <h2>Новый комплект</h2>
+    <form action="/api/jobs" method="post" enctype="multipart/form-data">
+      <div class="grid">
+        <label>Подразделение Россетей<select name="branch_id"><option value="khimki">Химки</option><option value="solnechnogorsk">Солнечногорск</option></select></label>
+        <label>Первый номер АОСР<input name="first_aosr_number" type="number" min="1" value="1" required></label>
+        <label>Специалист<input name="operator_name" required placeholder="ФИО"></label>
+      </div>
+      <label class="drop">Исходные файлы<input name="files" type="file" multiple required accept=".pdf,.xlsx,.docx,.png,.jpg,.jpeg,.csv,.txt"><span>Можно выбрать сразу несколько файлов</span></label>
+      <button type="submit">Запустить обработку</button>
+    </form>
+  </section>
+  <section class="card">
+    <div class="section-title"><h2>Задания</h2><span class="badge">{{ agent_mode }} · {{ model }}</span></div>
+    {% if jobs %}<div class="jobs">{% for job in jobs %}<a href="/jobs/{{ job.job_id }}"><span>{{ job.created_at[:19].replace('T',' ') }}</span><strong>{{ job.status }}</strong><small>{{ job.summary or job.job_id }}</small></a>{% endfor %}</div>{% else %}<p class="muted">Заданий пока нет.</p>{% endif %}
+  </section>
+</main>
+</body></html>
+

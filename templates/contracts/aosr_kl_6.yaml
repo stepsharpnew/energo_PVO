@@ -1,0 +1,53 @@
+template_id: aosr_kl_6
+source_template: template/9. АОСР КЛ.xlsx
+version: 0.1-unqualified
+approved: false
+output_filename: АОСР КЛ-6кВ.xlsx
+allowed_sheets: [АОСР-1, АОСР-2, АОСР-3, АОСР-4, АОСР-5, АОСР-6, АОСР-7]
+candidate_sheets: [АОСР-1, АОСР-2, АОСР-3, АОСР-4, АОСР-5, АОСР-6, АОСР-7]
+common_fields:
+  project.sap: Данные объект!B2
+  project.name: [Данные объект!B3, Данные объект!B44]
+  project.district: Данные объект!B4
+  project.address: Данные объект!B5
+  actual.start: Данные объект!B6
+  actual.end: Данные объект!B7
+  project.installation: Данные объект!B9
+  project.code: Данные объект!B43
+  contractor.name: Данные объект!B11
+  contractor.registration: Данные объект!B12
+  contractor.address: Данные объект!B13
+  contractor.director.position: Данные объект!B14
+  contractor.director.name: Данные объект!B15
+  contractor.construction_control.position: Данные объект!B16
+  contractor.construction_control.name: Данные объект!B17
+  contractor.construction_control.authority: Данные объект!B18
+  contractor.work_supervisor.position: Данные объект!B19
+  contractor.work_supervisor.name: Данные объект!B20
+  contractor.work_supervisor.authority: Данные объект!B21
+  customer.name: Данные объект!B23
+  customer.registration: Данные объект!B24
+  customer.address: Данные объект!B25
+  customer.construction_control.position: Данные объект!B32
+  customer.construction_control.name: Данные объект!B33
+  customer.construction_control.authority: Данные объект!B34
+  customer.site_representative.position: Данные объект!B35
+  customer.site_representative.name: Данные объект!B36
+  customer.site_representative.authority: Данные объект!B37
+  designer.name: Данные объект!B39
+  designer.registration: Данные объект!B40
+  designer.address: Данные объект!B41
+  designer.issue_city: Данные объект!B42
+sheets:
+  АОСР-1: {number: C32, suffix: E32, suffix_value: /КЛ-6кВ, work_name: A62, installation: O62, volume: S62, unit: U62, attachment: G72, start_date: P77, end_date: P78}
+  АОСР-2: {number: C32, suffix: E32, suffix_value: /КЛ-6кВ, work_name: A62, installation: O62, volume: R62, unit: U62, material_name: A69, material_document: K69, attachment: G72, start_date: P77, end_date: P78}
+  АОСР-3: {number: C32, suffix: E32, suffix_value: /КЛ-6кВ, work_name: A62, installation: N62, volume: R62, unit: U62, material_name: A69, material_document: O69, attachment: G72, start_date: P77, end_date: P78}
+  АОСР-4: {number: C32, suffix: E32, suffix_value: /КЛ-6кВ, work_name: A62, installation: H62, volume: P62, unit: T62, material_name: A69, material_document: Q69, attachment: G72, start_date: P77, end_date: P78}
+  АОСР-5: {number: C32, suffix: E32, suffix_value: /КЛ-6кВ, work_name: A62, installation: J62, volume: N62, unit: R62, material_name: A69, material_document: K69, attachment: G72, start_date: P77, end_date: P78}
+  АОСР-6: {number: C32, suffix: E32, suffix_value: /КЛ-6кВ, work_name: A62, material_name: A69, material_document: N69, attachment: G72, start_date: P77, end_date: P78}
+  АОСР-7: {number: C32, suffix: E32, suffix_value: /КЛ-6кВ, work_name: A62, installation: T62, volume: X62, unit: AA62, attachment: G72, start_date: P77, end_date: P78}
+forbidden_tokens:
+  - SAP - 305042
+  - Красный Воин
+  - 4609-305042-221-10/24
+  - КЛ-10кВ ф.1 от ТП №3463

@@ -1,0 +1,13 @@
+version: 1
+topics:
+  workflow: workflow.md
+  source_priority: source-priority.md
+  document_rules: document-rules.md
+  semantic_fields: semantic-fields.md
+  kl_04: pilot-work-families.md
+  kl_6: pilot-work-families.md
+  vrs: pilot-work-families.md
+  customer_khimki: customer-profiles.md
+  customer_solnechnogorsk: customer-profiles.md
+  validation: validation.md
+  corrections: corrections.md

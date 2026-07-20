@@ -1,0 +1,18 @@
+profile_id: solnechnogorsk
+version: candidate-1
+approved: false
+approved_by: null
+approved_at: null
+effective_from: null
+effective_to: null
+candidate_notice: Значения перенесены из старого шаблона только как кандидаты; приказ и период полномочий требуют проверки.
+values:
+  customer.name: ПАО "Россети Московский регион"
+  customer.registration: ОГРН 1057746555811 ИНН 5036065113 КПП 772501001
+  customer.address: 115114, город Москва, проезд Павелецкий 2-й, дом 3, строение 2
+  customer.construction_control.position: Гл. специалист ССК УКС
+  customer.construction_control.name: Алексанян Г.Р.
+  customer.construction_control.authority: Приказ №1904 от 03 июня 2026г (НРС С-50-069023)
+  customer.site_representative.position: Мастер СРЭС СЭС филиала
+  customer.site_representative.name: Курчин М.М.
+  customer.site_representative.authority: ''

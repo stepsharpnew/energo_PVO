@@ -1,0 +1,24 @@
+profile_id: organization
+version: candidate-1
+approved: false
+approved_by: null
+approved_at: null
+effective_from: null
+effective_to: null
+candidate_notice: Значения перенесены из старого шаблона только как кандидаты и требуют проверки специалистом.
+values:
+  contractor.name: ООО "Энергосистемы"
+  contractor.registration: ОГРН 1135044003709 ИНН 5044089069 КПП 504401001
+  contractor.address: 141508, Московская область, г.о. Солнечногорск, г. Солнечногорск, ул. Промышленная, стр. 5, помещение 179
+  contractor.director.position: И.о. генерального директора
+  contractor.director.name: Чернявская Н.Ю.
+  contractor.construction_control.position: Инженер по строительному контролю
+  contractor.construction_control.name: Русин В.А.
+  contractor.construction_control.authority: Приказ № 13-ОТ/25 от 05 мая 2025 (НОСТРОЙ С-50-085497)
+  contractor.work_supervisor.position: Прораб
+  contractor.work_supervisor.name: Волков М.Ю.
+  contractor.work_supervisor.authority: Приказ №05-ОТ/24 от 09 января 2024г
+  designer.name: ООО "Энергосистемы"
+  designer.registration: ОГРН 1135044003709 ИНН 5044089069 КПП 504401001
+  designer.address: 141508, Московская область, г.о. Солнечногорск, г. Солнечногорск, ул. Промышленная, стр. 5, помещение 179
+  designer.issue_city: г. Солнечногорск

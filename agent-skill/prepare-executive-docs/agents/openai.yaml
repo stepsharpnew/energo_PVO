@@ -1,0 +1,4 @@
+interface:
+  display_name: "Исполнительная документация"
+  short_description: "Формирование и проверка исполнительной документации"
+  default_prompt: "Use $prepare-executive-docs to prepare and validate a project executive-documentation package."
