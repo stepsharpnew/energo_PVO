@@ -16,15 +16,16 @@
         <label>Подразделение Россетей<select name="branch_id"><option value="khimki">Химки</option><option value="solnechnogorsk">Солнечногорск</option></select></label>
         <label>Первый номер АОСР<input name="first_aosr_number" type="number" min="1" value="1" required></label>
         <label>Специалист<input name="operator_name" required placeholder="ФИО"></label>
+        <label>Расход модели<select name="processing_profile"><option value="balanced" {% if processing_profile == 'balanced' %}selected{% endif %}>Баланс — рекомендуется</option><option value="economy" {% if processing_profile == 'economy' %}selected{% endif %}>Экономия</option><option value="quality" {% if processing_profile == 'quality' %}selected{% endif %}>Максимум качества</option></select></label>
       </div>
+      <p class="muted">Баланс: Terra и выборочные страницы. Экономия: Luna и минимальный визуальный контекст. Максимум качества: Sol и больше визуальных страниц. Токен-лимиты жёсткие; лимит USD считается консервативно по зафиксированным тарифам.</p>
       <label class="drop">Исходные файлы<input name="files" type="file" multiple required accept=".pdf,.xlsx,.docx,.png,.jpg,.jpeg,.csv,.txt"><span>Можно выбрать сразу несколько файлов</span></label>
       <button type="submit">Запустить обработку</button>
     </form>
   </section>
   <section class="card">
-    <div class="section-title"><h2>Задания</h2><span class="badge">{{ agent_mode }} · {{ model }}</span></div>
+    <div class="section-title"><h2>Задания</h2><span class="badge">{{ agent_mode }} · {{ processing_profile }} · {{ model }}</span></div>
     {% if jobs %}<div class="jobs">{% for job in jobs %}<a href="/jobs/{{ job.job_id }}"><span>{{ job.created_at[:19].replace('T',' ') }}</span><strong>{{ job.status }}</strong><small>{{ job.summary or job.job_id }}</small></a>{% endfor %}</div>{% else %}<p class="muted">Заданий пока нет.</p>{% endif %}
   </section>
 </main>
 </body></html>
-

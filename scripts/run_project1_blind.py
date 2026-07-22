@@ -19,12 +19,14 @@ from executive_docs.domain import JobStatus, ProjectState  # noqa: E402
 from executive_docs.pipeline import Pipeline  # noqa: E402
 from executive_docs.repository import Repository  # noqa: E402
 from executive_docs.storage import Storage  # noqa: E402
+from executive_docs.usage import job_estimated_cost  # noqa: E402
 
 
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--mode", choices=["heuristic", "openai"], default="heuristic")
     parser.add_argument("--branch", choices=["khimki", "solnechnogorsk"], default="khimki")
+    parser.add_argument("--profile", choices=["economy", "balanced", "quality"], default="balanced")
     parser.add_argument("--first-number", type=int, default=1)
     parser.add_argument("--operator", default="Слепой тест project1")
     args = parser.parse_args()
@@ -56,6 +58,7 @@ def main() -> int:
         branch_id=args.branch,
         first_aosr_number=args.first_number,
         operator_name=args.operator,
+        processing_profile=args.profile,
         status=JobStatus.FILES_UPLOADED,
         artifacts=artifacts,
     )
@@ -68,6 +71,10 @@ def main() -> int:
     print(f"status={result.status}")
     print(f"uploaded_pdf_count={len(artifacts)}")
     print("filled_xlsx_count=0")
+    print(f"processing_profile={result.processing_profile}")
+    print(f"model_input_tokens={sum(item.input_tokens for item in result.model_usage)}")
+    estimated_cost = job_estimated_cost(result)
+    print(f"estimated_cost_usd={estimated_cost:.4f}" if estimated_cost is not None else "estimated_cost_usd=unavailable")
     print(f"job_path={storage.job_dir(job_id)}")
     for question in result.questions:
         print(f"question[{question.field_key}]={question.prompt}")

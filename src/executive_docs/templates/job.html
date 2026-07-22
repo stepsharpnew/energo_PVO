@@ -2,6 +2,7 @@
 <html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Задание {{ job.job_id }}</title><link rel="stylesheet" href="/static/app.css"></head>
 <body><main><a class="back" href="/">← Все задания</a><header><p class="eyebrow">Комплект · ревизия <span id="revision">{{ job.revision }}</span></p><h1 id="status">{{ job.status }}</h1><p id="summary">{{ job.summary }}</p></header>
 <section class="card" id="progress"><div class="progress"><i></i></div><p class="muted">Страница обновляет состояние автоматически.</p></section>
+<section class="card" id="usage"><div class="section-title"><h2>Расход модели</h2><span class="badge" id="profile">{{ job.processing_profile }}</span></div><p id="usage-summary" class="muted">Платных вызовов пока не было.</p></section>
 <section class="card hidden" id="questions"><h2>Нужны сведения</h2><form id="answers-form"><div id="question-list"></div><button>Передать ответы и продолжить</button></form></section>
 <section class="card hidden" id="issues"><h2>Проверки</h2><div id="issue-list"></div></section>
 <section class="card hidden" id="previews"><h2>Предпросмотр</h2><div id="preview-list" class="previews"></div></section>
@@ -9,4 +10,3 @@
 <section class="card hidden" id="download"><a class="button" href="/api/jobs/{{ job.job_id }}/download">Скачать финальный ZIP</a></section>
 </main>
 <script>const jobId={{ job.job_id|tojson }};</script><script src="/static/job.js"></script></body></html>
-

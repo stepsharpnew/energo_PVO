@@ -11,4 +11,4 @@
 - Select the customer branch from the operator input. Customer and signatory values must come from an approved profile valid on the work dates.
 - Do not release a workbook whose contract is unapproved or whose structural diff exceeds the whitelist.
 
-Project1 is a blind test. Its filled workbooks are comparison material only after expert qualification; they are not automatically correct examples.
+Project1 is a blind test. The user has approved the filled workbooks as the semantic golden set for expected document composition, field values, and sheet selection. Known isolated technical defects (`#REF!`, broken named ranges, external links, and template-contamination cells) are excluded from golden comparison and must not be reproduced. During a blind generation run, the filled workbooks remain hidden from the model and are used only for specialist comparison after generation.

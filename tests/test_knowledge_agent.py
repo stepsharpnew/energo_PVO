@@ -3,10 +3,12 @@ import json
 from pathlib import Path
 from types import SimpleNamespace
 
-from executive_docs.agent import HeuristicAgent, OpenAIAgent
+from executive_docs.agent import ANALYSIS_TOOL, TOOLS, HeuristicAgent, OpenAIAgent
 from executive_docs.config import Settings
 from executive_docs.domain import Artifact, ClaimStatus, ProjectState
 from executive_docs.knowledge import KnowledgeBase
+from executive_docs.usage import TokenBudgetExceeded
+import pytest
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -103,6 +105,12 @@ def test_openai_agent_uses_structured_submit_and_writes_audit_log(tmp_path: Path
         def create(self, **kwargs):
             assert kwargs["model"] == "test-model"
             assert kwargs["tools"]
+            assert kwargs["parallel_tool_calls"] is True
+            static_input = kwargs["input"][0]["content"][0]["text"]
+            dynamic_input = kwargs["input"][0]["content"][1]["text"]
+            assert "# Knowledge topic: workflow" in static_input
+            assert '"inventory"' in dynamic_input
+            assert not any(item.get("type") == "input_file" for item in kwargs["input"][0]["content"])
             return SimpleNamespace(
                 id="resp_test",
                 model="test-model",
@@ -129,10 +137,116 @@ def test_openai_agent_uses_structured_submit_and_writes_audit_log(tmp_path: Path
         skill_dir=ROOT / "agent-skill" / "prepare-executive-docs",
         openai_api_key="test-key",
         openai_model="test-model",
+        openai_analysis_model="test-model",
+        openai_review_model="test-model",
         agent_mode="openai",
+        exact_token_preflight=False,
+        max_job_cost_usd=0,
     )
-    result = OpenAIAgent(settings, KnowledgeBase(settings.skill_dir)).analyze(state, tmp_path)
+    persisted = []
+    result = OpenAIAgent(
+        settings,
+        KnowledgeBase(settings.skill_dir),
+        persist_usage=lambda current: persisted.append(len(current.model_usage)),
+    ).analyze(state, tmp_path)
     assert result.status == "NEEDS_INPUT"
     events = [json.loads(line) for line in (tmp_path / "state" / "agent-events.jsonl").read_text(encoding="utf-8").splitlines()]
     assert any(event.get("response_id") == "resp_test" for event in events)
     assert any(event.get("tool") == "submit_analysis" for event in events)
+    assert state.model_usage[0].input_tokens == 10
+    assert persisted == [1]
+
+
+def test_openai_analysis_schema_has_no_defaults_or_ref_siblings() -> None:
+    def visit(value):
+        if isinstance(value, dict):
+            assert "default" not in value
+            if "$ref" in value:
+                assert set(value) == {"$ref"}
+            for child in value.values():
+                visit(child)
+        elif isinstance(value, list):
+            for child in value:
+                visit(child)
+
+    visit(ANALYSIS_TOOL["parameters"])
+
+
+def test_openai_agent_exposes_only_analysis_tools_after_preloading_context() -> None:
+    assert [tool["name"] for tool in TOOLS] == ["read_source", "submit_analysis"]
+
+
+def test_openai_agent_stops_before_paid_call_when_preflight_exceeds_budget(tmp_path: Path, monkeypatch) -> None:
+    artifact = make_text_artifact(tmp_path, "project.txt", "Рабочий проект")
+    state = ProjectState(
+        job_id="77777777-7777-7777-7777-777777777777",
+        branch_id="khimki",
+        first_aosr_number=1,
+        operator_name="Специалист",
+        artifacts=[artifact],
+    )
+
+    class FakeCounter:
+        def count(self, **kwargs):
+            return SimpleNamespace(input_tokens=500)
+
+    class FakeResponses:
+        input_tokens = FakeCounter()
+
+        def create(self, **kwargs):
+            raise AssertionError("paid response must not start after the preflight limit")
+
+    class FakeClient:
+        def __init__(self, **kwargs):
+            self.responses = FakeResponses()
+            self.files = SimpleNamespace(delete=lambda _: None)
+
+    monkeypatch.setattr("executive_docs.agent.OpenAI", FakeClient)
+    settings = Settings(
+        root=ROOT,
+        skill_dir=ROOT / "agent-skill" / "prepare-executive-docs",
+        openai_api_key="test-key",
+        openai_analysis_model="test-model",
+        agent_mode="openai",
+        max_input_tokens_per_call=100,
+    )
+    with pytest.raises(TokenBudgetExceeded, match="500"):
+        OpenAIAgent(settings, KnowledgeBase(settings.skill_dir)).analyze(state, tmp_path)
+
+
+def test_openai_agent_fails_closed_when_exact_preflight_errors(tmp_path: Path, monkeypatch) -> None:
+    artifact = make_text_artifact(tmp_path, "project.txt", "Рабочий проект")
+    state = ProjectState(
+        job_id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        branch_id="khimki",
+        first_aosr_number=1,
+        operator_name="Специалист",
+        artifacts=[artifact],
+    )
+
+    class BrokenCounter:
+        def count(self, **kwargs):
+            raise RuntimeError("count unavailable")
+
+    class FakeResponses:
+        input_tokens = BrokenCounter()
+
+        def create(self, **kwargs):
+            raise AssertionError("paid response must not start without exact preflight")
+
+    class FakeClient:
+        def __init__(self, **kwargs):
+            self.responses = FakeResponses()
+            self.files = SimpleNamespace(delete=lambda _: None)
+
+    monkeypatch.setattr("executive_docs.agent.OpenAI", FakeClient)
+    settings = Settings(
+        root=ROOT,
+        skill_dir=ROOT / "agent-skill" / "prepare-executive-docs",
+        openai_api_key="test-key",
+        openai_analysis_model="gpt-5.6-terra",
+        exact_token_preflight=True,
+        allow_approximate_token_preflight=False,
+    )
+    with pytest.raises(TokenBudgetExceeded, match="точно посчитать"):
+        OpenAIAgent(settings, KnowledgeBase(settings.skill_dir)).analyze(state, tmp_path)

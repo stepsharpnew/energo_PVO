@@ -129,6 +129,19 @@ class ValidationIssue(StrictModel):
     locator: str | None = None
 
 
+class ModelUsageRecord(StrictModel):
+    stage: Literal["analysis", "review"]
+    revision: int = Field(ge=1)
+    response_id: str
+    model: str
+    input_tokens: int = Field(ge=0)
+    cached_tokens: int = Field(ge=0)
+    cache_write_tokens: int = Field(ge=0)
+    output_tokens: int = Field(ge=0)
+    reasoning_tokens: int = Field(ge=0)
+    estimated_cost_usd: float | None = Field(default=None, ge=0)
+
+
 class AnalysisResult(StrictModel):
     status: Literal["READY", "NEEDS_INPUT"]
     summary: str
@@ -169,6 +182,7 @@ class ProjectState(StrictModel):
     branch_id: Literal["khimki", "solnechnogorsk"]
     first_aosr_number: int
     operator_name: str
+    processing_profile: Literal["economy", "balanced", "quality"] = "balanced"
     status: JobStatus = JobStatus.CREATED
     artifacts: list[Artifact] = Field(default_factory=list)
     claims: list[Claim] = Field(default_factory=list)
@@ -177,6 +191,7 @@ class ProjectState(StrictModel):
     questions: list[NeedInputQuestion] = Field(default_factory=list)
     validation_issues: list[ValidationIssue] = Field(default_factory=list)
     corrections: list[CorrectionPayload] = Field(default_factory=list)
+    model_usage: list[ModelUsageRecord] = Field(default_factory=list)
     summary: str = ""
     result_zip: str | None = None
     model: str = ""

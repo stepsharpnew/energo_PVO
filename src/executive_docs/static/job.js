@@ -16,6 +16,15 @@ async function refresh(){
   document.getElementById('status').textContent=job.status;
   document.getElementById('summary').textContent=job.summary||job.error||'';
   document.getElementById('revision').textContent=job.revision;
+  document.getElementById('profile').textContent=job.processing_profile;
+  const usage=job.model_usage||[];
+  const input=usage.reduce((sum,item)=>sum+(item.input_tokens||0),0);
+  const cached=usage.reduce((sum,item)=>sum+(item.cached_tokens||0),0);
+  const output=usage.reduce((sum,item)=>sum+(item.output_tokens||0),0);
+  const unknownCost=usage.some(item=>item.estimated_cost_usd===null);
+  const knownCost=usage.reduce((sum,item)=>sum+(item.estimated_cost_usd||0),0);
+  const costLabel=unknownCost?'оценка USD недоступна':`оценка $${knownCost.toFixed(3)}`;
+  document.getElementById('usage-summary').textContent=usage.length?`${usage.length} выз. · вход ${input.toLocaleString('ru-RU')} · кэш ${cached.toLocaleString('ru-RU')} · выход ${output.toLocaleString('ru-RU')} · ${costLabel}`:'Платных вызовов пока не было.';
   show('progress',!terminal.has(job.status)&&job.status!=='NEEDS_INPUT');
   show('questions',job.status==='NEEDS_INPUT');
   if(job.status==='NEEDS_INPUT'){

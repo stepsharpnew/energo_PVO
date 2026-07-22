@@ -2,16 +2,18 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 from openai import OpenAI
 
 from .config import Settings
 from .domain import ModelReviewResult, ProjectState, ValidationIssue
 from .knowledge import KnowledgeBase
+from .usage import TokenBudgetExceeded, ensure_budget, job_estimated_cost, revision_estimated_cost, usage_record
 
 
 def _strict_schema(schema: dict[str, Any]) -> dict[str, Any]:
+    schema.pop("default", None)
     if schema.get("type") == "object":
         schema["additionalProperties"] = False
         schema["required"] = list(schema.get("properties", {}))
@@ -40,9 +42,15 @@ REVIEW_TOOL = {
 
 
 class IndependentReviewer:
-    def __init__(self, settings: Settings, knowledge: KnowledgeBase):
+    def __init__(
+        self,
+        settings: Settings,
+        knowledge: KnowledgeBase,
+        persist_usage: Callable[[ProjectState], object] | None = None,
+    ):
         self.settings = settings
         self.knowledge = knowledge
+        self.persist_usage = persist_usage
 
     def review(self, state: ProjectState, preview_paths: list[Path]) -> list[ValidationIssue]:
         if self.settings.agent_mode != "openai":
@@ -68,6 +76,7 @@ class IndependentReviewer:
         )
         remote_ids: list[str] = []
         content: list[dict[str, Any]] = []
+        policy = self.settings.policy(state.processing_profile)
         payload = {
             "task": "Independently review the final executive-documentation package.",
             "branch_id": state.branch_id,
@@ -84,6 +93,13 @@ class IndependentReviewer:
                 "Return concise findings only; do not reproduce private reasoning.",
             ],
         }
+        static_block: dict[str, Any] = {
+            "type": "input_text",
+            "text": self.knowledge.load("validation"),
+        }
+        if policy.review_model.startswith("gpt-5.6"):
+            static_block["prompt_cache_breakpoint"] = {"mode": "explicit"}
+        content.append(static_block)
         content.append({"type": "input_text", "text": json.dumps(payload, ensure_ascii=False)})
         log_path = preview_paths[0].parents[2] / "state" / "agent-events.jsonl" if preview_paths else None
         try:
@@ -91,21 +107,98 @@ class IndependentReviewer:
                 with path.open("rb") as stream:
                     uploaded = client.files.create(file=stream, purpose="user_data")
                 remote_ids.append(uploaded.id)
-                content.append({"type": "input_file", "file_id": uploaded.id})
-            response = client.responses.create(
-                model=self.settings.openai_model,
-                reasoning={"effort": self.settings.reasoning_effort},
+                content.append({"type": "input_file", "file_id": uploaded.id, "detail": policy.pdf_detail})
+            request_input = [{"role": "user", "content": content}]
+            request_instructions = (
+                "You are the independent final reviewer and did not generate these documents. "
+                "Use the static validation rules in the first input block and call submit_review exactly once."
+            )
+            try:
+                if not self.settings.exact_token_preflight:
+                    raise RuntimeError("exact preflight disabled")
+                counted = client.responses.input_tokens.count(
+                    model=policy.review_model,
+                    instructions=request_instructions,
+                    tools=[REVIEW_TOOL],
+                    input=request_input,
+                    parallel_tool_calls=False,
+                    reasoning={"effort": policy.review_effort, "context": "current_turn"},
+                )
+                preflight = int(counted.input_tokens)
+                exact = True
+            except Exception as exc:
+                if self.settings.exact_token_preflight and not self.settings.allow_approximate_token_preflight:
+                    raise TokenBudgetExceeded(
+                        "Не удалось точно посчитать токены модельной проверки; платный Responses-вызов заблокирован. "
+                        "Проверьте модель/SDK либо явно разрешите ALLOW_APPROXIMATE_TOKEN_PREFLIGHT=true."
+                    ) from exc
+                preflight = max(
+                    1,
+                    (
+                        len(request_instructions)
+                        + len(json.dumps(payload, ensure_ascii=False))
+                        + len(self.knowledge.load("validation"))
+                    )
+                    // 3
+                    + len(preview_paths) * 8_000,
+                )
+                exact = False
+            if log_path:
+                with log_path.open("a", encoding="utf-8") as stream:
+                    stream.write(
+                        json.dumps(
+                            {
+                                "event": "review_token_preflight",
+                                "revision": state.revision,
+                                "model": policy.review_model,
+                                "input_tokens": preflight,
+                                "exact": exact,
+                            },
+                            ensure_ascii=False,
+                        )
+                        + "\n"
+                    )
+            ensure_budget(
+                state,
+                next_input_tokens=preflight,
+                next_output_tokens=self.settings.openai_review_max_output_tokens,
+                max_input_tokens_per_call=self.settings.max_input_tokens_per_call,
+                max_job_input_tokens=self.settings.max_job_input_tokens,
+                max_job_cost_usd=self.settings.max_job_cost_usd,
+                max_model_calls_per_job=self.settings.max_model_calls_per_job,
+                model=policy.review_model,
+            )
+            request: dict[str, Any] = dict(
+                model=policy.review_model,
+                reasoning={"effort": policy.review_effort, "context": "current_turn"},
                 instructions=(
-                    "You are the independent final reviewer. You did not generate these documents. "
-                    "Apply the approved validation rules below and call submit_review exactly once.\n\n"
-                    + self.knowledge.load("validation")
+                    request_instructions
                 ),
                 tools=[REVIEW_TOOL],
-                input=[{"role": "user", "content": content}],
-                max_output_tokens=self.settings.openai_max_output_tokens,
+                input=request_input,
+                max_output_tokens=self.settings.openai_review_max_output_tokens,
+                max_tool_calls=1,
                 parallel_tool_calls=False,
                 store=False,
             )
+            if policy.review_model.startswith("gpt-5.6"):
+                request["prompt_cache_key"] = f"execdocs-review:{policy.review_model}:{self.knowledge.version()}"
+                request["prompt_cache_options"] = {"mode": "explicit", "ttl": "30m"}
+            response = client.responses.create(**request)
+            actual_model = getattr(response, "model", policy.review_model)
+            state.model_usage.append(
+                usage_record(
+                    stage="review",
+                    revision=state.revision,
+                    response_id=response.id,
+                    model=actual_model,
+                    usage=response.usage,
+                )
+            )
+            if self.persist_usage:
+                persisted = self.persist_usage(state)
+                if persisted is False:
+                    raise RuntimeError("Задание отменено после модельной проверки; дальнейшая обработка остановлена")
             if log_path:
                 with log_path.open("a", encoding="utf-8") as stream:
                     stream.write(
@@ -114,8 +207,10 @@ class IndependentReviewer:
                                 "event": "independent_review_response",
                                 "revision": state.revision,
                                 "response_id": response.id,
-                                "model": getattr(response, "model", self.settings.openai_model),
+                                "model": actual_model,
                                 "usage": response.usage.model_dump(mode="json") if response.usage else None,
+                                "estimated_revision_cost_usd": revision_estimated_cost(state),
+                                "estimated_job_cost_usd": job_estimated_cost(state),
                                 "output_types": [getattr(item, "type", "unknown") for item in response.output],
                             },
                             ensure_ascii=False,

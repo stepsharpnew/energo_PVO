@@ -77,6 +77,30 @@ class Repository:
                 (state.status, state.revision, state.model_dump_json(), state.updated_at, state.job_id),
             )
 
+    def save_progress(self, state: ProjectState) -> bool:
+        """Persist paid-call usage and never revive a concurrently cancelled job."""
+        with self._lock, self.connect() as conn:
+            row = conn.execute("SELECT status,state_json FROM jobs WHERE id=?", (state.job_id,)).fetchone()
+            if row is None:
+                return False
+            if row["status"] == JobStatus.CANCELLED:
+                cancelled = ProjectState.model_validate_json(row["state_json"])
+                by_response = {item.response_id: item for item in cancelled.model_usage}
+                by_response.update({item.response_id: item for item in state.model_usage})
+                cancelled.model_usage = list(by_response.values())
+                cancelled.touch()
+                conn.execute(
+                    "UPDATE jobs SET state_json=?, updated_at=? WHERE id=? AND status=?",
+                    (cancelled.model_dump_json(), cancelled.updated_at, state.job_id, JobStatus.CANCELLED),
+                )
+                return False
+            state.touch()
+            conn.execute(
+                "UPDATE jobs SET status=?, revision=?, state_json=?, updated_at=? WHERE id=?",
+                (state.status, state.revision, state.model_dump_json(), state.updated_at, state.job_id),
+            )
+            return True
+
     def get(self, job_id: str) -> ProjectState | None:
         with self.connect() as conn:
             row = conn.execute("SELECT state_json FROM jobs WHERE id=?", (job_id,)).fetchone()

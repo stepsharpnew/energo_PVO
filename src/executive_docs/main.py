@@ -49,10 +49,16 @@ def get_job_or_404(job_id: str) -> ProjectState:
 
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
+    default_policy = settings.policy(settings.processing_profile)
     return templates.TemplateResponse(
         request=request,
         name="index.html",
-        context={"jobs": repository.list(), "agent_mode": settings.agent_mode, "model": settings.openai_model},
+        context={
+            "jobs": repository.list(),
+            "agent_mode": settings.agent_mode,
+            "model": default_policy.analysis_model,
+            "processing_profile": default_policy.name,
+        },
     )
 
 
@@ -67,6 +73,7 @@ async def create_job(
     branch_id: str = Form(...),
     first_aosr_number: int = Form(...),
     operator_name: str = Form(...),
+    processing_profile: str = Form(settings.processing_profile),
     files: list[UploadFile] = File(...),
 ):
     if branch_id not in {"khimki", "solnechnogorsk"}:
@@ -75,6 +82,8 @@ async def create_job(
         raise HTTPException(status_code=422, detail="Первый номер должен быть положительным")
     if not operator_name.strip():
         raise HTTPException(status_code=422, detail="Укажите специалиста")
+    if processing_profile not in {"economy", "balanced", "quality"}:
+        raise HTTPException(status_code=422, detail="Неизвестный профиль расхода")
     if not files:
         raise HTTPException(status_code=422, detail="Добавьте исходные файлы")
     job_id = str(uuid.uuid4())
@@ -90,6 +99,7 @@ async def create_job(
             branch_id=branch_id,
             first_aosr_number=first_aosr_number,
             operator_name=operator_name.strip(),
+            processing_profile=processing_profile,
             status=JobStatus.FILES_UPLOADED,
             artifacts=artifacts,
         )

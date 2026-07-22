@@ -1,6 +1,7 @@
-version: 1
+version: 2
 topics:
   workflow: workflow.md
+  token_efficiency: token-efficiency.md
   source_priority: source-priority.md
   document_rules: document-rules.md
   semantic_fields: semantic-fields.md

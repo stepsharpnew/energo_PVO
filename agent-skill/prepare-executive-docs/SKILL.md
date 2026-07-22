@@ -12,16 +12,17 @@ Produce executive documentation, not a design project. In the pilot, support AOS
 ## Mandatory workflow
 
 1. Inventory every input by content, SHA-256, and stable file ID. Do not trust the filename alone.
-2. Load only the relevant approved references through `references/index.yaml`.
-3. Extract every usable fact as a claim with source kind, file ID, page or sheet/cell locator, evidence fragment, and status.
-4. Build the work register in technological order. Create exactly one AOSR for each work item; never combine separate works.
-5. Resolve facts by the source priorities in `source-priority.md`. Do not turn model confidence into evidence.
-6. If a critical value is missing, contradictory, ambiguous, or based only on a schedule, return one compact `NEEDS_INPUT` batch. Do not continue generation.
-7. Build a document plan only from observed, approved-rule-derived, or human-confirmed values.
-8. Assign AOSR numbers consecutively across the whole project, beginning with the number supplied by the operator. Preserve assigned numbers on a retry.
-9. Pass the semantic plan to the restricted workbook generator. Never edit arbitrary cells and never alter source files.
-10. Run technical, semantic, visual, and independent model review. Any error blocks finalization.
-11. Set `READY_FOR_REVIEW` only after all blocking checks pass. Only a specialist can set `APPROVED_FINAL`.
+2. Build or reuse the local SHA-256 source index. Never bulk-upload the full source package to a model.
+3. Load only the relevant approved references through `references/index.yaml`.
+4. Extract every usable fact as a claim with source kind, file ID, page or sheet/cell locator, evidence fragment, and status.
+5. Build the work register in technological order. Create exactly one AOSR for each work item; never combine separate works.
+6. Resolve facts by the source priorities in `source-priority.md`. Do not turn model confidence into evidence.
+7. If a critical value is missing, contradictory, ambiguous, or based only on a schedule, return one compact `NEEDS_INPUT` batch. Do not continue generation.
+8. Build a document plan only from observed, approved-rule-derived, or human-confirmed values.
+9. Assign AOSR numbers consecutively across the whole project, beginning with the number supplied by the operator. Preserve assigned numbers on a retry.
+10. Pass the semantic plan to the restricted workbook generator. Never edit arbitrary cells and never alter source files.
+11. Run technical, semantic, visual, and independent model review. Any error blocks finalization.
+12. Set `READY_FOR_REVIEW` only after all blocking checks pass. Only a specialist can set `APPROVED_FINAL`.
 
 ## Non-negotiable safeguards
 
@@ -34,6 +35,9 @@ Produce executive documentation, not a design project. In the pilot, support AOS
 - Use the branch explicitly selected by the operator; do not infer it solely from an address.
 - Never modify the approved knowledge base from a project correction. Create a proposal with project scope by default.
 - Never expose chain-of-thought. Store claims, tool calls, decisions, versions, and concise reasons.
+- Prefer local text and structure. Send only relevant pages or crops at low visual detail; escalate detail or model quality only for a named ambiguity.
+- Reuse extraction and saved claims for unchanged SHA-256 inputs after `NEEDS_INPUT`, retry, or revision.
+- A token or cost limit may pause the job, but it never permits dropping required evidence, validation, or provenance.
 
 ## NEEDS_INPUT
 
@@ -52,4 +56,4 @@ Trigger `NEEDS_INPUT` when:
 
 ## Reference routing
 
-Load `workflow` first. Then load only the topics needed for the current family, branch, validation stage, or correction. The index is authoritative for topic names. If the approved knowledge is insufficient, stop with `NEEDS_INPUT` and record the missing rule as a knowledge proposal; do not silently extend this skill during a production job.
+Load `workflow` and `token_efficiency` first. Then load only the topics needed for the current family, branch, validation stage, or correction. The index is authoritative for topic names. If the approved knowledge is insufficient, stop with `NEEDS_INPUT` and record the missing rule as a knowledge proposal; do not silently extend this skill during a production job.

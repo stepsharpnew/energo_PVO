@@ -25,8 +25,8 @@ class Pipeline:
         self.repository = repository
         self.storage = storage
         self.knowledge = KnowledgeBase(settings.skill_dir)
-        self.agent = make_agent(settings, self.knowledge)
-        self.reviewer = IndependentReviewer(settings, self.knowledge)
+        self.agent = make_agent(settings, self.knowledge, persist_usage=self.repository.save_progress)
+        self.reviewer = IndependentReviewer(settings, self.knowledge, persist_usage=self.repository.save_progress)
         self.excel = ExcelGenerator(settings.root, settings.contracts_dir, settings.approved_templates_dir)
         self.profiles = ProfileStore(settings.profiles_dir)
 
@@ -47,7 +47,12 @@ class Pipeline:
         try:
             state.status = JobStatus.ANALYZING
             state.error = None
-            state.model = self.settings.openai_model if self.settings.agent_mode == "openai" else "heuristic"
+            policy = self.settings.policy(state.processing_profile)
+            state.model = (
+                f"analysis={policy.analysis_model}; review={policy.review_model}"
+                if self.settings.agent_mode == "openai"
+                else "heuristic"
+            )
             state.skill_version = self.knowledge.skill_version()
             state.knowledge_version = self.knowledge.version()
             state.claims = [claim for claim in state.claims if claim.source_kind != "approved_profile"]
