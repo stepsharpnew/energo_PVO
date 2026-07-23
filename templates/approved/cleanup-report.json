@@ -1,0 +1,41 @@
+{
+  "purpose": "Technical cleanup only. Specialist visual/semantic approval is still required.",
+  "templates": [
+    {
+      "template_id": "aosr_kl",
+      "source": "template/9. АОСР КЛ.xlsx",
+      "output": "templates/approved/9. АОСР КЛ.xlsx",
+      "source_sha256": "0a9e8934639ab411350863346e9f2103371ae95f2a287c83f674b70ef2336acd",
+      "candidate_sha256": "68680d271a972ae24d4c13e2ca0957b640d75c887358df43a52b613a7f04709e",
+      "checks": {
+        "valid_zip": true,
+        "sheet_order_unchanged": true,
+        "print_configuration_unchanged": true,
+        "formula_errors_removed": true,
+        "external_links_removed": true,
+        "stale_tokens_removed": true
+      },
+      "errors": [],
+      "stale_tokens": [],
+      "status": "READY_FOR_VISUAL_APPROVAL"
+    },
+    {
+      "template_id": "aosr_vrs",
+      "source": "template/10. АОСР ВРЩ.xlsx",
+      "output": "templates/approved/10. АОСР ВРЩ.xlsx",
+      "source_sha256": "9f9d4fcf7fbf5383021da185f73ecd629de607f25c92639b74100b33a5a8df0a",
+      "candidate_sha256": "fed21228cbd3bbe49bc3c92d6b312a22c31f8c1ed6908df3de007e9fdffe9739",
+      "checks": {
+        "valid_zip": true,
+        "sheet_order_unchanged": true,
+        "print_configuration_unchanged": true,
+        "formula_errors_removed": true,
+        "external_links_removed": true,
+        "stale_tokens_removed": true
+      },
+      "errors": [],
+      "stale_tokens": [],
+      "status": "READY_FOR_VISUAL_APPROVAL"
+    }
+  ]
+}

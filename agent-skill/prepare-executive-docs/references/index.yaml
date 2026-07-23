@@ -1,4 +1,4 @@
-version: 2
+version: 3
 topics:
   workflow: workflow.md
   token_efficiency: token-efficiency.md
@@ -12,3 +12,4 @@ topics:
   customer_solnechnogorsk: customer-profiles.md
   validation: validation.md
   corrections: corrections.md
+  project2_findings: project2-findings.md

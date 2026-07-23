@@ -4,7 +4,7 @@ import openpyxl
 import pytest
 
 from executive_docs.domain import Claim, ClaimStatus, DocumentPlan, FieldValue, WorkItem
-from executive_docs.excel import ExcelGenerator, OOXMLWorkbook, sha256
+from executive_docs.excel import ExcelGenerator, OOXMLWorkbook, sha256, workbook_snapshot
 from executive_docs.validation import validate_workbook
 
 
@@ -91,3 +91,28 @@ def test_generator_rejects_field_value_without_matching_claim(tmp_path: Path) ->
     )
     with pytest.raises(ValueError, match="не подтверждено Claim"):
         generator(tmp_path).generate(plan, [item], [], tmp_path)
+
+
+@pytest.mark.parametrize(
+    ("source_name", "candidate_name"),
+    [
+        ("9. АОСР КЛ.xlsx", "9. АОСР КЛ.xlsx"),
+        ("10. АОСР ВРЩ.xlsx", "10. АОСР ВРЩ.xlsx"),
+    ],
+)
+def test_cleaned_template_candidates_preserve_structure_and_printing(
+    source_name: str, candidate_name: str
+) -> None:
+    baseline = workbook_snapshot(ROOT / "template" / source_name)
+    candidate = workbook_snapshot(ROOT / "templates" / "approved" / candidate_name)
+    assert [item["name"] for item in candidate["sheets"]] == [item["name"] for item in baseline["sheets"]]
+    assert [
+        (item["name"], item["print_area"], item["page_orientation"], item["paper_size"])
+        for item in candidate["sheets"]
+    ] == [
+        (item["name"], item["print_area"], item["page_orientation"], item["paper_size"])
+        for item in baseline["sheets"]
+    ]
+    assert candidate["external_links"] == 0
+    assert not candidate["defined_name_errors"]
+    assert not [error for item in candidate["sheets"] for error in item["errors"]]

@@ -1,7 +1,8 @@
 template_id: aosr_kl_04
 source_template: template/9. АОСР КЛ.xlsx
-version: 0.1-unqualified
+version: 0.2-cleaned-candidate
 approved: false
+candidate_sha256: 68680d271a972ae24d4c13e2ca0957b640d75c887358df43a52b613a7f04709e
 output_filename: АОСР КЛ-0,4кВ.xlsx
 allowed_sheets: [АОСР-3, АОСР-4]
 candidate_sheets: [АОСР-1, АОСР-2, АОСР-3, АОСР-4, АОСР-5, АОСР-6, АОСР-7]

@@ -1,7 +1,8 @@
 template_id: aosr_vrs
 source_template: template/10. АОСР ВРЩ.xlsx
-version: 0.1-unqualified
+version: 0.2-cleaned-candidate
 approved: false
+candidate_sha256: fed21228cbd3bbe49bc3c92d6b312a22c31f8c1ed6908df3de007e9fdffe9739
 output_filename: АОСР ВРЩ.xlsx
 allowed_sheets: [АОСР-1, АОСР-2, АОСР-3, АОСР-4, АОСР-5, АОСР-6]
 candidate_sheets: [АОСР-1, АОСР-2, АОСР-3, АОСР-4, АОСР-5, АОСР-6]

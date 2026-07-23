@@ -57,7 +57,8 @@ def main() -> int:
     destination.parent.mkdir(parents=True, exist_ok=True)
     if destination.exists() and sha256(destination) != sha256(clean_file):
         raise SystemExit(f"Approved file already exists with other content: {destination}")
-    shutil.copy2(clean_file, destination)
+    if clean_file != destination.resolve():
+        shutil.copy2(clean_file, destination)
     payload = yaml.safe_load(contract_path.read_text(encoding="utf-8"))
     payload.update(
         {

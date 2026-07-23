@@ -16,3 +16,5 @@ Choose evidence by value type, not by a universal document ranking.
 Do not use a planned work schedule as actual completion evidence. Do not substitute a project quantity for an actual quantity. When multiple scheme versions exist, require an unambiguous approval marker and version order. Preserve page, sheet/cell, or bounding-box provenance for every critical claim.
 
 A human answer is valid only when it includes the confirmer and is stored as `human_confirmed`. Derived values are valid only when they name an approved rule ID.
+
+A filled workbook from another project is never evidence for the current project's dates, quantities, route, material document, organization profile, signatory, or numbering scope. It may be used only as a regression example or as the basis of a separately reviewed knowledge proposal.

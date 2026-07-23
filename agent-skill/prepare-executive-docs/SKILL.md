@@ -38,6 +38,8 @@ Produce executive documentation, not a design project. In the pilot, support AOS
 - Prefer local text and structure. Send only relevant pages or crops at low visual detail; escalate detail or model quality only for a named ambiguity.
 - Reuse extraction and saved claims for unchanged SHA-256 inputs after `NEEDS_INPUT`, retry, or revision.
 - A token or cost limit may pause the job, but it never permits dropping required evidence, validation, or provenance.
+- Treat completed project workbooks as regression examples. Never copy their project facts, signatories, numbering scope, or defects into a new job unless an approved reference explicitly authorizes it.
+- A repeated work or route segment still creates a separate AOSR. If the approved template contract cannot represent another instance without reusing a sheet, stop with `NEEDS_INPUT`/unsupported-contract status rather than combining work or overwriting an earlier act.
 
 ## NEEDS_INPUT
 
@@ -56,4 +58,4 @@ Trigger `NEEDS_INPUT` when:
 
 ## Reference routing
 
-Load `workflow` and `token_efficiency` first. Then load only the topics needed for the current family, branch, validation stage, or correction. The index is authoritative for topic names. If the approved knowledge is insufficient, stop with `NEEDS_INPUT` and record the missing rule as a knowledge proposal; do not silently extend this skill during a production job.
+Load `workflow` and `token_efficiency` first. Load `project2_findings` only for corpus comparison, regression design, repeated-work handling, or numbering-scope analysis. Then load only the topics needed for the current family, branch, validation stage, or correction. The index is authoritative for topic names. If the approved knowledge is insufficient, stop with `NEEDS_INPUT` and record the missing rule as a knowledge proposal; do not silently extend this skill during a production job.

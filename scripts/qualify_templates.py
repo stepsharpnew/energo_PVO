@@ -34,6 +34,15 @@ def summarize(path: Path) -> dict:
         "formula_errors": [error for item in snapshot["sheets"] for error in item["errors"]] + snapshot["defined_name_errors"],
         "external_links": snapshot["external_links"],
         "defined_name_count": len(snapshot["defined_names"]),
+        "print_configuration": [
+            {
+                "sheet": item["name"],
+                "print_area": item["print_area"],
+                "orientation": item["page_orientation"],
+                "paper_size": item["paper_size"],
+            }
+            for item in snapshot["sheets"]
+        ],
     }
 
 
@@ -57,24 +66,35 @@ def main() -> int:
         source = ROOT / contract.source_template
         source_info = summarize(source)
         source_info["forbidden_tokens_found"] = find_tokens(source, contract.forbidden_tokens)
+        candidate = ROOT / "templates" / "approved" / source.name
+        candidate_info = summarize(candidate) if candidate.exists() else None
+        if candidate_info:
+            candidate_info["forbidden_tokens_found"] = find_tokens(candidate, contract.forbidden_tokens)
         golden = GOLDEN_CANDIDATES.get(contract.template_id)
         golden_info = summarize(golden) if golden and golden.exists() else None
+        active_info = candidate_info or source_info
         blockers = []
-        if source_info["formula_error_count"]:
+        if active_info["formula_error_count"]:
             blockers.append("FORMULA_ERRORS")
-        if source_info["external_links"]:
+        if active_info["external_links"]:
             blockers.append("EXTERNAL_LINKS")
-        if source_info["forbidden_tokens_found"]:
+        if active_info["forbidden_tokens_found"]:
             blockers.append("STALE_VALUES")
-        missing_sheets = sorted(set(contract.candidate_sheets) - set(source_info["sheet_names"]))
+        missing_sheets = sorted(set(contract.candidate_sheets) - set(active_info["sheet_names"]))
         if missing_sheets:
             blockers.append("MISSING_CONTRACT_SHEETS")
+        if candidate_info:
+            if source_info["sheet_names"] != candidate_info["sheet_names"]:
+                blockers.append("SHEET_ORDER_CHANGED")
+            if source_info["print_configuration"] != candidate_info["print_configuration"]:
+                blockers.append("PRINT_CONFIGURATION_CHANGED")
         entries.append(
             {
                 "template_id": contract.template_id,
                 "contract": contract_path.relative_to(ROOT).as_posix(),
                 "approved_in_contract": contract.approved,
                 "source": source_info,
+                "cleaned_candidate": candidate_info,
                 "filled_example": golden_info,
                 "missing_contract_sheets": missing_sheets,
                 "blockers": blockers,
