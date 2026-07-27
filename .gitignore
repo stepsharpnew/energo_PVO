@@ -4,6 +4,7 @@
 .DS_Store
 __pycache__/
 .pytest_cache/
+tmp/
 *.pyc
 data/app.db*
 data/runs/*

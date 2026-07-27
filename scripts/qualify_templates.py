@@ -112,7 +112,8 @@ def main() -> int:
         ],
         "templates": entries,
     }
-    destination = ROOT / "templates" / "qualification-report.json"
+    destination = ROOT / "data" / "runs" / "template-maintenance" / "qualification-report.json"
+    destination.parent.mkdir(parents=True, exist_ok=True)
     destination.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
     blockers_exist = any(item["blockers"] for item in entries)
     print(f"Qualification report: {destination}")

@@ -145,7 +145,8 @@ def main() -> int:
         "purpose": "Technical cleanup only. Specialist visual/semantic approval is still required.",
         "templates": results,
     }
-    destination = ROOT / "templates" / "approved" / "cleanup-report.json"
+    destination = ROOT / "data" / "runs" / "template-maintenance" / "cleanup-report.json"
+    destination.parent.mkdir(parents=True, exist_ok=True)
     destination.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps(report, ensure_ascii=False, indent=2))
     return 0 if all(item["status"] == "READY_FOR_VISUAL_APPROVAL" for item in results) else 1
