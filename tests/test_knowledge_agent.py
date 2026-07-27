@@ -214,6 +214,90 @@ def test_openai_agent_stops_before_paid_call_when_preflight_exceeds_budget(tmp_p
         OpenAIAgent(settings, KnowledgeBase(settings.skill_dir)).analyze(state, tmp_path)
 
 
+def test_openai_agent_compacts_local_evidence_before_paid_call(tmp_path: Path, monkeypatch) -> None:
+    artifacts = [
+        make_text_artifact(tmp_path, f"source-{number}.txt", f"Источник {number} " + "данные " * 1_200)
+        for number in range(5)
+    ]
+    state = ProjectState(
+        job_id="12121212-1212-1212-1212-121212121212",
+        branch_id="khimki",
+        first_aosr_number=1,
+        operator_name="Специалист",
+        artifacts=artifacts,
+    )
+    evidence_sizes: list[int] = []
+    arguments = {
+        "status": "NEEDS_INPUT",
+        "summary": "Нужны сведения",
+        "claims": [],
+        "work_items": [],
+        "document_plans": [],
+        "questions": [
+            {
+                "id": "q-date",
+                "field_key": "actual.start",
+                "prompt": "Дата?",
+                "reason": "Нет источника",
+            }
+        ],
+    }
+
+    class FakeCounter:
+        def count(self, **kwargs):
+            dynamic_input = json.loads(kwargs["input"][0]["content"][1]["text"])
+            evidence_chars = sum(len(item["text"]) for item in dynamic_input["selected_local_evidence"])
+            evidence_sizes.append(evidence_chars)
+            return SimpleNamespace(input_tokens=120 if evidence_chars > 15_000 else 80)
+
+    class FakeResponses:
+        input_tokens = FakeCounter()
+
+        def create(self, **kwargs):
+            dynamic_input = json.loads(kwargs["input"][0]["content"][1]["text"])
+            assert sum(len(item["text"]) for item in dynamic_input["selected_local_evidence"]) <= 15_000
+            return SimpleNamespace(
+                id="resp_compacted",
+                model="gpt-5.6-terra",
+                usage=SimpleNamespace(model_dump=lambda **_: {"input_tokens": 80, "output_tokens": 5}),
+                output=[
+                    SimpleNamespace(
+                        type="function_call",
+                        name="submit_analysis",
+                        arguments=json.dumps(arguments, ensure_ascii=False),
+                        call_id="call_compacted",
+                    )
+                ],
+            )
+
+    class FakeClient:
+        def __init__(self, **kwargs):
+            self.responses = FakeResponses()
+            self.files = SimpleNamespace(delete=lambda _: None)
+
+    monkeypatch.setattr("executive_docs.agent.OpenAI", FakeClient)
+    settings = Settings(
+        root=ROOT,
+        skill_dir=ROOT / "agent-skill" / "prepare-executive-docs",
+        openai_api_key="test-key",
+        openai_analysis_model="gpt-5.6-terra",
+        exact_token_preflight=True,
+        max_input_tokens_per_call=100,
+        max_job_cost_usd=0,
+    )
+
+    result = OpenAIAgent(settings, KnowledgeBase(settings.skill_dir)).analyze(state, tmp_path)
+
+    assert result.status == "NEEDS_INPUT"
+    assert evidence_sizes[0] > 15_000
+    assert evidence_sizes[-1] <= 15_000
+    events = [
+        json.loads(line)
+        for line in (tmp_path / "state" / "agent-events.jsonl").read_text(encoding="utf-8").splitlines()
+    ]
+    assert any(event["event"] == "context_compacted" for event in events)
+
+
 def test_openai_agent_fails_closed_when_exact_preflight_errors(tmp_path: Path, monkeypatch) -> None:
     artifact = make_text_artifact(tmp_path, "project.txt", "Рабочий проект")
     state = ProjectState(

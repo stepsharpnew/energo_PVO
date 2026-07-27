@@ -353,56 +353,44 @@ class OpenAIAgent:
         state_dir = job_root / "state"
         state_dir.mkdir(parents=True, exist_ok=True)
         attempt = len(list(state_dir.glob(f"context-selection-r{state.revision}-a*.json"))) + 1
-        (state_dir / f"context-selection-r{state.revision}-a{attempt}.json").write_text(
-            json.dumps(
-                {
-                    "processing_profile": policy.name,
-                    "resume_mode": resume_mode,
-                    "local_evidence": [
-                        {
-                            "file_id": item["file_id"],
-                            "locator": item["locator"],
-                            "category": item["category"],
-                            "scope_hint": item["scope_hint"],
-                            "chars": len(item["text"]),
-                            "visual_required": item["visual_required"],
-                        }
-                        for item in compact_evidence
-                    ],
-                    "visual_evidence": visual_audit,
-                },
-                ensure_ascii=False,
-                indent=2,
-            ),
-            encoding="utf-8",
-        )
         submitted: AnalysisResult | None = None
         started_at = time.monotonic()
-        self._log(
-            job_root,
-            {
-                "event": "analysis_started",
-                "revision": state.revision,
-                "model": policy.analysis_model,
-                "reasoning_effort": policy.analysis_effort,
-                "artifact_ids": [item.id for item in state.artifacts],
-                "processing_profile": policy.name,
-                "resume_mode": resume_mode,
-                "selected_visual_evidence": visual_audit,
-                "local_evidence_chars": sum(len(item["text"]) for item in compact_evidence),
-            },
-        )
         source_chars_used = 0
         seen_reads: set[str] = set()
+        request_instructions = (
+            "You are a bounded executive-documentation analyzer. Use the static approved context in the first input block. "
+            "Call submit_analysis exactly once when the evidence is sufficient or blockers are known."
+        )
         try:
-            for _ in range(policy.max_agent_steps):
-                if time.monotonic() - started_at > self.settings.max_agent_seconds:
-                    raise RuntimeError("Превышен лимит времени агента")
-                request_instructions = (
-                    "You are a bounded executive-documentation analyzer. Use the static approved context in the first input block. "
-                    "Call submit_analysis exactly once when the evidence is sufficient or blockers are known."
-                )
-                preflight = self._preflight_tokens(
+            initial_preflight = self._preflight_tokens(
+                client,
+                model=policy.analysis_model,
+                instructions=request_instructions,
+                history=history,
+                reasoning_effort=policy.analysis_effort,
+                job_root=job_root,
+                revision=state.revision,
+            )
+            evidence_limit = min(
+                evidence_chars,
+                sum(len(item["text"]) + 180 for item in compact_evidence),
+            )
+            for _ in range(6):
+                if initial_preflight <= self.settings.max_input_tokens_per_call or not compact_evidence:
+                    break
+                previous_evidence = compact_evidence
+                overflow = initial_preflight - self.settings.max_input_tokens_per_call
+                next_limit = max(8_000, evidence_limit - max(5_000, overflow * 4))
+                if next_limit >= evidence_limit:
+                    break
+                compact_evidence = build_compact_evidence(job_root, state.artifacts, next_limit)
+                if compact_evidence == previous_evidence:
+                    break
+                evidence_limit = next_limit
+                prompt["selected_local_evidence"] = compact_evidence
+                user_content[1]["text"] = json.dumps(prompt, ensure_ascii=False)
+                previous_preflight = initial_preflight
+                initial_preflight = self._preflight_tokens(
                     client,
                     model=policy.analysis_model,
                     instructions=request_instructions,
@@ -411,6 +399,71 @@ class OpenAIAgent:
                     job_root=job_root,
                     revision=state.revision,
                 )
+                self._log(
+                    job_root,
+                    {
+                        "event": "context_compacted",
+                        "revision": state.revision,
+                        "input_tokens_before": previous_preflight,
+                        "input_tokens_after": initial_preflight,
+                        "local_evidence_char_limit": evidence_limit,
+                        "local_evidence_chars": sum(len(item["text"]) for item in compact_evidence),
+                    },
+                )
+
+            (state_dir / f"context-selection-r{state.revision}-a{attempt}.json").write_text(
+                json.dumps(
+                    {
+                        "processing_profile": policy.name,
+                        "resume_mode": resume_mode,
+                        "input_tokens": initial_preflight,
+                        "local_evidence": [
+                            {
+                                "file_id": item["file_id"],
+                                "locator": item["locator"],
+                                "category": item["category"],
+                                "scope_hint": item["scope_hint"],
+                                "chars": len(item["text"]),
+                                "visual_required": item["visual_required"],
+                            }
+                            for item in compact_evidence
+                        ],
+                        "visual_evidence": visual_audit,
+                    },
+                    ensure_ascii=False,
+                    indent=2,
+                ),
+                encoding="utf-8",
+            )
+            self._log(
+                job_root,
+                {
+                    "event": "analysis_started",
+                    "revision": state.revision,
+                    "model": policy.analysis_model,
+                    "reasoning_effort": policy.analysis_effort,
+                    "artifact_ids": [item.id for item in state.artifacts],
+                    "processing_profile": policy.name,
+                    "resume_mode": resume_mode,
+                    "selected_visual_evidence": visual_audit,
+                    "local_evidence_chars": sum(len(item["text"]) for item in compact_evidence),
+                    "input_tokens": initial_preflight,
+                },
+            )
+            for step in range(policy.max_agent_steps):
+                if time.monotonic() - started_at > self.settings.max_agent_seconds:
+                    raise RuntimeError("Превышен лимит времени агента")
+                preflight = initial_preflight
+                if step:
+                    preflight = self._preflight_tokens(
+                        client,
+                        model=policy.analysis_model,
+                        instructions=request_instructions,
+                        history=history,
+                        reasoning_effort=policy.analysis_effort,
+                        job_root=job_root,
+                        revision=state.revision,
+                    )
                 ensure_budget(
                     state,
                     next_input_tokens=preflight,
