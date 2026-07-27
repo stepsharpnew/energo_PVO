@@ -16,6 +16,10 @@ def test_public_text_removes_hashes_uuids_and_internal_file_ids() -> None:
     assert "47da8fb4" not in result
     assert "0da9de67" not in result
     assert "загруженный файл" in result
+    assert (
+        public_text("Ответы не являются допустимым human_confirmed evidence.")
+        == "Ответы не являются подтверждёнными сведениями."
+    )
 
 
 def test_public_state_hides_internal_template_questions() -> None:
@@ -56,6 +60,7 @@ def test_public_state_hides_internal_template_questions() -> None:
     assert state.job_id not in public_payload(state).values()
     assert "sha256" not in public_payload(state)["artifacts"][0]
     assert "stored_name" not in public_payload(state)["artifacts"][0]
+    assert "id" not in public_payload(state)["artifacts"][0]
 
 
 def test_optional_answers_accept_text_or_yes_no_and_reject_delegation() -> None:

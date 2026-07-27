@@ -25,6 +25,12 @@ def public_text(value: str | None) -> str:
     text = FILE_ID_REFERENCE.sub("загруженный файл", text)
     text = re.sub(r"\s+и\s+контракт(?:ы)?\s+шаблонов", "", text, flags=re.IGNORECASE)
     text = re.sub(
+        r"не\s+являются\s+допустимым\s+human_confirmed\s+evidence",
+        "не являются подтверждёнными сведениями",
+        text,
+        flags=re.IGNORECASE,
+    )
+    text = re.sub(
         r"\bhuman_confirmed\s+evidence\b",
         "подтверждёнными сведениями",
         text,
@@ -62,6 +68,7 @@ def public_payload(state: ProjectState) -> dict:
     payload = public_state(state).model_dump(mode="json")
     payload["job_id"] = state.public_ref
     for artifact in payload["artifacts"]:
+        artifact.pop("id", None)
         artifact.pop("sha256", None)
         artifact.pop("stored_name", None)
     return payload
