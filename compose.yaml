@@ -1,0 +1,24 @@
+name: energo-pvo
+
+services:
+  app:
+    build:
+      context: .
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "${APP_HOST:-127.0.0.1}:${APP_PORT:-8000}:8000"
+    volumes:
+      - ./data:/app/data
+      - ./templates/approved:/app/templates/approved:ro
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/', timeout=5)"
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s

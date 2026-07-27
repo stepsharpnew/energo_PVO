@@ -1,0 +1,157 @@
+name: CI/CD
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up uv and Python
+        uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990 # v8.3.2
+        with:
+          python-version: "3.12"
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - name: Prepare deterministic template test fixtures
+        run: uv run --frozen --extra dev python scripts/clean_pilot_templates.py > /dev/null
+
+      - name: Run tests
+        run: uv run --frozen --extra dev pytest
+
+  deploy:
+    name: Deploy production
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: production
+    concurrency:
+      group: production
+      cancel-in-progress: false
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Deploy over SSH
+        env:
+          DOTENV: ${{ secrets.DOTENV }}
+          SSH_PRIVATE: ${{ secrets.SSH_PRIVATE }}
+        run: |
+          set -Eeuo pipefail
+
+          if [[ -z "${DOTENV:-}" || -z "${SSH_PRIVATE:-}" ]]; then
+            echo "::error::Repository secrets DOTENV and SSH_PRIVATE must be configured."
+            exit 1
+          fi
+
+          umask 077
+          deploy_env="${RUNNER_TEMP}/deploy.env"
+          private_key="${RUNNER_TEMP}/deploy_key"
+          known_hosts="${RUNNER_TEMP}/known_hosts"
+          release="${RUNNER_TEMP}/energo-pvo-${GITHUB_SHA}.tar.gz"
+
+          printf '%s\n' "$DOTENV" | tr -d '\r' > "$deploy_env"
+          printf '%s\n' "$SSH_PRIVATE" | tr -d '\r' > "$private_key"
+
+          read_dotenv_value() {
+            local key="$1"
+            awk -v key="$key" '
+              index($0, key "=") == 1 {
+                value = substr($0, length(key) + 2)
+              }
+              END {
+                gsub(/^["'"'"']|["'"'"']$/, "", value)
+                print value
+              }
+            ' "$deploy_env"
+          }
+
+          ssh_user="$(read_dotenv_value SSH_USER)"
+          server_ip="$(read_dotenv_value SERVER_IP)"
+
+          if [[ ! "$ssh_user" =~ ^[A-Za-z_][A-Za-z0-9_-]*$ ]]; then
+            echo "::error::DOTENV contains an empty or invalid SSH_USER."
+            exit 1
+          fi
+          if [[ ! "$server_ip" =~ ^[A-Za-z0-9.-]+$ ]]; then
+            echo "::error::DOTENV contains an empty or invalid SERVER_IP."
+            exit 1
+          fi
+          if ! grep -Eq '^-----BEGIN ([A-Z0-9]+ )?PRIVATE KEY-----$' "$private_key"; then
+            echo "::error::SSH_PRIVATE does not contain a valid private key."
+            exit 1
+          fi
+
+          ssh-keyscan -T 10 -H "$server_ip" > "$known_hosts" 2>/dev/null
+          if [[ ! -s "$known_hosts" ]]; then
+            echo "::error::Could not obtain the SSH host key."
+            exit 1
+          fi
+
+          git archive --format=tar.gz --output="$release" "$GITHUB_SHA"
+
+          ssh_options=(
+            -i "$private_key"
+            -o BatchMode=yes
+            -o IdentitiesOnly=yes
+            -o StrictHostKeyChecking=yes
+            -o UserKnownHostsFile="$known_hosts"
+          )
+
+          scp "${ssh_options[@]}" \
+            "$release" \
+            "${ssh_user}@${server_ip}:energo-pvo-${GITHUB_SHA}.tar.gz"
+          scp "${ssh_options[@]}" \
+            "$deploy_env" \
+            "${ssh_user}@${server_ip}:energo-pvo-${GITHUB_SHA}.env"
+
+          ssh "${ssh_options[@]}" "${ssh_user}@${server_ip}" \
+            bash -s -- "$GITHUB_SHA" <<'REMOTE'
+          set -Eeuo pipefail
+
+          revision="$1"
+          release="${HOME}/energo-pvo-${revision}.tar.gz"
+          deploy_env="${HOME}/energo-pvo-${revision}.env"
+          deploy_dir="${HOME}/energo_PVO"
+
+          cleanup() {
+            rm -f "$release" "$deploy_env"
+          }
+          trap cleanup EXIT
+
+          command -v docker >/dev/null
+          docker compose version >/dev/null
+
+          mkdir -p \
+            "$deploy_dir" \
+            "$deploy_dir/data/runs" \
+            "$deploy_dir/templates/approved"
+          tar -xzf "$release" -C "$deploy_dir"
+          install -m 600 "$deploy_env" "$deploy_dir/.env"
+
+          cd "$deploy_dir"
+          docker compose config --quiet
+          docker compose build
+          docker compose up \
+            --detach \
+            --remove-orphans \
+            --wait \
+            --wait-timeout 180
+          docker compose ps
+          REMOTE
