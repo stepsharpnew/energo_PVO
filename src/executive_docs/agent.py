@@ -620,6 +620,23 @@ class OpenAIAgent:
                 history.extend(response.output)
                 calls = [item for item in response.output if getattr(item, "type", None) == "function_call"]
                 if not calls:
+                    if state.draft_excel_requested:
+                        history.append(
+                            {
+                                "role": "user",
+                                "content": [
+                                    {
+                                        "type": "input_text",
+                                        "text": (
+                                            "Your previous response did not call submit_analysis. "
+                                            "Correct the rejected draft plan and call submit_analysis now. "
+                                            "Keep status NEEDS_INPUT and do not invent missing facts."
+                                        ),
+                                    }
+                                ],
+                            }
+                        )
+                        continue
                     raise RuntimeError("Модель завершила ответ без submit_analysis")
                 for call in calls:
                     args = json.loads(call.arguments or "{}")
