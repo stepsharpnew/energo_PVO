@@ -1,7 +1,14 @@
 import asyncio
 from pathlib import Path
 
-from executive_docs.domain import AnswerPayload, AnswersRequest, JobStatus, NeedInputQuestion, ProjectState
+from executive_docs.domain import (
+    AnswerPayload,
+    AnswersRequest,
+    DocumentPlan,
+    JobStatus,
+    NeedInputQuestion,
+    ProjectState,
+)
 from executive_docs.main import answer_questions, download_draft_excel, request_draft_excel
 
 
@@ -130,6 +137,16 @@ def test_existing_warning_screen_can_request_draft_excel(monkeypatch) -> None:
         operator_name="Специалист",
         status=JobStatus.NEEDS_INPUT,
         draft_report_ready=True,
+        draft_excel_error="Предыдущий план не прошёл проверку",
+        document_plans=[
+            DocumentPlan(
+                template_id="aosr_kl_04",
+                selected_sheets=["АОСР-3"],
+                work_item_ids=["stale-work"],
+                first_number=1,
+                output_filename="АОСР КЛ-0,4кВ.xlsx",
+            )
+        ],
     )
     repository = RecordingRepository(state)
     queue = RecordingQueue()
@@ -141,6 +158,7 @@ def test_existing_warning_screen_can_request_draft_excel(monkeypatch) -> None:
     assert result["status"] == JobStatus.FILES_UPLOADED
     assert repository.state.draft_excel_requested is True
     assert repository.state.draft_report_ready is False
+    assert repository.state.document_plans == []
     assert queue.enqueued == [state.job_id]
 
 

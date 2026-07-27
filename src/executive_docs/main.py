@@ -253,6 +253,10 @@ async def request_draft_excel(job_id: str):
     state = get_job_or_404(job_id)
     if state.status != JobStatus.NEEDS_INPUT:
         raise HTTPException(status_code=409, detail="Черновой Excel доступен после анализа предупреждений")
+    if state.draft_excel_error:
+        # A failed draft may contain a stale or model-invalid plan. Force the
+        # bounded analyzer to rebuild it under the current contract checks.
+        state.document_plans = []
     state.status = JobStatus.FILES_UPLOADED
     state.draft_report_ready = False
     state.draft_excel_requested = True
