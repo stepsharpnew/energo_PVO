@@ -4,6 +4,7 @@ import asyncio
 import hashlib
 import json
 import shutil
+from datetime import datetime, timezone
 from pathlib import Path
 
 from .agent import make_agent
@@ -40,14 +41,88 @@ class Pipeline:
         state.summary = str(exc)
         self.repository.save(state)
 
+    def _generate_draft_excel(self, state: ProjectState, root: Path) -> list[str]:
+        if not state.document_plans:
+            raise RuntimeError(
+                "Не удалось определить состав Excel-листов. Нужен повторный анализ состава работ."
+            )
+        stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
+        draft_dir = root / "output" / "drafts" / f"r{state.revision}-{stamp}" / "xlsx"
+        draft_dir.mkdir(parents=True, exist_ok=False)
+        draft_claims = [*state.claims, *state.answered_claims()]
+        answer_map = {
+            question.field_key: question.answer
+            for question in state.questions
+            if question.answer
+        }
+        draft_items = []
+        for item in state.work_items:
+            updates = {}
+            if answer_map.get("actual.start"):
+                updates["actual_start"] = answer_map["actual.start"]
+            if answer_map.get("actual.end"):
+                updates["actual_end"] = answer_map["actual.end"]
+            if answer_map.get("changes.state") in {"YES", "NO"}:
+                updates["change_state"] = answer_map["changes.state"]
+            draft_items.append(item.model_copy(update=updates))
+        files: list[str] = []
+        for plan in state.document_plans:
+            output, contract = self.excel.generate_draft(
+                plan,
+                draft_items,
+                draft_claims,
+                state.questions,
+                draft_dir,
+            )
+            issues = validate_workbook(
+                output,
+                self.excel.template_path(contract),
+                contract,
+                plan,
+                draft_claims,
+            )
+            errors = [issue for issue in issues if issue.severity == "error"]
+            if errors:
+                details = "; ".join(issue.message for issue in errors[:3])
+                raise RuntimeError(f"Черновой Excel не прошёл техническую проверку: {details}")
+            files.append(output.relative_to(root).as_posix())
+        return files
+
     def process(self, job_id: str) -> None:
         state = self.repository.get(job_id)
         if not state or state.status in {JobStatus.CANCELLED, JobStatus.APPROVED_FINAL}:
             return
         root = self.storage.job_dir(job_id)
+        if state.draft_excel_requested and state.document_plans:
+            state.status = JobStatus.GENERATING
+            state.draft_report_ready = False
+            state.draft_excel_error = None
+            state.summary = "Заполняем Excel-файлы и наносим предупреждения."
+            self.repository.save(state)
+            try:
+                state.draft_excel_files = self._generate_draft_excel(state, root)
+                state.draft_excel_error = None
+                state.summary = (
+                    f"Сформировано Excel-файлов: {len(state.draft_excel_files)}. "
+                    f"Предупреждений: {len([q for q in state.questions if not q.answer])}. "
+                    "Пропуски отмечены непосредственно в книгах."
+                )
+            except Exception as exc:
+                state.draft_excel_files = []
+                state.draft_excel_error = str(exc)
+                state.summary = f"Не удалось сформировать черновой Excel: {exc}"
+            finally:
+                state.status = JobStatus.NEEDS_INPUT
+                state.draft_excel_requested = False
+                state.draft_report_ready = True
+                self.repository.save(state)
+                write_report(state, root)
+            return
         try:
             state.status = JobStatus.ANALYZING
             state.draft_report_ready = False
+            if state.draft_excel_requested:
+                state.draft_excel_error = None
             state.error = None
             policy = self.settings.policy(state.processing_profile)
             state.model = (
@@ -80,6 +155,22 @@ class Pipeline:
             state.summary = analysis.summary
             if analysis.status == "NEEDS_INPUT":
                 state.status = JobStatus.NEEDS_INPUT
+                if state.draft_excel_requested:
+                    try:
+                        state.draft_excel_files = self._generate_draft_excel(state, root)
+                        state.draft_excel_error = None
+                        state.summary = (
+                            f"Сформировано Excel-файлов: {len(state.draft_excel_files)}. "
+                            f"Предупреждений: {len(state.questions)}. "
+                            "Пропуски отмечены непосредственно в книгах."
+                        )
+                    except Exception as exc:
+                        state.draft_excel_files = []
+                        state.draft_excel_error = str(exc)
+                        state.summary = f"Не удалось сформировать черновой Excel: {exc}"
+                    finally:
+                        state.draft_excel_requested = False
+                        state.draft_report_ready = True
                 self.repository.save(state)
                 write_report(state, root)
                 return

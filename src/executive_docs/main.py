@@ -15,7 +15,7 @@ from .config import settings
 from .domain import AnswersRequest, CorrectionReviewRequest, JobStatus, ProjectState, ReviewRequest
 from .packaging import build_result_zip, write_report
 from .pipeline import JobQueue, Pipeline
-from .presentation import public_draft_report_html, public_payload, public_state
+from .presentation import public_payload, public_state
 from .questions import is_internal_question, normalized_answer
 from .repository import Repository
 from .storage import Storage, is_selected_filename
@@ -212,16 +212,22 @@ async def answer_questions(job_id: str, payload: AnswersRequest):
     unanswered = [item for item in state.questions if item.required and not item.answer]
     if unanswered:
         answered = sum(bool(item.answer) for item in state.questions)
-        state.draft_report_ready = True
+        state.draft_report_ready = False
+        state.draft_excel_requested = True
+        state.draft_excel_files = []
+        state.draft_excel_error = None
+        state.status = JobStatus.FILES_UPLOADED
         state.summary = (
-            f"Черновой отчёт готов. Заполнено полей: {answered}. "
-            f"Замечаний к отчёту: {len(unanswered)}. "
-            "Пропуски не заполнены автоматически; финальный выпуск доступен после их уточнения."
+            f"Ответы приняты: {answered}. Пропусков: {len(unanswered)}. "
+            "Формируем заполненные Excel-файлы с предупреждениями."
         )
         repository.save(state)
-        write_report(state, storage.job_dir(state.job_id))
+        await queue.enqueue(state.job_id)
         return public_payload(state)
     state.draft_report_ready = False
+    state.draft_excel_requested = False
+    state.draft_excel_files = []
+    state.draft_excel_error = None
     state.status = JobStatus.FILES_UPLOADED
     state.summary = "Подтверждённые ответы приняты. Продолжаем анализ."
     repository.save(state)
@@ -241,16 +247,40 @@ async def preview(job_id: str):
     return {"files": files}
 
 
-@app.get("/api/kits/{job_id}/draft-report", response_class=HTMLResponse)
-@app.get("/api/jobs/{job_id}/draft-report", response_class=HTMLResponse)
-async def draft_report(job_id: str, download: bool = False):
+@app.post("/api/kits/{job_id}/draft-excel")
+@app.post("/api/jobs/{job_id}/draft-excel")
+async def request_draft_excel(job_id: str):
     state = get_job_or_404(job_id)
-    if state.status != JobStatus.NEEDS_INPUT or not state.draft_report_ready:
-        raise HTTPException(status_code=409, detail="Черновой отчёт ещё не сформирован")
-    headers = {"Cache-Control": "no-store"}
-    if download:
-        headers["Content-Disposition"] = 'attachment; filename="draft-report-with-warnings.html"'
-    return HTMLResponse(content=public_draft_report_html(state), headers=headers)
+    if state.status != JobStatus.NEEDS_INPUT:
+        raise HTTPException(status_code=409, detail="Черновой Excel доступен после анализа предупреждений")
+    state.status = JobStatus.FILES_UPLOADED
+    state.draft_report_ready = False
+    state.draft_excel_requested = True
+    state.draft_excel_files = []
+    state.draft_excel_error = None
+    state.summary = "Формируем заполненные Excel-файлы с предупреждениями."
+    repository.save(state)
+    await queue.enqueue(state.job_id)
+    return public_payload(state)
+
+
+@app.get("/api/kits/{job_id}/draft-excel/{file_index}")
+@app.get("/api/jobs/{job_id}/draft-excel/{file_index}")
+async def download_draft_excel(job_id: str, file_index: int):
+    state = get_job_or_404(job_id)
+    if not state.draft_report_ready or not state.draft_excel_files:
+        raise HTTPException(status_code=409, detail="Черновые Excel-файлы ещё не сформированы")
+    if file_index < 0 or file_index >= len(state.draft_excel_files):
+        raise HTTPException(status_code=404, detail="Excel-файл не найден")
+    root = storage.job_dir(state.job_id).resolve()
+    path = (root / state.draft_excel_files[file_index]).resolve()
+    if root not in path.parents or not path.is_file() or path.suffix.lower() != ".xlsx":
+        raise HTTPException(status_code=404, detail="Excel-файл не найден")
+    return FileResponse(
+        path,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        filename=path.name,
+    )
 
 
 @app.get("/api/kits/{job_id}/files/{relative_path:path}")

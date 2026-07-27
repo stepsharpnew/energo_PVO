@@ -330,6 +330,12 @@ class OpenAIAgent:
                 "Do not invent dates, measurements, quality documents, signatories, or approval status.",
                 "Use the project for design intent, execution schemes for confirmed deviations, builder facts for actual dates/volumes, and passports/certificates for materials.",
                 "If any critical fact is missing or conflicting, submit NEEDS_INPUT with a compact batch of questions.",
+                (
+                    "For NEEDS_INPUT, still return every supported work_item and document_plan whose composition "
+                    "and sheet mapping are established by evidence. Leave unconfirmed actual dates, quantities, "
+                    "quality documents, signatories, and change state empty/UNKNOWN; never copy design quantities "
+                    "into actual fields. Omit a plan only when its composition or work-to-sheet mapping is itself unresolved."
+                ),
                 "Questions shown to an operator may request only a text value or a YES/NO choice. Do not request a file upload in a question; if an approved execution scheme is required, ask for YES/NO on deviations and its identifier as text.",
                 "Do not ask the operator to approve or describe template contracts, internal template IDs, sheet mappings, hashes, UUIDs, or file IDs. Those are application responsibilities.",
                 "Never include SHA-256 values, UUIDs, internal file IDs, or internal template IDs in the user-facing summary, question prompt, or question reason. Refer to sources by a short human-readable filename or document type.",
@@ -622,8 +628,6 @@ class HeuristicAgent:
         claims = state.answered_claims()
         if project_pdf:
             claims.append(Claim(key="project.source", raw_value=project_pdf.original_name, normalized_value=project_pdf.original_name, source_kind="project", source_file_id=project_pdf.id, locator="file", evidence_fragment="Основной рабочий проект", status=ClaimStatus.OBSERVED))
-        if questions:
-            return AnalysisResult(status="NEEDS_INPUT", summary="Офлайн-проверка обнаружила блокирующие отсутствующие факты.", claims=claims, questions=questions)
         schemes = state.artifacts
         families: list[tuple[str, list[str], str, list[str]]] = []
         if any("кл 6" in a.original_name.lower() for a in schemes):
@@ -635,9 +639,25 @@ class HeuristicAgent:
         work_items: list[WorkItem] = []
         plans: list[DocumentPlan] = []
         number = state.first_aosr_number
-        change_answer = answer_map["changes.state"].strip().lower()
-        change_state = ChangeState.YES if change_answer in {"да", "yes", "true", "1"} else ChangeState.NO
-        evidence_keys = ["actual.start", "actual.end", "materials.quality_documents", "changes.state", "customer.profile_confirmation"]
+        change_answer = answer_map.get("changes.state", "").strip().lower()
+        change_state = (
+            ChangeState.YES
+            if change_answer in {"да", "yes", "true", "1"}
+            else ChangeState.NO
+            if change_answer in {"нет", "no", "false", "0"}
+            else ChangeState.UNKNOWN
+        )
+        evidence_keys = [
+            key
+            for key in (
+                "actual.start",
+                "actual.end",
+                "materials.quality_documents",
+                "changes.state",
+                "customer.profile_confirmation",
+            )
+            if key in answer_map
+        ]
         for family, works, template_id, sheets in families:
             scheme = next(
                 (
@@ -662,9 +682,14 @@ class HeuristicAgent:
                         family=family,
                         work_type=work,
                         sequence_index=len(work_items) + 1,
-                        actual_start=answer_map["actual.start"],
-                        actual_end=answer_map["actual.end"],
-                        materials=[Material(name="Материалы по акту", quality_document=answer_map["materials.quality_documents"])],
+                        actual_start=answer_map.get("actual.start"),
+                        actual_end=answer_map.get("actual.end"),
+                        materials=[
+                            Material(
+                                name="Материалы по акту",
+                                quality_document=answer_map.get("materials.quality_documents"),
+                            )
+                        ],
                         change_state=change_state,
                         execution_scheme_id=scheme.id if change_state == ChangeState.YES and scheme else None,
                         source_claim_keys=evidence_keys,
@@ -682,6 +707,15 @@ class HeuristicAgent:
                 )
             )
             number += len(sheets)
+        if questions:
+            return AnalysisResult(
+                status="NEEDS_INPUT",
+                summary="Офлайн-проверка обнаружила блокирующие отсутствующие факты.",
+                claims=claims,
+                work_items=work_items,
+                document_plans=plans,
+                questions=questions,
+            )
         return AnalysisResult(status="READY", summary="Офлайн smoke-test сформировал пилотный план; значения должны быть проверены моделью.", claims=claims, work_items=work_items, document_plans=plans)
 
 

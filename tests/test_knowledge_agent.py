@@ -56,6 +56,8 @@ def test_heuristic_agent_requires_human_facts_then_builds_stable_plan(tmp_path: 
         "changes.state",
         "customer.profile_confirmation",
     }
+    assert len(first.work_items) == 7
+    assert first.document_plans[0].selected_sheets == [f"АОСР-{number}" for number in range(1, 8)]
     state.questions = first.questions
     answers = {
         "actual.start": "01.06.2026",

@@ -65,7 +65,9 @@ async function api(url, options = {}) {
 function updateStatus(job) {
   const draftWithWarnings = job.status === "NEEDS_INPUT" && job.draft_report_ready;
   const [title, fallbackSummary] = draftWithWarnings
-    ? ["Черновой отчёт", "Отчёт сформирован с предупреждениями"]
+    ? job.draft_excel_files.length
+      ? ["Excel-файлы готовы", "Книги сформированы с предупреждениями"]
+      : ["Нужен Excel", "Повторите формирование Excel-файлов"]
     : statusLabels[job.status] || [job.status, "Состояние обновлено"];
   document.getElementById("status").textContent = title;
   document.getElementById("summary").textContent = publicText(job.summary || job.error || fallbackSummary);
@@ -97,7 +99,7 @@ function updateStatus(job) {
         : "В процессе";
   document.getElementById("step-release-copy").textContent =
     draftWithWarnings
-      ? "Черновой отчёт"
+      ? "Excel с замечаниями"
       : job.status === "APPROVED_FINAL"
       ? "Комплект готов"
       : job.status === "READY_FOR_REVIEW"
@@ -137,12 +139,23 @@ async function refresh() {
   );
 
   show("questions", job.status === "NEEDS_INPUT" && !draftWithWarnings);
-  show("draft-report", draftWithWarnings);
+  show("draft-excel", draftWithWarnings);
   show("retry-analysis", job.status === "FAILED_ANALYSIS");
   if (job.status === "NEEDS_INPUT") {
     const unresolved = job.questions.filter((question) => !question.answer);
     document.getElementById("draft-warning-title").textContent =
-      `Замечаний к отчёту: ${unresolved.length}`;
+      `Предупреждений в Excel: ${unresolved.length}`;
+    const draftFiles = job.draft_excel_files || [];
+    document.getElementById("draft-excel-list").innerHTML = draftFiles
+      .map(
+        (file, index) =>
+          `<a href="/api/kits/${jobRef}/draft-excel/${index}">${esc(file)}</a>`
+      )
+      .join("");
+    show("generate-draft-excel", draftFiles.length === 0);
+    const draftError = document.getElementById("draft-excel-error");
+    draftError.textContent = publicText(job.draft_excel_error || "");
+    draftError.hidden = !job.draft_excel_error;
     document.getElementById("draft-warning-list").innerHTML = unresolved
       .map(
         (question) => `
@@ -261,14 +274,30 @@ document.getElementById("answers-form").addEventListener("submit", async (event)
     feedback.hidden = false;
   } finally {
     button.disabled = false;
-    button.textContent = "Перейти к черновому отчёту";
+    button.textContent = "Сформировать заполненный Excel";
   }
 });
 
 document.getElementById("edit-draft-answers").addEventListener("click", () => {
-  show("draft-report", false);
+  show("draft-excel", false);
   show("questions", true);
   document.getElementById("questions").scrollIntoView({ behavior: "smooth", block: "start" });
+});
+
+document.getElementById("generate-draft-excel").addEventListener("click", async (event) => {
+  const button = event.currentTarget;
+  button.disabled = true;
+  button.textContent = "Формируем Excel…";
+  try {
+    await api(`/api/kits/${jobRef}/draft-excel`, { method: "POST" });
+    await refresh();
+  } catch (error) {
+    const draftError = document.getElementById("draft-excel-error");
+    draftError.textContent = error.message;
+    draftError.hidden = false;
+    button.disabled = false;
+    button.textContent = "Сформировать заполненный Excel";
+  }
 });
 
 document.getElementById("retry-analysis-button").addEventListener("click", async (event) => {

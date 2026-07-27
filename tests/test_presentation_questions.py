@@ -1,7 +1,7 @@
 import pytest
 
 from executive_docs.domain import Artifact, JobStatus, NeedInputQuestion, ProjectState
-from executive_docs.presentation import public_draft_report_html, public_payload, public_state, public_text
+from executive_docs.presentation import public_payload, public_state, public_text
 from executive_docs.questions import is_delegated_value, normalized_answer
 
 
@@ -87,7 +87,7 @@ def test_optional_answers_accept_text_or_yes_no_and_reject_delegation() -> None:
         normalized_answer(yes_no_question, "Возможно")
 
 
-def test_public_draft_report_contains_warnings_without_internal_ids() -> None:
+def test_public_payload_exposes_only_draft_excel_filenames() -> None:
     state = ProjectState(
         job_id="44444444-4444-4444-4444-444444444444",
         branch_id="khimki",
@@ -95,20 +95,12 @@ def test_public_draft_report_contains_warnings_without_internal_ids() -> None:
         operator_name="Специалист",
         status=JobStatus.NEEDS_INPUT,
         draft_report_ready=True,
-        questions=[
-            NeedInputQuestion(
-                id="q-passport",
-                field_key="materials.quality_documents",
-                prompt="Укажите паспорт 44444444-4444-4444-4444-444444444444",
-                reason="Паспорт отсутствует (SHA-256 " + "a" * 64 + ")",
-            )
+        draft_excel_files=[
+            "output/drafts/r1-20260727/xlsx/ЧЕРНОВИК - АОСР КЛ-6кВ.xlsx"
         ],
     )
 
-    report = public_draft_report_html(state)
+    payload = public_payload(state)
 
-    assert "Черновой отчёт с замечаниями" in report
-    assert "Паспорт отсутствует" in report
-    assert "44444444-4444" not in report
-    assert "a" * 64 not in report
-    assert "Печать / сохранить в PDF" in report
+    assert payload["draft_excel_files"] == ["ЧЕРНОВИК - АОСР КЛ-6кВ.xlsx"]
+    assert "output/drafts" not in str(payload["draft_excel_files"])

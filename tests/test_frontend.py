@@ -50,10 +50,10 @@ def test_job_page_renders_manager_review_surfaces() -> None:
     assert 'id="previews"' in html
     assert 'id="review"' in html
     assert 'id="download"' in html
-    assert 'id="draft-report"' in html
+    assert 'id="draft-excel"' in html
     assert 'id="draft-warning-list"' in html
-    assert "Скачать отчёт с замечаниями" in html
-    assert f'/api/kits/{state.public_ref}/draft-report?download=true' in html
+    assert 'id="draft-excel-list"' in html
+    assert "Сформировать заполненный Excel" in html
     assert 'id="retry-analysis"' in html
     assert 'id="missing-warning"' in html
     assert "Комплект 44444444" not in html
@@ -89,4 +89,5 @@ def test_needs_input_controls_are_optional_text_or_yes_no() -> None:
     assert "Необязательно. Введите подтверждённые сведения" in script
     assert 'data-comment="' not in script
     assert 'job.draft_report_ready' in script
-    assert "Перейти к черновому отчёту" in script
+    assert "Сформировать заполненный Excel" in script
+    assert "/draft-excel/" in script

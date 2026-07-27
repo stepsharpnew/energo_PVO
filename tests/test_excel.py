@@ -3,7 +3,15 @@ from pathlib import Path
 import openpyxl
 import pytest
 
-from executive_docs.domain import Claim, ClaimStatus, DocumentPlan, FieldValue, Material, WorkItem
+from executive_docs.domain import (
+    Claim,
+    ClaimStatus,
+    DocumentPlan,
+    FieldValue,
+    Material,
+    NeedInputQuestion,
+    WorkItem,
+)
 from executive_docs.excel import ExcelGenerator, OOXMLWorkbook, sha256, workbook_snapshot
 from executive_docs.validation import validate_workbook
 
@@ -84,6 +92,91 @@ def test_generator_rejects_model_controlled_output_path(tmp_path: Path) -> None:
     )
     with pytest.raises(ValueError, match="Имя выходного файла"):
         generator(tmp_path).generate(plan, [item], [], tmp_path)
+
+
+def test_draft_generator_marks_missing_values_inside_xlsx(tmp_path: Path) -> None:
+    item = WorkItem(
+        id="work-kl04-1",
+        family="kl_04",
+        work_type="Прокладка кабеля КЛ-0,4 кВ",
+        sequence_index=1,
+        volume="3 м по проекту",
+        unit="м",
+        materials=[Material(name="Кабель АВБШв 4х95")],
+    )
+    plan = DocumentPlan(
+        template_id="aosr_kl_04",
+        selected_sheets=["АОСР-3"],
+        work_item_ids=[item.id],
+        first_number=4,
+        output_filename="АОСР КЛ-0,4кВ.xlsx",
+    )
+    claims = [
+        Claim(
+            key="project.code",
+            raw_value="P-42",
+            normalized_value="P-42",
+            source_kind="project",
+            source_file_id="project",
+            locator="page:1",
+            evidence_fragment="P-42",
+            status=ClaimStatus.OBSERVED,
+        ),
+        Claim(
+            key="contractor.name",
+            raw_value="ООО Подрядчик",
+            normalized_value="ООО Подрядчик",
+            source_kind="project",
+            source_file_id="project",
+            locator="page:2",
+            evidence_fragment="ООО Подрядчик",
+            status=ClaimStatus.OBSERVED,
+        ),
+    ]
+    questions = [
+        NeedInputQuestion(id="q-dates", field_key="actual.dates", prompt="Даты?", reason="Нет дат"),
+        NeedInputQuestion(id="q-volume", field_key="actual.volume", prompt="Объём?", reason="Нет факта"),
+        NeedInputQuestion(
+            id="q-materials",
+            field_key="materials.quality_documents",
+            prompt="Паспорта?",
+            reason="Нет паспортов",
+        ),
+        NeedInputQuestion(id="q-changes", field_key="changes.state", prompt="Изменения?", reason="Неизвестно"),
+        NeedInputQuestion(
+            id="q-profile",
+            field_key="customer.profile_confirmation",
+            prompt="Профиль?",
+            reason="Не утверждён",
+        ),
+    ]
+
+    output, contract = generator(tmp_path).generate_draft(
+        plan,
+        [item],
+        claims,
+        questions,
+        tmp_path,
+    )
+
+    assert output.name == "ЧЕРНОВИК - АОСР КЛ-0,4кВ.xlsx"
+    workbook = openpyxl.load_workbook(output, data_only=False, keep_links=True)
+    assert workbook["Данные объект"]["B43"].value == "P-42"
+    assert workbook["Данные объект"]["B11"].value == "ЧЕРНОВИК, НЕ ПОДТВЕРЖДЕНО: ООО Подрядчик"
+    assert workbook["АОСР-3"]["P77"].value == "НЕ ПОДТВЕРЖДЕНО"
+    assert workbook["АОСР-3"]["P78"].value == "НЕ ПОДТВЕРЖДЕНО"
+    assert workbook["АОСР-3"]["R62"].value == "НЕ ПОДТВЕРЖДЕНО (по проекту: 3 м по проекту)"
+    assert workbook["АОСР-3"]["O69"].value == "ПАСПОРТ/СЕРТИФИКАТ НЕ УКАЗАН"
+    assert "ЧЕРНОВИК. НЕ ДЛЯ ПОДПИСАНИЯ." in workbook["АОСР-3"]["G72"].value
+    workbook.close()
+    issues = validate_workbook(
+        output,
+        generator(tmp_path).template_path(contract),
+        contract,
+        plan,
+        claims,
+    )
+    assert not [issue for issue in issues if issue.severity == "error"]
 
 
 def test_generator_rejects_field_value_without_matching_claim(tmp_path: Path) -> None:

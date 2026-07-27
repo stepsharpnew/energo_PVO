@@ -56,6 +56,22 @@ def test_pipeline_resumes_after_needs_input_without_overwriting_revision(tmp_pat
     pipeline.process(JOB_ID)
     state = repository.get(JOB_ID)
     assert state is not None and state.status == JobStatus.NEEDS_INPUT
+    state.draft_excel_requested = True
+    repository.save(state)
+    analyze = pipeline.agent.analyze
+    monkeypatch.setattr(
+        pipeline.agent,
+        "analyze",
+        lambda *_: (_ for _ in ()).throw(AssertionError("draft generation must reuse the saved plan")),
+    )
+    pipeline.process(JOB_ID)
+    monkeypatch.setattr(pipeline.agent, "analyze", analyze)
+    state = repository.get(JOB_ID)
+    assert state is not None and state.status == JobStatus.NEEDS_INPUT
+    assert state.draft_report_ready is True
+    assert state.draft_excel_error is None
+    assert len(state.draft_excel_files) == 1
+    assert (storage.job_dir(JOB_ID) / state.draft_excel_files[0]).exists()
     answers = {
         "actual.start": "01.06.2026",
         "actual.end": "08.06.2026",

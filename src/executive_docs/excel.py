@@ -13,7 +13,7 @@ import openpyxl
 import yaml
 from lxml import etree
 
-from .domain import Claim, DocumentPlan, WorkItem
+from .domain import Claim, DocumentPlan, NeedInputQuestion, WorkItem
 
 
 MAIN_NS = "http://schemas.openxmlformats.org/spreadsheetml/2006/main"
@@ -631,6 +631,121 @@ class ExcelGenerator:
         output = destination / plan.output_filename
         workbook.save(output)
         return output, contract
+
+    @staticmethod
+    def _draft_warning_categories(questions: list[NeedInputQuestion]) -> set[str]:
+        categories: set[str] = set()
+        for question in questions:
+            if question.answer:
+                continue
+            text = f"{question.field_key} {question.prompt} {question.reason}".casefold()
+            if any(token in text for token in ("actual.start", "actual.end", "дат")):
+                categories.add("dates")
+            if any(token in text for token in ("volume", "quantity", "объем", "объём")):
+                categories.add("volumes")
+            if any(token in text for token in ("material", "паспорт", "сертификат")):
+                categories.add("materials")
+            if any(token in text for token in ("change", "изменен", "изменён", "отклонен", "отклонён")):
+                categories.add("changes")
+            if any(token in text for token in ("profile", "профил", "подписант", "реквизит", "полномочи")):
+                categories.add("profiles")
+        return categories
+
+    def generate_draft(
+        self,
+        plan: DocumentPlan,
+        work_items: list[WorkItem],
+        claims: list[Claim],
+        questions: list[NeedInputQuestion],
+        destination: Path,
+    ) -> tuple[Path, TemplateContract]:
+        """Generate a visibly marked non-final workbook from admissible values."""
+
+        output, contract = self.generate(plan, work_items, claims, destination)
+        workbook = OOXMLWorkbook(output)
+        categories = self._draft_warning_categories(questions)
+        claims_by_key = self._claim_map(claims)
+        item_map = {item.id: item for item in work_items}
+        labels = {
+            "dates": "не подтверждены фактические даты",
+            "volumes": "не подтверждены фактические объёмы",
+            "materials": "не указаны паспорта/сертификаты материалов",
+            "changes": "не подтверждено наличие отклонений от проекта",
+            "profiles": "не утверждены реквизиты и подписанты",
+        }
+        warning_block = "ЧЕРНОВИК. НЕ ДЛЯ ПОДПИСАНИЯ."
+        if categories:
+            warning_block += "\n" + "\n".join(
+                f"• {labels[category]}" for category in labels if category in categories
+            )
+
+        def set_common(key: str, value: str) -> None:
+            target = contract.common_fields.get(key)
+            if not target:
+                return
+            for cell_target in target if isinstance(target, list) else [target]:
+                sheet, cell = cell_target.split("!", 1)
+                workbook.set_cell(sheet, cell, value)
+
+        if "dates" in categories:
+            set_common("actual.start", "НЕ ПОДТВЕРЖДЕНО")
+            set_common("actual.end", "НЕ ПОДТВЕРЖДЕНО")
+        if "profiles" in categories:
+            for key in contract.common_fields:
+                if not key.startswith(("contractor.", "customer.", "designer.")):
+                    continue
+                observed = claims_by_key.get(key)
+                value = f"ЧЕРНОВИК, НЕ ПОДТВЕРЖДЕНО: {observed}" if observed else "НЕ ПОДТВЕРЖДЕНО"
+                set_common(key, value)
+
+        for sheet, item_id in zip(plan.selected_sheets, plan.work_item_ids):
+            item = item_map[item_id]
+            mapping = contract.sheets[sheet]
+            if "dates" in categories:
+                if mapping.get("start_date"):
+                    workbook.set_cell(sheet, mapping["start_date"], "НЕ ПОДТВЕРЖДЕНО")
+                if mapping.get("end_date"):
+                    workbook.set_cell(sheet, mapping["end_date"], "НЕ ПОДТВЕРЖДЕНО")
+            if "volumes" in categories and mapping.get("volume"):
+                project_value = item.volume or ""
+                value = (
+                    f"НЕ ПОДТВЕРЖДЕНО (по проекту: {project_value})"
+                    if project_value
+                    else "НЕ ПОДТВЕРЖДЕНО"
+                )
+                workbook.set_cell(sheet, mapping["volume"], value)
+            if "materials" in categories:
+                material_rows = mapping.get("material_rows")
+                if isinstance(material_rows, list):
+                    for index, row in enumerate(material_rows):
+                        material = item.materials[index] if index < len(item.materials) else None
+                        if row.get("document") and (material is None or not material.quality_document):
+                            workbook.set_cell(sheet, row["document"], "ПАСПОРТ/СЕРТИФИКАТ НЕ УКАЗАН")
+                elif mapping.get("material_document") and (
+                    not item.materials or any(not material.quality_document for material in item.materials)
+                ):
+                    workbook.set_cell(
+                        sheet,
+                        mapping["material_document"],
+                        "ПАСПОРТ/СЕРТИФИКАТ НЕ УКАЗАН",
+                    )
+            if mapping.get("attachment"):
+                attachment = ""
+                if item.execution_scheme_id:
+                    attachment = claims_by_key.get(
+                        f"artifact.{item.execution_scheme_id}.name",
+                        "Исполнительная схема",
+                    )
+                workbook.set_cell(
+                    sheet,
+                    mapping["attachment"],
+                    f"{attachment}\n{warning_block}".strip(),
+                )
+        workbook.enable_full_calculation()
+        workbook.save(output)
+        draft_output = output.with_name(f"ЧЕРНОВИК - {output.name}")
+        output.replace(draft_output)
+        return draft_output, contract
 
 
 def workbook_snapshot(path: Path) -> dict:

@@ -195,6 +195,9 @@ class ProjectState(StrictModel):
     model_usage: list[ModelUsageRecord] = Field(default_factory=list)
     summary: str = ""
     draft_report_ready: bool = False
+    draft_excel_requested: bool = False
+    draft_excel_files: list[str] = Field(default_factory=list)
+    draft_excel_error: str | None = None
     result_zip: str | None = None
     model: str = ""
     skill_version: str = "1"

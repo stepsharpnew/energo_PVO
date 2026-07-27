@@ -1,7 +1,8 @@
 import asyncio
+from pathlib import Path
 
 from executive_docs.domain import AnswerPayload, AnswersRequest, JobStatus, NeedInputQuestion, ProjectState
-from executive_docs.main import answer_questions, draft_report
+from executive_docs.main import answer_questions, download_draft_excel, request_draft_excel
 
 
 class RecordingRepository:
@@ -25,7 +26,7 @@ class RecordingQueue:
         self.enqueued.append(job_id)
 
 
-def test_partial_answers_are_saved_without_reanalysis(monkeypatch) -> None:
+def test_partial_answers_queue_draft_excel_generation(monkeypatch) -> None:
     state = ProjectState(
         job_id="44444444-4444-4444-4444-444444444444",
         branch_id="khimki",
@@ -51,7 +52,6 @@ def test_partial_answers_are_saved_without_reanalysis(monkeypatch) -> None:
     queue = RecordingQueue()
     monkeypatch.setattr("executive_docs.main.repository", repository)
     monkeypatch.setattr("executive_docs.main.queue", queue)
-    monkeypatch.setattr("executive_docs.main.write_report", lambda *args: None)
 
     result = asyncio.run(
         answer_questions(
@@ -69,12 +69,13 @@ def test_partial_answers_are_saved_without_reanalysis(monkeypatch) -> None:
         )
     )
 
-    assert result["status"] == JobStatus.NEEDS_INPUT
+    assert result["status"] == JobStatus.FILES_UPLOADED
     assert len(repository.state.questions) == 1
     assert repository.saved == 1
-    assert queue.enqueued == []
-    assert repository.state.draft_report_ready is True
-    assert "Замечаний к отчёту: 1" in repository.state.summary
+    assert queue.enqueued == [state.job_id]
+    assert repository.state.draft_report_ready is False
+    assert repository.state.draft_excel_requested is True
+    assert "Формируем заполненные Excel-файлы" in repository.state.summary
 
 
 def test_complete_answers_continue_analysis(monkeypatch) -> None:
@@ -121,7 +122,7 @@ def test_complete_answers_continue_analysis(monkeypatch) -> None:
     assert queue.enqueued == [state.job_id]
 
 
-def test_draft_report_can_be_downloaded_with_missing_answers(monkeypatch) -> None:
+def test_existing_warning_screen_can_request_draft_excel(monkeypatch) -> None:
     state = ProjectState(
         job_id="66666666-6666-6666-6666-666666666666",
         branch_id="khimki",
@@ -129,19 +130,45 @@ def test_draft_report_can_be_downloaded_with_missing_answers(monkeypatch) -> Non
         operator_name="Специалист",
         status=JobStatus.NEEDS_INPUT,
         draft_report_ready=True,
-        questions=[
-            NeedInputQuestion(
-                id="q-passport",
-                field_key="materials.quality_documents",
-                prompt="Укажите паспорт",
-                reason="Паспорт отсутствует",
-            )
-        ],
     )
-    monkeypatch.setattr("executive_docs.main.repository", RecordingRepository(state))
+    repository = RecordingRepository(state)
+    queue = RecordingQueue()
+    monkeypatch.setattr("executive_docs.main.repository", repository)
+    monkeypatch.setattr("executive_docs.main.queue", queue)
 
-    response = asyncio.run(draft_report(state.job_id, download=True))
+    result = asyncio.run(request_draft_excel(state.job_id))
+
+    assert result["status"] == JobStatus.FILES_UPLOADED
+    assert repository.state.draft_excel_requested is True
+    assert repository.state.draft_report_ready is False
+    assert queue.enqueued == [state.job_id]
+
+
+def test_draft_excel_file_can_be_downloaded(tmp_path: Path, monkeypatch) -> None:
+    relative = "output/drafts/r1/xlsx/ЧЕРНОВИК - АОСР КЛ-6кВ.xlsx"
+    path = tmp_path / relative
+    path.parent.mkdir(parents=True)
+    path.write_bytes(b"xlsx")
+    state = ProjectState(
+        job_id="77777777-7777-7777-7777-777777777777",
+        branch_id="khimki",
+        first_aosr_number=1,
+        operator_name="Специалист",
+        status=JobStatus.NEEDS_INPUT,
+        draft_report_ready=True,
+        draft_excel_files=[relative],
+    )
+
+    class RecordingStorage:
+        def job_dir(self, job_id: str) -> Path:
+            assert job_id == state.job_id
+            return tmp_path
+
+    monkeypatch.setattr("executive_docs.main.repository", RecordingRepository(state))
+    monkeypatch.setattr("executive_docs.main.storage", RecordingStorage())
+
+    response = asyncio.run(download_draft_excel(state.job_id, 0))
 
     assert response.status_code == 200
-    assert response.headers["content-disposition"] == 'attachment; filename="draft-report-with-warnings.html"'
-    assert "Паспорт отсутствует" in response.body.decode()
+    assert Path(response.path) == path
+    assert response.media_type == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"

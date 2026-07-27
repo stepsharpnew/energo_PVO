@@ -317,7 +317,7 @@ form.addEventListener("submit", (event) => {
 document.querySelectorAll("[data-job-status]").forEach((item) => {
   item.textContent =
     item.dataset.jobStatus === "NEEDS_INPUT" && item.dataset.draftReady === "true"
-      ? "Черновой отчёт"
+      ? "Excel с замечаниями"
       : statusNames[item.dataset.jobStatus] || item.dataset.jobStatus;
 });
 
