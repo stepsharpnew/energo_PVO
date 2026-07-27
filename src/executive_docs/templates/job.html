@@ -84,8 +84,23 @@
         <form id="answers-form">
           <div id="question-list" class="question-list"></div>
           <p class="answer-feedback" id="answers-feedback" role="alert" hidden></p>
-          <button class="primary-button" type="submit">Сохранить заполненное</button>
+          <button class="primary-button" type="submit">Перейти к черновому отчёту</button>
         </form>
+      </section>
+
+      <section class="content-section draft-report hidden" id="draft-report">
+        <div class="section-heading">
+          <div><p class="kicker">Шаг 4</p><h2>Черновой отчёт</h2></div>
+          <span class="attention-note">Есть замечания</span>
+        </div>
+        <div class="missing-warning" role="status">
+          <strong id="draft-warning-title">Отчёт сформирован с предупреждениями</strong>
+          <span>Ни одно отсутствующее значение не было придумано или подставлено автоматически. Замечания ниже нужно устранить перед выпуском финальных АОСР.</span>
+        </div>
+        <div id="draft-warning-list" class="draft-warning-list"></div>
+        <div class="draft-report-actions">
+          <button class="secondary-button" id="edit-draft-answers" type="button">Вернуться и дополнить сведения</button>
+        </div>
       </section>
 
       <section class="content-section hidden" id="issues">

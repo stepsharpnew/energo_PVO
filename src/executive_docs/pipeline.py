@@ -47,6 +47,7 @@ class Pipeline:
         root = self.storage.job_dir(job_id)
         try:
             state.status = JobStatus.ANALYZING
+            state.draft_report_ready = False
             state.error = None
             policy = self.settings.policy(state.processing_profile)
             state.model = (

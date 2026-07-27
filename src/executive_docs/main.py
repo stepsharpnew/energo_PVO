@@ -212,12 +212,16 @@ async def answer_questions(job_id: str, payload: AnswersRequest):
     unanswered = [item for item in state.questions if item.required and not item.answer]
     if unanswered:
         answered = sum(bool(item.answer) for item in state.questions)
+        state.draft_report_ready = True
         state.summary = (
-            f"Сохранено ответов: {answered}. Осталось уточнить: {len(unanswered)}. "
-            "Поля можно заполнить позже, но финальный выпуск будет заблокирован до устранения предупреждений."
+            f"Черновой отчёт готов. Заполнено полей: {answered}. "
+            f"Замечаний к отчёту: {len(unanswered)}. "
+            "Пропуски не заполнены автоматически; финальный выпуск доступен после их уточнения."
         )
         repository.save(state)
+        write_report(state, storage.job_dir(state.job_id))
         return public_payload(state)
+    state.draft_report_ready = False
     state.status = JobStatus.FILES_UPLOADED
     state.summary = "Подтверждённые ответы приняты. Продолжаем анализ."
     repository.save(state)

@@ -119,6 +119,7 @@ def write_report(state: ProjectState, job_root: Path) -> tuple[Path, Path, Path]
                 "claims": [item.model_dump(mode="json") for item in state.claims],
                 "work_items": [item.model_dump(mode="json") for item in state.work_items],
                 "document_plans": [item.model_dump(mode="json") for item in state.document_plans],
+                "questions": [item.model_dump(mode="json") for item in state.questions],
                 "validation_issues": [item.model_dump(mode="json") for item in state.validation_issues],
             },
             ensure_ascii=False,
@@ -138,10 +139,20 @@ def write_report(state: ProjectState, job_root: Path) -> tuple[Path, Path, Path]
         f"<tr><td>{html.escape(item.stage)}</td><td>{html.escape(item.model)}</td><td>{item.input_tokens}</td><td>{item.cached_tokens}</td><td>{item.output_tokens}</td><td>{item.estimated_cost_usd if item.estimated_cost_usd is not None else 'нет тарифа'}</td></tr>"
         for item in state.model_usage
     ) or "<tr><td colspan='6'>Платных вызовов не было</td></tr>"
+    warning_rows = "".join(
+        (
+            f"<tr><td>{html.escape(item.prompt)}</td>"
+            f"<td>{html.escape(item.reason)}</td>"
+            f"<td>{html.escape(item.answer or 'Не заполнено')}</td></tr>"
+        )
+        for item in state.questions
+        if not item.answer
+    ) or "<tr><td colspan='3'>Незаполненных сведений нет</td></tr>"
     report_html.write_text(
         f"""<!doctype html><html lang='ru'><meta charset='utf-8'><title>Отчёт {state.job_id}</title>
 <style>body{{font:14px Arial;max-width:1100px;margin:30px auto;color:#172033}}table{{border-collapse:collapse;width:100%;margin:16px 0}}th,td{{border:1px solid #d8dfeb;padding:8px;text-align:left}}h1,h2{{color:#153a67}}</style>
 <h1>Отчёт по комплекту</h1><p><b>Статус:</b> {html.escape(state.status)}</p><p>{html.escape(state.summary)}</p>
+<h2>Замечания к черновому отчёту</h2><table><tr><th>Что нужно уточнить</th><th>Почему</th><th>Состояние</th></tr>{warning_rows}</table>
 <h2>Расход модели</h2><p><b>Профиль:</b> {html.escape(state.processing_profile)}</p><table><tr><th>Этап</th><th>Модель</th><th>Вход</th><th>Кэш</th><th>Выход</th><th>Оценка, USD</th></tr>{usage_rows}</table>
 <h2>Проверки</h2><table><tr><th>Уровень</th><th>Код</th><th>Сообщение</th></tr>{issue_rows}</table>
 <h2>Источники значений</h2><table><tr><th>Поле</th><th>Значение</th><th>Источник</th></tr>{claim_rows}</table></html>""",

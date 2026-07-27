@@ -50,6 +50,8 @@ def test_job_page_renders_manager_review_surfaces() -> None:
     assert 'id="previews"' in html
     assert 'id="review"' in html
     assert 'id="download"' in html
+    assert 'id="draft-report"' in html
+    assert 'id="draft-warning-list"' in html
     assert 'id="retry-analysis"' in html
     assert 'id="missing-warning"' in html
     assert "Комплект 44444444" not in html
@@ -63,6 +65,7 @@ def test_recent_job_link_uses_public_reference_instead_of_uuid() -> None:
         first_aosr_number=1,
         operator_name="Специалист",
         status=JobStatus.NEEDS_INPUT,
+        draft_report_ready=True,
         created_at="2026-07-27T08:18:23.110361+00:00",
     )
     html = environment().get_template("index.html").render(
@@ -74,6 +77,7 @@ def test_recent_job_link_uses_public_reference_instead_of_uuid() -> None:
     )
     assert f'href="/kits/{state.public_ref}"' in html
     assert f'href="/jobs/{state.job_id}"' not in html
+    assert 'data-draft-ready="true"' in html
 
 
 def test_needs_input_controls_are_optional_text_or_yes_no() -> None:
@@ -82,3 +86,5 @@ def test_needs_input_controls_are_optional_text_or_yes_no() -> None:
     assert 'option value="NO"' in script
     assert "Необязательно. Введите подтверждённые сведения" in script
     assert 'data-comment="' not in script
+    assert 'job.draft_report_ready' in script
+    assert "Перейти к черновому отчёту" in script

@@ -236,7 +236,7 @@
           <a href="/kits/{{ job.public_ref }}">
             <span>{{ job.created_at[:10] }}</span>
             <strong>{{ job.summary or "Комплект без названия" }}</strong>
-            <small data-job-status="{{ job.status }}">{{ job.status }}</small>
+            <small data-job-status="{{ job.status }}" data-draft-ready="{{ 'true' if job.draft_report_ready else 'false' }}">{{ job.status }}</small>
           </a>
         {% endfor %}
       </div>

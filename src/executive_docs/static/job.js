@@ -63,7 +63,10 @@ async function api(url, options = {}) {
 }
 
 function updateStatus(job) {
-  const [title, fallbackSummary] = statusLabels[job.status] || [job.status, "Состояние обновлено"];
+  const draftWithWarnings = job.status === "NEEDS_INPUT" && job.draft_report_ready;
+  const [title, fallbackSummary] = draftWithWarnings
+    ? ["Черновой отчёт", "Отчёт сформирован с предупреждениями"]
+    : statusLabels[job.status] || [job.status, "Состояние обновлено"];
   document.getElementById("status").textContent = title;
   document.getElementById("summary").textContent = publicText(job.summary || job.error || fallbackSummary);
   document.getElementById("status-pill").textContent = title;
@@ -77,18 +80,25 @@ function updateStatus(job) {
 
   const check = document.getElementById("step-check");
   const release = document.getElementById("step-release");
-  check.classList.toggle("is-complete", job.status === "APPROVED_FINAL");
-  check.classList.toggle("is-active", job.status !== "APPROVED_FINAL");
-  release.classList.toggle("is-active", ["READY_FOR_REVIEW", "APPROVED_FINAL"].includes(job.status));
+  check.classList.toggle("is-complete", job.status === "APPROVED_FINAL" || draftWithWarnings);
+  check.classList.toggle("is-active", job.status !== "APPROVED_FINAL" && !draftWithWarnings);
+  release.classList.toggle(
+    "is-active",
+    ["READY_FOR_REVIEW", "APPROVED_FINAL"].includes(job.status) || draftWithWarnings
+  );
   release.classList.toggle("is-complete", job.status === "APPROVED_FINAL");
   document.getElementById("step-check-copy").textContent =
-    job.status === "NEEDS_INPUT"
+    draftWithWarnings
+      ? "Завершена с замечаниями"
+      : job.status === "NEEDS_INPUT"
       ? "Есть предупреждения"
       : job.status === "APPROVED_FINAL"
         ? "Пройдена"
         : "В процессе";
   document.getElementById("step-release-copy").textContent =
-    job.status === "APPROVED_FINAL"
+    draftWithWarnings
+      ? "Черновой отчёт"
+      : job.status === "APPROVED_FINAL"
       ? "Комплект готов"
       : job.status === "READY_FOR_REVIEW"
         ? "Решение специалиста"
@@ -119,16 +129,30 @@ async function refresh() {
   document.getElementById("revision").textContent = job.revision;
   updateStatus(job);
   updateUsage(job);
+  const draftWithWarnings = job.status === "NEEDS_INPUT" && job.draft_report_ready;
 
   show(
     "progress",
     !terminal.has(job.status) && !["NEEDS_INPUT", "READY_FOR_REVIEW", "APPROVED_FINAL"].includes(job.status)
   );
 
-  show("questions", job.status === "NEEDS_INPUT");
+  show("questions", job.status === "NEEDS_INPUT" && !draftWithWarnings);
+  show("draft-report", draftWithWarnings);
   show("retry-analysis", job.status === "FAILED_ANALYSIS");
   if (job.status === "NEEDS_INPUT") {
     const unresolved = job.questions.filter((question) => !question.answer);
+    document.getElementById("draft-warning-title").textContent =
+      `Замечаний к отчёту: ${unresolved.length}`;
+    document.getElementById("draft-warning-list").innerHTML = unresolved
+      .map(
+        (question) => `
+          <article class="draft-warning-item">
+            <strong>${esc(publicText(question.prompt))}</strong>
+            <p>${esc(publicText(question.reason))}</p>
+            <span>Не заполнено — требуется исправить перед финальным выпуском</span>
+          </article>`
+      )
+      .join("");
     document.getElementById("missing-warning-title").textContent =
       unresolved.length > 0
         ? `Нужно проверить полей: ${unresolved.length}`
@@ -227,7 +251,7 @@ document.getElementById("answers-form").addEventListener("submit", async (event)
       body: JSON.stringify({ answers }),
     });
     await refresh();
-    if (currentJob.status === "NEEDS_INPUT") {
+    if (currentJob.status === "NEEDS_INPUT" && !currentJob.draft_report_ready) {
       feedback.textContent =
         "Заполненные сведения сохранены. Пропущенные поля отмечены предупреждениями и не отправлены на повторный анализ.";
       feedback.hidden = false;
@@ -237,8 +261,14 @@ document.getElementById("answers-form").addEventListener("submit", async (event)
     feedback.hidden = false;
   } finally {
     button.disabled = false;
-    button.textContent = "Сохранить заполненное";
+    button.textContent = "Перейти к черновому отчёту";
   }
+});
+
+document.getElementById("edit-draft-answers").addEventListener("click", () => {
+  show("draft-report", false);
+  show("questions", true);
+  document.getElementById("questions").scrollIntoView({ behavior: "smooth", block: "start" });
 });
 
 document.getElementById("retry-analysis-button").addEventListener("click", async (event) => {

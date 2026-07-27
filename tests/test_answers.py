@@ -51,6 +51,7 @@ def test_partial_answers_are_saved_without_reanalysis(monkeypatch) -> None:
     queue = RecordingQueue()
     monkeypatch.setattr("executive_docs.main.repository", repository)
     monkeypatch.setattr("executive_docs.main.queue", queue)
+    monkeypatch.setattr("executive_docs.main.write_report", lambda *args: None)
 
     result = asyncio.run(
         answer_questions(
@@ -72,7 +73,8 @@ def test_partial_answers_are_saved_without_reanalysis(monkeypatch) -> None:
     assert len(repository.state.questions) == 1
     assert repository.saved == 1
     assert queue.enqueued == []
-    assert "Осталось уточнить: 1" in repository.state.summary
+    assert repository.state.draft_report_ready is True
+    assert "Замечаний к отчёту: 1" in repository.state.summary
 
 
 def test_complete_answers_continue_analysis(monkeypatch) -> None:
@@ -113,6 +115,7 @@ def test_complete_answers_continue_analysis(monkeypatch) -> None:
     )
 
     assert result["status"] == JobStatus.FILES_UPLOADED
+    assert repository.state.draft_report_ready is False
     assert repository.state.questions[0].answer == "NO"
     assert repository.saved == 1
     assert queue.enqueued == [state.job_id]

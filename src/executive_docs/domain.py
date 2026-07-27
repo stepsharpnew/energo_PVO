@@ -194,6 +194,7 @@ class ProjectState(StrictModel):
     corrections: list[CorrectionPayload] = Field(default_factory=list)
     model_usage: list[ModelUsageRecord] = Field(default_factory=list)
     summary: str = ""
+    draft_report_ready: bool = False
     result_zip: str | None = None
     model: str = ""
     skill_version: str = "1"

@@ -315,7 +315,10 @@ form.addEventListener("submit", (event) => {
 });
 
 document.querySelectorAll("[data-job-status]").forEach((item) => {
-  item.textContent = statusNames[item.dataset.jobStatus] || item.dataset.jobStatus;
+  item.textContent =
+    item.dataset.jobStatus === "NEEDS_INPUT" && item.dataset.draftReady === "true"
+      ? "Черновой отчёт"
+      : statusNames[item.dataset.jobStatus] || item.dataset.jobStatus;
 });
 
 const today = document.getElementById("current-date");
