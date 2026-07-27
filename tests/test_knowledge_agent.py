@@ -227,6 +227,33 @@ def test_draft_request_rejects_needs_input_without_document_plan() -> None:
         }
     )
     assert OpenAIAgent._draft_plan_rejection(state, planned) is None
+    wrong_filename = planned.model_copy(
+        update={
+            "document_plans": [
+                planned.document_plans[0].model_copy(
+                    update={"output_filename": "Произвольное имя.xlsx"}
+                )
+            ]
+        }
+    )
+    assert "exact output_filename" in OpenAIAgent._draft_plan_rejection(state, wrong_filename)
+    overhead_line = planned.model_copy(
+        update={
+            "work_items": [
+                item.model_copy(update={"family": "kl_6", "work_type": "Монтаж ВЛЗ-6 кВ"})
+            ],
+            "document_plans": [
+                DocumentPlan(
+                    template_id="aosr_kl_6",
+                    selected_sheets=["АОСР-1"],
+                    work_item_ids=[item.id],
+                    first_number=3,
+                    output_filename="АОСР КЛ-6кВ.xlsx",
+                )
+            ],
+        }
+    )
+    assert "out of pilot" in OpenAIAgent._draft_plan_rejection(state, overhead_line)
 
 
 def test_openai_agent_stops_before_paid_call_when_preflight_exceeds_budget(tmp_path: Path, monkeypatch) -> None:

@@ -1,6 +1,18 @@
 name: energo-pvo
 
 services:
+  template-init:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command:
+      - /bin/sh
+      - -c
+      - cp -n /app/bundled-approved/*.xlsx /approved/
+    restart: "no"
+    volumes:
+      - ./templates/approved:/approved
+
   backend:
     container_name: backend
     build:
@@ -11,6 +23,9 @@ services:
       - .env
     expose:
       - "8000"
+    depends_on:
+      template-init:
+        condition: service_completed_successfully
     volumes:
       - ./data:/app/data
       - ./templates/approved:/app/templates/approved:ro

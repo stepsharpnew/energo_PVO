@@ -36,9 +36,13 @@ COPY agent-skill ./agent-skill
 COPY profiles ./profiles
 COPY template ./template
 COPY templates ./templates
+COPY scripts/clean_pilot_templates.py ./scripts/clean_pilot_templates.py
 
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-dev
+RUN uv run python scripts/clean_pilot_templates.py > /dev/null \
+    && mkdir -p /app/bundled-approved \
+    && cp /app/templates/approved/*.xlsx /app/bundled-approved/
 
 EXPOSE 8000
 

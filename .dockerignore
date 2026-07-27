@@ -11,5 +11,6 @@ data
 docs
 project1
 project2
-scripts
+scripts/*
+!scripts/clean_pilot_templates.py
 tests

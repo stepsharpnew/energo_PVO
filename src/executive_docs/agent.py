@@ -3,6 +3,7 @@ from __future__ import annotations
 import base64
 import json
 import mimetypes
+import re
 import time
 from pathlib import Path
 from typing import Any, Callable
@@ -78,6 +79,24 @@ READ_SOURCE_TOOL = {
 # the first request. Exposing only the tools still needed for analysis avoids
 # a separate full-context model turn for every manifest/knowledge lookup.
 TOOLS = [READ_SOURCE_TOOL, ANALYSIS_TOOL]
+
+DRAFT_CONTRACTS = {
+    "aosr_kl_04": {
+        "family": "kl_04",
+        "filename": "АОСР КЛ-0,4кВ.xlsx",
+        "sheets": {"АОСР-3", "АОСР-4"},
+    },
+    "aosr_kl_6": {
+        "family": "kl_6",
+        "filename": "АОСР КЛ-6кВ.xlsx",
+        "sheets": {f"АОСР-{index}" for index in range(1, 8)},
+    },
+    "aosr_vrs": {
+        "family": "vrs",
+        "filename": "АОСР ВРЩ.xlsx",
+        "sheets": {f"АОСР-{index}" for index in range(1, 7)},
+    },
+}
 
 
 class OpenAIAgent:
@@ -195,6 +214,41 @@ class OpenAIAgent:
                 "consecutive numbering from first_aosr_number, and the contract output filename. "
                 "Keep missing factual fields blank and retain NEEDS_INPUT."
             )
+        for item in result.work_items:
+            work_name = item.work_type.casefold()
+            if re.search(r"(^|[^а-яё])влз?([^а-яё]|$)", work_name):
+                return (
+                    "VL/VLZ overhead-line work is out of pilot and must not appear in work_items "
+                    "or document_plans. Keep only KL-0.4 kV, KL-6 kV cable, and VRS work."
+                )
+            if "врщ" in work_name and item.family != "vrs":
+                return (
+                    "Every VRS/ВРЩ work must use family 'vrs' and template aosr_vrs. "
+                    "Do not combine VRS and KL-0.4 kV into one work item."
+                )
+        item_by_id = {item.id: item for item in result.work_items}
+        for plan in result.document_plans:
+            contract = DRAFT_CONTRACTS.get(plan.template_id)
+            if contract is None:
+                return f"Unsupported draft template: {plan.template_id}."
+            if plan.output_filename != contract["filename"]:
+                return (
+                    f"Template {plan.template_id} requires exact output_filename "
+                    f"'{contract['filename']}'. Do not invent filenames."
+                )
+            if (
+                not plan.selected_sheets
+                or len(plan.selected_sheets) != len(set(plan.selected_sheets))
+                or not set(plan.selected_sheets).issubset(contract["sheets"])
+            ):
+                return f"Template {plan.template_id} contains unsupported or duplicate selected_sheets."
+            if len(plan.selected_sheets) != len(plan.work_item_ids):
+                return "Each selected sheet must map to exactly one work_item_id."
+            if any(
+                item_id not in item_by_id or item_by_id[item_id].family != contract["family"]
+                for item_id in plan.work_item_ids
+            ):
+                return f"Every work in {plan.template_id} must have family '{contract['family']}'."
         work_ids = [item.id for item in result.work_items]
         planned_ids = [item_id for plan in result.document_plans for item_id in plan.work_item_ids]
         if len(planned_ids) != len(set(planned_ids)) or sorted(planned_ids) != sorted(work_ids):
@@ -382,6 +436,8 @@ class OpenAIAgent:
                 "If deterministic text extraction is needed, batch all independent read_source calls in one response.",
                 "Selected local evidence is already extracted by page/sheet and is the preferred input.",
                 "Do not request out-of-pilot KTP, VL, GEO, GNB, AVK, or EMR sources unless a concrete conflict makes them indispensable.",
+                "Never return KTP, VL, or VLZ overhead-line work in work_items or document_plans; those families are outside this pilot.",
+                "Every work mentioning ВРЩ belongs to family vrs and template aosr_vrs; do not combine it with KL-0.4 kV in one work item.",
                 "On resume, use saved claims and human answers; do not re-read unchanged sources unless a named evidence gap remains.",
             ],
         }
