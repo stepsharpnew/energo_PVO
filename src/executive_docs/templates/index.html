@@ -118,7 +118,7 @@
           <div class="panel-heading">
             <p class="kicker">Шаг 2 из 4</p>
             <h1>Добавьте исходные данные</h1>
-            <p>Для запуска достаточно рабочего проекта. Таблицу фактических данных, схемы и документы качества можно приложить при наличии.</p>
+            <p>Для запуска достаточно рабочего проекта. Таблицу фактических данных и подтверждающие документы можно приложить при наличии.</p>
           </div>
 
           <div class="upload-stack">
@@ -147,13 +147,13 @@
             <div class="optional-upload">
               <button class="optional-upload-toggle" id="attachments-toggle" type="button" aria-expanded="false">
                 <i class="bi bi-paperclip paperclip-mark" aria-hidden="true"></i>
-                <span><strong>Исполнительные схемы и приложения</strong><small>Необязательно. PDF, XLSX, DOCX, PNG или JPEG.</small></span>
+                <span><strong>Дополнительные документы</strong><small>Необязательно. PDF, XLSX, DOCX, PNG или JPEG.</small></span>
                 <span class="attachment-count" id="attachment-count">0 файлов</span>
               </button>
               <div class="optional-upload-body" id="attachments-body" hidden>
                 <label class="secondary-drop" for="attachment-files">
                   <strong>Добавить приложения</strong>
-                  <span>Исполнительные схемы, паспорта и сертификаты</span>
+                  <span>Паспорта, сертификаты и другие подтверждающие документы</span>
                 </label>
                 <input class="visually-hidden file-input" id="attachment-files" name="files" type="file" multiple accept=".pdf,.xlsx,.docx,.png,.jpg,.jpeg" data-file-kind="attachments">
                 <div class="attachment-list" id="attachment-list"></div>
@@ -221,7 +221,7 @@
     <ol>
       <li><strong>Рабочий проект PDF</strong><span>Основной утверждённый проект с шифром и проектными решениями.</span></li>
       <li><strong>Фактические данные.xlsx</strong><span>Подтверждённые даты, объёмы, материалы, отклонения и порядок работ.</span></li>
-      <li><strong>Приложения</strong><span>Схемы, паспорта и сертификаты, если они относятся к работам.</span></li>
+      <li><strong>Приложения</strong><span>Паспорта, сертификаты и другие подтверждающие документы, если они относятся к работам.</span></li>
     </ol>
     <p class="drawer-footnote">Имена файлов помогают менеджеру, но агент определяет тип документа по содержимому.</p>
   </aside>
@@ -233,7 +233,7 @@
     {% if jobs %}
       <div class="recent-jobs">
         {% for job in jobs %}
-          <a href="/jobs/{{ job.job_id }}">
+          <a href="/kits/{{ job.public_ref }}">
             <span>{{ job.created_at[:10] }}</span>
             <strong>{{ job.summary or "Комплект без названия" }}</strong>
             <small data-job-status="{{ job.status }}">{{ job.status }}</small>

@@ -15,6 +15,8 @@ from .config import settings
 from .domain import AnswersRequest, CorrectionReviewRequest, JobStatus, ProjectState, ReviewRequest
 from .packaging import build_result_zip, write_report
 from .pipeline import JobQueue, Pipeline
+from .presentation import public_payload, public_state
+from .questions import is_internal_question, normalized_answer
 from .repository import Repository
 from .storage import Storage, is_selected_filename
 
@@ -43,6 +45,8 @@ app.mount("/static", StaticFiles(directory=str(Path(__file__).parent / "static")
 
 def get_job_or_404(job_id: str) -> ProjectState:
     state = repository.get(job_id)
+    if state is None:
+        state = next((job for job in repository.list(500) if job.public_ref == job_id), None)
     if not state:
         raise HTTPException(status_code=404, detail="Задание не найдено")
     return state
@@ -55,7 +59,7 @@ async def index(request: Request):
         request=request,
         name="index.html",
         context={
-            "jobs": repository.list(),
+            "jobs": [public_state(job) for job in repository.list()],
             "agent_mode": settings.agent_mode,
             "model": default_policy.analysis_model,
             "processing_profile": default_policy.name,
@@ -66,7 +70,20 @@ async def index(request: Request):
 
 @app.get("/jobs/{job_id}", response_class=HTMLResponse)
 async def job_page(request: Request, job_id: str):
-    return templates.TemplateResponse(request=request, name="job.html", context={"job": get_job_or_404(job_id)})
+    state = get_job_or_404(job_id)
+    return RedirectResponse(url=f"/kits/{state.public_ref}", status_code=307)
+
+
+@app.get("/kits/{public_ref}", response_class=HTMLResponse)
+async def public_job_page(request: Request, public_ref: str):
+    state = next((job for job in repository.list(500) if job.public_ref == public_ref), None)
+    if state is None:
+        raise HTTPException(status_code=404, detail="Комплект не найден")
+    return templates.TemplateResponse(
+        request=request,
+        name="job.html",
+        context={"job": public_state(state)},
+    )
 
 
 @app.post("/api/jobs")
@@ -112,19 +129,20 @@ async def create_job(
         storage.remove_job(job_id)
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     if "application/json" in request.headers.get("accept", ""):
-        return JSONResponse(state.model_dump(mode="json"), status_code=202)
-    return RedirectResponse(url=f"/jobs/{job_id}", status_code=303)
+        return JSONResponse(public_payload(state), status_code=202)
+    return RedirectResponse(url=f"/kits/{state.public_ref}", status_code=303)
 
 
 @app.get("/api/jobs")
 async def list_jobs():
-    return [item.model_dump(mode="json") for item in repository.list()]
+    return [public_payload(item) for item in repository.list()]
 
 
 @app.get("/api/corrections")
 async def list_corrections(job_id: str | None = None):
     if job_id:
-        get_job_or_404(job_id)
+        state = get_job_or_404(job_id)
+        job_id = state.job_id
     return repository.list_corrections(job_id)
 
 
@@ -147,11 +165,13 @@ async def review_correction(correction_id: int, payload: CorrectionReviewRequest
     return result
 
 
+@app.get("/api/kits/{job_id}")
 @app.get("/api/jobs/{job_id}")
 async def get_job(job_id: str):
-    return get_job_or_404(job_id).model_dump(mode="json")
+    return public_payload(get_job_or_404(job_id))
 
 
+@app.post("/api/kits/{job_id}/retry")
 @app.post("/api/jobs/{job_id}/retry")
 async def retry_analysis(job_id: str):
     state = get_job_or_404(job_id)
@@ -161,10 +181,11 @@ async def retry_analysis(job_id: str):
     state.error = None
     state.summary = "Повторный анализ поставлен в очередь"
     repository.save(state)
-    await queue.enqueue(job_id)
-    return state.model_dump(mode="json")
+    await queue.enqueue(state.job_id)
+    return public_payload(state)
 
 
+@app.post("/api/kits/{job_id}/answers")
 @app.post("/api/jobs/{job_id}/answers")
 async def answer_questions(job_id: str, payload: AnswersRequest):
     state = get_job_or_404(job_id)
@@ -175,27 +196,40 @@ async def answer_questions(job_id: str, payload: AnswersRequest):
         if answer.question_id not in by_id:
             raise HTTPException(status_code=422, detail=f"Неизвестный вопрос {answer.question_id}")
         question = by_id[answer.question_id]
-        question.answer = answer.value.strip()
+        try:
+            value = normalized_answer(question, answer.value)
+        except ValueError as exc:
+            raise HTTPException(status_code=422, detail=str(exc)) from exc
+        question.answer = value or None
         question.comment = answer.comment.strip()
-        question.confirmed_by = answer.confirmed_by.strip()
-        if not question.confirmed_by:
+        question.confirmed_by = answer.confirmed_by.strip() if value else None
+        if value and not question.confirmed_by:
             raise HTTPException(status_code=422, detail=f"Укажите, кто подтвердил ответ {answer.question_id}")
         from .domain import utc_now
 
-        question.answered_at = utc_now()
+        question.answered_at = utc_now() if value else None
+    state.questions = [item for item in state.questions if not is_internal_question(item)]
     unanswered = [item for item in state.questions if item.required and not item.answer]
     if unanswered:
-        raise HTTPException(status_code=422, detail="Ответьте на все обязательные вопросы")
+        answered = sum(bool(item.answer) for item in state.questions)
+        state.summary = (
+            f"Сохранено ответов: {answered}. Осталось уточнить: {len(unanswered)}. "
+            "Поля можно заполнить позже, но финальный выпуск будет заблокирован до устранения предупреждений."
+        )
+        repository.save(state)
+        return public_payload(state)
     state.status = JobStatus.FILES_UPLOADED
+    state.summary = "Подтверждённые ответы приняты. Продолжаем анализ."
     repository.save(state)
-    await queue.enqueue(job_id)
-    return state.model_dump(mode="json")
+    await queue.enqueue(state.job_id)
+    return public_payload(state)
 
 
+@app.get("/api/kits/{job_id}/preview")
 @app.get("/api/jobs/{job_id}/preview")
 async def preview(job_id: str):
-    root = storage.job_dir(job_id)
     state = get_job_or_404(job_id)
+    root = storage.job_dir(state.job_id)
     files = [
         path.relative_to(root).as_posix()
         for path in sorted((root / "preview" / f"r{state.revision}").glob("*.pdf"))
@@ -203,16 +237,18 @@ async def preview(job_id: str):
     return {"files": files}
 
 
+@app.get("/api/kits/{job_id}/files/{relative_path:path}")
 @app.get("/api/jobs/{job_id}/files/{relative_path:path}")
 async def job_file(job_id: str, relative_path: str):
-    get_job_or_404(job_id)
-    root = storage.job_dir(job_id).resolve()
+    state = get_job_or_404(job_id)
+    root = storage.job_dir(state.job_id).resolve()
     path = (root / relative_path).resolve()
     if root not in path.parents or not path.is_file():
         raise HTTPException(status_code=404, detail="Файл не найден")
     return FileResponse(path)
 
 
+@app.post("/api/kits/{job_id}/review")
 @app.post("/api/jobs/{job_id}/review")
 async def review(job_id: str, payload: ReviewRequest):
     state = get_job_or_404(job_id)
@@ -222,8 +258,10 @@ async def review(job_id: str, payload: ReviewRequest):
         state.status = JobStatus.APPROVED_FINAL
         state.summary = "Комплект подтверждён специалистом и готов к подписанию"
         repository.save(state)
-        write_report(state, storage.job_dir(job_id))
-        state.result_zip = str(build_result_zip(state, storage.job_dir(job_id)).relative_to(storage.job_dir(job_id)))
+        write_report(state, storage.job_dir(state.job_id))
+        state.result_zip = str(
+            build_result_zip(state, storage.job_dir(state.job_id)).relative_to(storage.job_dir(state.job_id))
+        )
         repository.save(state)
     elif payload.action == "request_revision":
         if not payload.corrections:
@@ -231,36 +269,38 @@ async def review(job_id: str, payload: ReviewRequest):
         if any(not item.expected_value.strip() or not item.reason.strip() for item in payload.corrections):
             raise HTTPException(status_code=422, detail="Укажите правильное значение и причину исправления")
         state.corrections.extend(payload.corrections)
-        repository.add_corrections(job_id, state.revision, payload.corrections)
+        repository.add_corrections(state.job_id, state.revision, payload.corrections)
         state.revision += 1
         state.status = JobStatus.FILES_UPLOADED
         state.validation_issues = []
         state.result_zip = None
         repository.save(state)
-        await queue.enqueue(job_id)
+        await queue.enqueue(state.job_id)
     else:
         state.status = JobStatus.CANCELLED
         repository.save(state)
-    return state.model_dump(mode="json")
+    return public_payload(state)
 
 
+@app.get("/api/kits/{job_id}/download")
 @app.get("/api/jobs/{job_id}/download")
 async def download(job_id: str):
     state = get_job_or_404(job_id)
     if state.status != JobStatus.APPROVED_FINAL or not state.result_zip:
         raise HTTPException(status_code=409, detail="Финальный комплект ещё не утверждён")
-    path = storage.job_dir(job_id) / state.result_zip
+    path = storage.job_dir(state.job_id) / state.result_zip
     if not path.exists():
         raise HTTPException(status_code=404, detail="Архив не найден")
     return FileResponse(path, media_type="application/zip", filename=path.name)
 
 
+@app.delete("/api/kits/{job_id}")
 @app.delete("/api/jobs/{job_id}")
 async def delete_job(job_id: str):
-    get_job_or_404(job_id)
-    repository.delete(job_id)
-    storage.remove_job(job_id)
-    return JSONResponse({"deleted": job_id})
+    state = get_job_or_404(job_id)
+    repository.delete(state.job_id)
+    storage.remove_job(state.job_id)
+    return JSONResponse({"deleted": state.public_ref})
 
 
 def run() -> None:

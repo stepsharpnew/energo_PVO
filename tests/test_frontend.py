@@ -51,4 +51,34 @@ def test_job_page_renders_manager_review_surfaces() -> None:
     assert 'id="review"' in html
     assert 'id="download"' in html
     assert 'id="retry-analysis"' in html
+    assert 'id="missing-warning"' in html
+    assert "Комплект 44444444" not in html
     assert "Решение специалиста" in html
+
+
+def test_recent_job_link_uses_public_reference_instead_of_uuid() -> None:
+    state = ProjectState(
+        job_id="44444444-4444-4444-4444-444444444444",
+        branch_id="khimki",
+        first_aosr_number=1,
+        operator_name="Специалист",
+        status=JobStatus.NEEDS_INPUT,
+        created_at="2026-07-27T08:18:23.110361+00:00",
+    )
+    html = environment().get_template("index.html").render(
+        jobs=[state],
+        agent_mode="heuristic",
+        model="test-model",
+        processing_profile="balanced",
+        today_iso="2026-07-27",
+    )
+    assert f'href="/kits/{state.public_ref}"' in html
+    assert f'href="/jobs/{state.job_id}"' not in html
+
+
+def test_needs_input_controls_are_optional_text_or_yes_no() -> None:
+    script = (ROOT / "src" / "executive_docs" / "static" / "job.js").read_text(encoding="utf-8")
+    assert 'option value="YES"' in script
+    assert 'option value="NO"' in script
+    assert "Необязательно. Введите подтверждённые сведения" in script
+    assert 'data-comment="' not in script

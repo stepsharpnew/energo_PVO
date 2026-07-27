@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Комплект {{ job.job_id[:8] }} · ИД</title>
+  <title>Комплект исполнительной документации</title>
   <meta name="theme-color" content="#f8f9f3">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,7 +17,7 @@
       <span class="brand-mark" aria-hidden="true">М</span>
       <span><strong>Пошаговый помощник</strong><small>исполнительная документация · АОСР</small></span>
     </a>
-    <div class="topbar-context">Комплект <code>{{ job.job_id[:8] }}</code> · ревизия <span id="revision">{{ job.revision }}</span></div>
+    <div class="topbar-context">Комплект документов · ревизия <span id="revision">{{ job.revision }}</span></div>
     <div class="topbar-actions">
       <a class="quiet-action is-link" href="/">Новый комплект</a>
       <span class="topbar-divider" aria-hidden="true"></span>
@@ -74,12 +74,17 @@
 
       <section class="content-section hidden" id="questions">
         <div class="section-heading">
-          <div><p class="kicker">Нужны сведения</p><h2>Подтвердите недостающие факты</h2></div>
-          <span class="attention-note">Без этих ответов выпуск остановлен</span>
+          <div><p class="kicker">Нужно проверить</p><h2>Уточните сведения при наличии</h2></div>
+          <span class="attention-note">Поля можно заполнить позже</span>
+        </div>
+        <div class="missing-warning" id="missing-warning" role="status">
+          <strong id="missing-warning-title">В комплекте остались предупреждения</strong>
+          <span id="missing-warning-copy">Незаполненные поля не мешают сохранить форму, но блокируют финальный выпуск.</span>
         </div>
         <form id="answers-form">
           <div id="question-list" class="question-list"></div>
-          <button class="primary-button" type="submit">Передать ответы и продолжить</button>
+          <p class="answer-feedback" id="answers-feedback" role="alert" hidden></p>
+          <button class="primary-button" type="submit">Сохранить заполненное</button>
         </form>
       </section>
 
@@ -116,11 +121,11 @@
 
       <section class="download-surface hidden" id="download">
         <div><p class="kicker">Готово</p><h2>Комплект подтверждён</h2><p>Excel, PDF, приложения и отчёт собраны в один архив.</p></div>
-        <a class="primary-button is-coral" href="/api/jobs/{{ job.job_id }}/download">Скачать финальный ZIP</a>
+        <a class="primary-button is-coral" href="/api/kits/{{ job.public_ref }}/download">Скачать финальный ZIP</a>
       </section>
     </main>
   </div>
-  <script>const jobId={{ job.job_id|tojson }};</script>
+  <script>const jobRef={{ job.public_ref|tojson }};</script>
   <script src="/static/job.js"></script>
 </body>
 </html>

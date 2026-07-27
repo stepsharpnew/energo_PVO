@@ -13,6 +13,7 @@ from .excel import ExcelGenerator
 from .knowledge import KnowledgeBase
 from .packaging import build_result_zip, merge_pdfs, render_selected_sheets, revision_paths, write_report
 from .profiles import ProfileStore
+from .questions import is_delegated_value
 from .repository import Repository
 from .review import IndependentReviewer
 from .storage import Storage
@@ -55,7 +56,12 @@ class Pipeline:
             )
             state.skill_version = self.knowledge.skill_version()
             state.knowledge_version = self.knowledge.version()
-            state.claims = [claim for claim in state.claims if claim.source_kind != "approved_profile"]
+            state.claims = [
+                claim
+                for claim in state.claims
+                if claim.source_kind != "approved_profile"
+                and not (claim.source_kind == "human_answer" and is_delegated_value(claim.normalized_value))
+            ]
             state.claims.extend(self.profiles.claims(state.branch_id))
             self.repository.save(state)
             analysis = self.agent.analyze(state, root)

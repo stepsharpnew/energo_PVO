@@ -11,7 +11,7 @@ const statusLabels = {
   CREATED: ["Создаём комплект", "Задание зарегистрировано"],
   FILES_UPLOADED: ["Комплект в очереди", "Файлы приняты и ожидают обработки"],
   ANALYZING: ["Агент изучает проект", "Классифицируем файлы и извлекаем подтверждённые факты"],
-  NEEDS_INPUT: ["Нужны сведения", "Ответьте только на блокирующие вопросы"],
+  NEEDS_INPUT: ["Есть предупреждения", "Уточните доступные сведения перед финальным выпуском"],
   GENERATING: ["Формируем АОСР", "Заполняем утверждённые Excel-шаблоны"],
   VALIDATING: ["Проверяем комплект", "Техническая, смысловая и визуальная проверка"],
   READY_FOR_REVIEW: ["Проверьте комплект", "Документы готовы к решению специалиста"],
@@ -35,6 +35,15 @@ const esc = (value) =>
     (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[char]
   );
 const safePath = (value) => String(value).split("/").map(encodeURIComponent).join("/");
+const publicText = (value) =>
+  String(value ?? "")
+    .replace(/\s*\(\s*SHA-?256\s*[:=]?\s*[0-9a-f]{64}\s*\)/gi, "")
+    .replace(/\b(?:SHA-?256\s*[:=]?\s*)?[0-9a-f]{64}\b/gi, "")
+    .replace(/\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/gi, "")
+    .replace(/\b(?:файл|file)\s+[0-9a-f]{8}\b/gi, "загруженный файл")
+    .replace(/[ \t]{2,}/g, " ")
+    .trim();
+const yesNoQuestion = (question) => question.field_key.toLowerCase().includes("change_state");
 let currentJob = null;
 let refreshTimer = null;
 
@@ -56,7 +65,7 @@ async function api(url, options = {}) {
 function updateStatus(job) {
   const [title, fallbackSummary] = statusLabels[job.status] || [job.status, "Состояние обновлено"];
   document.getElementById("status").textContent = title;
-  document.getElementById("summary").textContent = job.summary || job.error || fallbackSummary;
+  document.getElementById("summary").textContent = publicText(job.summary || job.error || fallbackSummary);
   document.getElementById("status-pill").textContent = title;
   const pill = document.getElementById("status-pill");
   pill.className = "status-pill";
@@ -73,7 +82,11 @@ function updateStatus(job) {
   release.classList.toggle("is-active", ["READY_FOR_REVIEW", "APPROVED_FINAL"].includes(job.status));
   release.classList.toggle("is-complete", job.status === "APPROVED_FINAL");
   document.getElementById("step-check-copy").textContent =
-    job.status === "NEEDS_INPUT" ? "Ждёт ответа" : job.status === "APPROVED_FINAL" ? "Пройдена" : "В процессе";
+    job.status === "NEEDS_INPUT"
+      ? "Есть предупреждения"
+      : job.status === "APPROVED_FINAL"
+        ? "Пройдена"
+        : "В процессе";
   document.getElementById("step-release-copy").textContent =
     job.status === "APPROVED_FINAL"
       ? "Комплект готов"
@@ -101,7 +114,7 @@ function updateUsage(job) {
 
 async function refresh() {
   window.clearTimeout(refreshTimer);
-  const job = await api(`/api/jobs/${jobId}`);
+  const job = await api(`/api/kits/${jobRef}`);
   currentJob = job;
   document.getElementById("revision").textContent = job.revision;
   updateStatus(job);
@@ -115,17 +128,39 @@ async function refresh() {
   show("questions", job.status === "NEEDS_INPUT");
   show("retry-analysis", job.status === "FAILED_ANALYSIS");
   if (job.status === "NEEDS_INPUT") {
+    const unresolved = job.questions.filter((question) => !question.answer);
+    document.getElementById("missing-warning-title").textContent =
+      unresolved.length > 0
+        ? `Нужно проверить полей: ${unresolved.length}`
+        : "Все доступные ответы заполнены";
+    document.getElementById("missing-warning-copy").textContent =
+      unresolved.length > 0
+        ? "Их можно оставить пустыми и сохранить форму. Пока предупреждения не устранены, финальный выпуск останется недоступен."
+        : "После сохранения агент продолжит обработку комплекта.";
     document.getElementById("question-list").innerHTML = job.questions
       .map(
-        (question) => `
-          <label class="question-item">
-            <span>${esc(question.prompt)}</span>
-            <small>${esc(question.reason)}</small>
-            <input name="${esc(question.id)}" value="${esc(question.answer)}" required>
-            <textarea data-comment="${esc(question.id)}" placeholder="Источник или комментарий">${esc(
-              question.comment
-            )}</textarea>
-          </label>`
+        (question) => {
+          const isYesNo = yesNoQuestion(question);
+          const prompt = isYesNo
+            ? "Были ли изменения относительно рабочего проекта?"
+            : publicText(question.prompt);
+          const control = isYesNo
+            ? `<select name="${esc(question.id)}">
+                <option value="">Не указано</option>
+                <option value="YES" ${question.answer === "YES" ? "selected" : ""}>Да</option>
+                <option value="NO" ${question.answer === "NO" ? "selected" : ""}>Нет</option>
+              </select>`
+            : `<textarea name="${esc(question.id)}" placeholder="Необязательно. Введите подтверждённые сведения при наличии">${esc(
+                question.answer
+              )}</textarea>`;
+          return `
+            <label class="question-item ${question.answer ? "is-complete" : "is-missing"}">
+              <span>${esc(prompt)}</span>
+              <small>${esc(publicText(question.reason))}</small>
+              ${control}
+              <em>${question.answer ? "Сведения сохранены" : "Не заполнено — будет показано как предупреждение"}</em>
+            </label>`;
+        }
       )
       .join("");
   }
@@ -140,12 +175,12 @@ async function refresh() {
     )
     .join("");
 
-  const previews = await api(`/api/jobs/${jobId}/preview`);
+  const previews = await api(`/api/kits/${jobRef}/preview`);
   show("previews", previews.files.length > 0);
   document.getElementById("preview-list").innerHTML = previews.files
     .map(
       (file) =>
-        `<a target="_blank" rel="noopener" href="/api/jobs/${jobId}/files/${safePath(file)}">${esc(
+        `<a target="_blank" rel="noopener" href="/api/kits/${jobRef}/files/${safePath(file)}">${esc(
           file.split("/").pop()
         )}</a>`
     )
@@ -170,13 +205,15 @@ function showFatalError(error) {
 document.getElementById("answers-form").addEventListener("submit", async (event) => {
   event.preventDefault();
   const form = new FormData(event.currentTarget);
+  const feedback = document.getElementById("answers-feedback");
+  feedback.hidden = true;
   const answers = [];
   for (const [id, value] of form.entries()) {
     if (id.startsWith("q-")) {
       answers.push({
         question_id: id,
         value,
-        comment: document.querySelector(`[data-comment="${CSS.escape(id)}"]`).value,
+        comment: "",
         confirmed_by: currentJob.operator_name,
       });
     }
@@ -185,16 +222,22 @@ document.getElementById("answers-form").addEventListener("submit", async (event)
   button.disabled = true;
   button.textContent = "Сохраняем ответы…";
   try {
-    await api(`/api/jobs/${jobId}/answers`, {
+    await api(`/api/kits/${jobRef}/answers`, {
       method: "POST",
       body: JSON.stringify({ answers }),
     });
     await refresh();
+    if (currentJob.status === "NEEDS_INPUT") {
+      feedback.textContent =
+        "Заполненные сведения сохранены. Пропущенные поля отмечены предупреждениями и не отправлены на повторный анализ.";
+      feedback.hidden = false;
+    }
   } catch (error) {
-    showFatalError(error);
+    feedback.textContent = error.message;
+    feedback.hidden = false;
   } finally {
     button.disabled = false;
-    button.textContent = "Передать ответы и продолжить";
+    button.textContent = "Сохранить заполненное";
   }
 });
 
@@ -203,7 +246,7 @@ document.getElementById("retry-analysis-button").addEventListener("click", async
   button.disabled = true;
   button.textContent = "Ставим в очередь…";
   try {
-    await api(`/api/jobs/${jobId}/retry`, { method: "POST" });
+    await api(`/api/kits/${jobRef}/retry`, { method: "POST" });
     await refresh();
   } catch (error) {
     showFatalError(error);
@@ -215,7 +258,7 @@ document.getElementById("retry-analysis-button").addEventListener("click", async
 document.getElementById("approve").addEventListener("click", async (event) => {
   event.currentTarget.disabled = true;
   try {
-    await api(`/api/jobs/${jobId}/review`, {
+    await api(`/api/kits/${jobRef}/review`, {
       method: "POST",
       body: JSON.stringify({ action: "approve", corrections: [] }),
     });
@@ -237,7 +280,7 @@ document.getElementById("revision-form").addEventListener("submit", async (event
   const button = event.currentTarget.querySelector("button");
   button.disabled = true;
   try {
-    await api(`/api/jobs/${jobId}/review`, {
+    await api(`/api/kits/${jobRef}/review`, {
       method: "POST",
       body: JSON.stringify({ action: "request_revision", corrections: [correction] }),
     });

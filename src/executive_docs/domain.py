@@ -203,6 +203,11 @@ class ProjectState(StrictModel):
     updated_at: str = Field(default_factory=utc_now)
     error: str | None = None
 
+    @property
+    def public_ref(self) -> str:
+        created = datetime.fromisoformat(self.created_at)
+        return created.strftime("%Y%m%d-%H%M%S-%f")
+
     def touch(self) -> None:
         self.updated_at = utc_now()
 
@@ -217,7 +222,12 @@ class ProjectState(StrictModel):
                         normalized_value=question.answer,
                         source_kind="human_answer",
                         locator=f"question:{question.id}",
-                        evidence_fragment=question.comment or "Подтверждено специалистом",
+                        evidence_fragment=(
+                            f"Подтвердил: {question.confirmed_by}."
+                            + (f" {question.comment}" if question.comment else "")
+                            if question.confirmed_by
+                            else question.comment or "Подтверждено специалистом"
+                        ),
                         status=ClaimStatus.HUMAN_CONFIRMED,
                     )
                 )
