@@ -1,6 +1,6 @@
 import pytest
 
-from executive_docs.domain import JobStatus, NeedInputQuestion, ProjectState
+from executive_docs.domain import Artifact, JobStatus, NeedInputQuestion, ProjectState
 from executive_docs.presentation import public_payload, public_state, public_text
 from executive_docs.questions import is_delegated_value, normalized_answer
 
@@ -39,11 +39,23 @@ def test_public_state_hides_internal_template_questions() -> None:
                 reason="Внутренняя настройка",
             ),
         ],
+        artifacts=[
+            Artifact(
+                id="deadbeef",
+                original_name="Проект.pdf",
+                stored_name="deadbeef-project.pdf",
+                media_type="application/pdf",
+                size=10,
+                sha256="0" * 64,
+            )
+        ],
     )
     presented = public_state(state)
     assert [question.id for question in presented.questions] == ["q-fact"]
     assert public_payload(state)["job_id"] == state.public_ref
     assert state.job_id not in public_payload(state).values()
+    assert "sha256" not in public_payload(state)["artifacts"][0]
+    assert "stored_name" not in public_payload(state)["artifacts"][0]
 
 
 def test_optional_answers_accept_text_or_yes_no_and_reject_delegation() -> None:

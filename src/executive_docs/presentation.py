@@ -23,6 +23,13 @@ def public_text(value: str | None) -> str:
     text = SHA_VALUE.sub("", text)
     text = UUID_VALUE.sub("", text)
     text = FILE_ID_REFERENCE.sub("загруженный файл", text)
+    text = re.sub(r"\s+и\s+контракт(?:ы)?\s+шаблонов", "", text, flags=re.IGNORECASE)
+    text = re.sub(
+        r"\bhuman_confirmed\s+evidence\b",
+        "подтверждёнными сведениями",
+        text,
+        flags=re.IGNORECASE,
+    )
     text = re.sub(r"\(\s*\)", "", text)
     text = re.sub(r"\s+([,.;:])", r"\1", text)
     return re.sub(r"[ \t]{2,}", " ", text).strip()
@@ -54,4 +61,7 @@ def public_state(state: ProjectState) -> ProjectState:
 def public_payload(state: ProjectState) -> dict:
     payload = public_state(state).model_dump(mode="json")
     payload["job_id"] = state.public_ref
+    for artifact in payload["artifacts"]:
+        artifact.pop("sha256", None)
+        artifact.pop("stored_name", None)
     return payload
