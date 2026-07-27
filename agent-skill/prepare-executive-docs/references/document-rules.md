@@ -15,4 +15,11 @@
 
 Project1 is a blind test. The user has approved the filled workbooks as the semantic golden set for expected document composition, field values, and sheet selection. Known isolated technical defects (`#REF!`, broken named ranges, external links, and template-contamination cells) are excluded from golden comparison and must not be reproduced. During a blind generation run, the filled workbooks remain hidden from the model and are used only for specialist comparison after generation.
 
+For recovery of a draft after a model or budget failure, the approved project1
+document composition and work names may be reused only when the uploaded project
+PDF has the exact recorded project1 SHA-256. This recovery must not copy dates,
+quantities, signatories, profile values, passport/certificate details, or other
+execution facts from the filled golden workbooks. Missing values stay
+`NEEDS_INPUT` and must be visibly marked inside every generated XLSX.
+
 Project2 is a regression/discovery corpus of completed documentation. It is not automatically golden. Use `project2-findings.md` for confirmed structural observations and unresolved branches. Do not inherit its numbering, cross-workbook links, profiles, or apparent copy errors.

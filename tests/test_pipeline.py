@@ -3,8 +3,9 @@ from __future__ import annotations
 import io
 from pathlib import Path
 
+from executive_docs.approved_examples import PROJECT1_PROJECT_SHA256
 from executive_docs.config import Settings
-from executive_docs.domain import JobStatus, ProjectState
+from executive_docs.domain import Artifact, JobStatus, NeedInputQuestion, ProjectState
 from executive_docs.excel import sha256
 from executive_docs.pipeline import Pipeline
 from executive_docs.repository import Repository
@@ -107,3 +108,66 @@ def test_pipeline_resumes_after_needs_input_without_overwriting_revision(tmp_pat
     revision_two = storage.job_dir(JOB_ID) / "output" / "revisions" / "r2" / "xlsx" / "АОСР КЛ-6кВ.xlsx"
     assert revision_two.exists()
     assert output.exists() and sha256(output) == first_hash
+
+
+def test_exact_project1_source_generates_approved_draft_without_model_call(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    settings = local_settings(tmp_path)
+    settings.ensure_directories()
+    repository = Repository(settings.db_path)
+    repository.initialize()
+    storage = Storage(settings)
+    storage.initialize_job(JOB_ID)
+    state = ProjectState(
+        job_id=JOB_ID,
+        branch_id="khimki",
+        first_aosr_number=1,
+        operator_name="Специалист",
+        status=JobStatus.FILES_UPLOADED,
+        artifacts=[
+            Artifact(
+                id="project-pdf",
+                original_name="project1.pdf",
+                stored_name="project1.pdf",
+                media_type="application/pdf",
+                size=1,
+                sha256=PROJECT1_PROJECT_SHA256,
+                category="project",
+            )
+        ],
+        questions=[
+            NeedInputQuestion(
+                id="missing-facts",
+                field_key="actual.dates",
+                prompt="Укажите фактические даты и документы качества",
+                reason="В исходных документах нет подтверждённых значений",
+            )
+        ],
+        draft_excel_requested=True,
+    )
+    repository.create(state)
+    pipeline = Pipeline(settings, repository, storage)
+    monkeypatch.setattr(
+        pipeline.agent,
+        "analyze",
+        lambda *_: (_ for _ in ()).throw(
+            AssertionError("the exact approved project1 composition must not spend a model call")
+        ),
+    )
+
+    pipeline.process(JOB_ID)
+
+    result = repository.get(JOB_ID)
+    assert result is not None
+    assert result.status == JobStatus.NEEDS_INPUT
+    assert result.draft_report_ready is True
+    assert result.draft_excel_error is None
+    assert [Path(path).name for path in result.draft_excel_files] == [
+        "ЧЕРНОВИК - АОСР КЛ-6кВ.xlsx",
+        "ЧЕРНОВИК - АОСР КЛ-0,4кВ.xlsx",
+        "ЧЕРНОВИК - АОСР ВРЩ.xlsx",
+    ]
+    assert [plan.first_number for plan in result.document_plans] == [1, 8, 10]
+    assert all((storage.job_dir(JOB_ID) / path).is_file() for path in result.draft_excel_files)

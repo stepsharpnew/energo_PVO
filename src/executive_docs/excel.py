@@ -666,6 +666,29 @@ class ExcelGenerator:
         categories = self._draft_warning_categories(questions)
         claims_by_key = self._claim_map(claims)
         item_map = {item.id: item for item in work_items}
+        selected_items = [item_map[item_id] for item_id in plan.work_item_ids]
+        if any(not item.actual_start or not item.actual_end for item in selected_items):
+            categories.add("dates")
+        if any(item.volume is None for item in selected_items):
+            categories.add("volumes")
+        if any(item.change_state.value == "UNKNOWN" for item in selected_items):
+            categories.add("changes")
+        if any(
+            material.quality_document is None
+            for item in selected_items
+            for material in item.materials
+        ):
+            categories.add("materials")
+        if any(
+            key not in claims_by_key
+            for key in (
+                "contractor.construction_control.name",
+                "contractor.work_supervisor.name",
+                "customer.construction_control.name",
+                "customer.site_representative.name",
+            )
+        ):
+            categories.add("profiles")
         labels = {
             "dates": "не подтверждены фактические даты",
             "volumes": "не подтверждены фактические объёмы",

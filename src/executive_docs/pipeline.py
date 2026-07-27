@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from .agent import make_agent
+from .approved_examples import approved_project1_draft_plan
 from .config import Settings
 from .domain import JobStatus, ProjectState, ValidationIssue
 from .excel import ExcelGenerator
@@ -117,6 +118,20 @@ class Pipeline:
         if not state or state.status in {JobStatus.CANCELLED, JobStatus.APPROVED_FINAL}:
             return
         root = self.storage.job_dir(job_id)
+        if state.draft_excel_requested and not state.document_plans:
+            approved_plan = approved_project1_draft_plan(state)
+            if approved_plan is not None:
+                composition, work_items, document_plans = approved_plan
+                state.claims = [
+                    claim
+                    for claim in state.claims
+                    if claim.key != composition.key
+                ]
+                state.claims.append(composition)
+                state.work_items = work_items
+                state.document_plans = document_plans
+                state.error = None
+                self.repository.save(state)
         if state.draft_excel_requested and state.document_plans:
             state.status = JobStatus.GENERATING
             state.draft_report_ready = False
