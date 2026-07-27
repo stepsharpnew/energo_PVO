@@ -180,6 +180,42 @@ class OpenAIAgent:
         return model.startswith("gpt-5.6")
 
     @staticmethod
+    def _draft_plan_rejection(state: ProjectState, result: AnalysisResult) -> str | None:
+        if not state.draft_excel_requested or result.status != "NEEDS_INPUT":
+            return None
+        if not result.work_items:
+            return (
+                "Draft Excel was requested, but work_items is empty. Return every supported work "
+                "whose composition is established by the evidence; exclude out-of-pilot work."
+            )
+        if not result.document_plans:
+            return (
+                "Draft Excel was requested and work_items are known, but document_plans is empty. "
+                "Return the supported template, selected sheets, one work_item_id per sheet, "
+                "consecutive numbering from first_aosr_number, and the contract output filename. "
+                "Keep missing factual fields blank and retain NEEDS_INPUT."
+            )
+        work_ids = [item.id for item in result.work_items]
+        planned_ids = [item_id for plan in result.document_plans for item_id in plan.work_item_ids]
+        if len(planned_ids) != len(set(planned_ids)) or sorted(planned_ids) != sorted(work_ids):
+            return (
+                "Draft document_plans must cover every returned supported work_item exactly once. "
+                "Remove out-of-pilot work_items and correct the plan coverage without inventing facts."
+            )
+        numbers = [
+            number
+            for plan in result.document_plans
+            for number in range(plan.first_number, plan.first_number + len(plan.selected_sheets))
+        ]
+        expected = list(range(state.first_aosr_number, state.first_aosr_number + len(numbers)))
+        if numbers != expected:
+            return (
+                "Draft document plan numbers must be consecutive across all workbooks and begin "
+                "with first_aosr_number."
+            )
+        return None
+
+    @staticmethod
     def _approximate_tokens(instructions: str, tools: list[dict], history: list[Any]) -> int:
         def compact(value: Any) -> Any:
             if isinstance(value, dict):
@@ -543,7 +579,29 @@ class OpenAIAgent:
                         },
                     )
                     if call.name == "submit_analysis":
-                        submitted = AnalysisResult.model_validate(args)
+                        candidate = AnalysisResult.model_validate(args)
+                        rejection = self._draft_plan_rejection(state, candidate)
+                        if rejection:
+                            self._log(
+                                job_root,
+                                {
+                                    "event": "tool_rejected",
+                                    "revision": state.revision,
+                                    "response_id": response.id,
+                                    "call_id": call.call_id,
+                                    "tool": call.name,
+                                    "reason": rejection,
+                                },
+                            )
+                            history.append(
+                                {
+                                    "type": "function_call_output",
+                                    "call_id": call.call_id,
+                                    "output": json.dumps({"error": rejection}),
+                                }
+                            )
+                            continue
+                        submitted = candidate
                         history.append({"type": "function_call_output", "call_id": call.call_id, "output": "accepted"})
                         break
                     read_key = json.dumps({"name": call.name, "args": args}, ensure_ascii=False, sort_keys=True)

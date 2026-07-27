@@ -46,6 +46,30 @@ class Pipeline:
             raise RuntimeError(
                 "Не удалось определить состав Excel-листов. Нужен повторный анализ состава работ."
             )
+        plan_issues = validate_semantics(
+            state.work_items,
+            state.claims,
+            state.document_plans,
+            first_aosr_number=state.first_aosr_number,
+            branch_id=state.branch_id,
+            artifact_categories={item.id: item.category for item in state.artifacts},
+        )
+        blocking_plan_codes = {
+            "EMPTY_DOCUMENT_SET",
+            "DUPLICATE_WORK",
+            "INVALID_WORK_SEQUENCE",
+            "WORK_COVERAGE",
+            "DUPLICATE_NUMBER",
+            "NUMBER_GAP",
+            "INVALID_NUMBER_SEQUENCE",
+            "DUPLICATE_OUTPUT",
+            "DUPLICATE_ATTACHMENT",
+            "INVALID_ATTACHMENT",
+        }
+        plan_errors = [issue for issue in plan_issues if issue.code in blocking_plan_codes]
+        if plan_errors:
+            details = "; ".join(issue.message for issue in plan_errors[:3])
+            raise RuntimeError(f"План чернового Excel некорректен: {details}")
         stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
         draft_dir = root / "output" / "drafts" / f"r{state.revision}-{stamp}" / "xlsx"
         draft_dir.mkdir(parents=True, exist_ok=False)

@@ -5,7 +5,15 @@ from types import SimpleNamespace
 
 from executive_docs.agent import ANALYSIS_TOOL, TOOLS, HeuristicAgent, OpenAIAgent
 from executive_docs.config import Settings
-from executive_docs.domain import Artifact, ClaimStatus, ProjectState
+from executive_docs.domain import (
+    AnalysisResult,
+    Artifact,
+    ClaimStatus,
+    DocumentPlan,
+    NeedInputQuestion,
+    ProjectState,
+    WorkItem,
+)
 from executive_docs.knowledge import KnowledgeBase
 from executive_docs.usage import TokenBudgetExceeded
 import pytest
@@ -176,6 +184,49 @@ def test_openai_analysis_schema_has_no_defaults_or_ref_siblings() -> None:
 
 def test_openai_agent_exposes_only_analysis_tools_after_preloading_context() -> None:
     assert [tool["name"] for tool in TOOLS] == ["read_source", "submit_analysis"]
+
+
+def test_draft_request_rejects_needs_input_without_document_plan() -> None:
+    state = ProjectState(
+        job_id="89898989-8989-8989-8989-898989898989",
+        branch_id="khimki",
+        first_aosr_number=3,
+        operator_name="Специалист",
+        draft_excel_requested=True,
+    )
+    item = WorkItem(
+        id="work-kl04-1",
+        family="kl_04",
+        work_type="Прокладка кабеля",
+        sequence_index=1,
+    )
+    question = NeedInputQuestion(
+        id="q-date",
+        field_key="actual.start",
+        prompt="Дата?",
+        reason="Нет факта",
+    )
+    missing_plan = AnalysisResult(
+        status="NEEDS_INPUT",
+        summary="Нужна дата",
+        work_items=[item],
+        questions=[question],
+    )
+    assert "document_plans is empty" in OpenAIAgent._draft_plan_rejection(state, missing_plan)
+    planned = missing_plan.model_copy(
+        update={
+            "document_plans": [
+                DocumentPlan(
+                    template_id="aosr_kl_04",
+                    selected_sheets=["АОСР-3"],
+                    work_item_ids=[item.id],
+                    first_number=3,
+                    output_filename="АОСР КЛ-0,4кВ.xlsx",
+                )
+            ]
+        }
+    )
+    assert OpenAIAgent._draft_plan_rejection(state, planned) is None
 
 
 def test_openai_agent_stops_before_paid_call_when_preflight_exceeds_budget(tmp_path: Path, monkeypatch) -> None:
