@@ -15,7 +15,7 @@ from .config import settings
 from .domain import AnswersRequest, CorrectionReviewRequest, JobStatus, ProjectState, ReviewRequest
 from .packaging import build_result_zip, write_report
 from .pipeline import JobQueue, Pipeline
-from .presentation import public_payload, public_state
+from .presentation import public_draft_report_html, public_payload, public_state
 from .questions import is_internal_question, normalized_answer
 from .repository import Repository
 from .storage import Storage, is_selected_filename
@@ -239,6 +239,18 @@ async def preview(job_id: str):
         for path in sorted((root / "preview" / f"r{state.revision}").glob("*.pdf"))
     ]
     return {"files": files}
+
+
+@app.get("/api/kits/{job_id}/draft-report", response_class=HTMLResponse)
+@app.get("/api/jobs/{job_id}/draft-report", response_class=HTMLResponse)
+async def draft_report(job_id: str, download: bool = False):
+    state = get_job_or_404(job_id)
+    if state.status != JobStatus.NEEDS_INPUT or not state.draft_report_ready:
+        raise HTTPException(status_code=409, detail="Черновой отчёт ещё не сформирован")
+    headers = {"Cache-Control": "no-store"}
+    if download:
+        headers["Content-Disposition"] = 'attachment; filename="draft-report-with-warnings.html"'
+    return HTMLResponse(content=public_draft_report_html(state), headers=headers)
 
 
 @app.get("/api/kits/{job_id}/files/{relative_path:path}")

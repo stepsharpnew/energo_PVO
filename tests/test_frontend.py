@@ -52,6 +52,8 @@ def test_job_page_renders_manager_review_surfaces() -> None:
     assert 'id="download"' in html
     assert 'id="draft-report"' in html
     assert 'id="draft-warning-list"' in html
+    assert "Скачать отчёт с замечаниями" in html
+    assert f'/api/kits/{state.public_ref}/draft-report?download=true' in html
     assert 'id="retry-analysis"' in html
     assert 'id="missing-warning"' in html
     assert "Комплект 44444444" not in html

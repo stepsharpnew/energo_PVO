@@ -1,7 +1,7 @@
 import asyncio
 
 from executive_docs.domain import AnswerPayload, AnswersRequest, JobStatus, NeedInputQuestion, ProjectState
-from executive_docs.main import answer_questions
+from executive_docs.main import answer_questions, draft_report
 
 
 class RecordingRepository:
@@ -119,3 +119,29 @@ def test_complete_answers_continue_analysis(monkeypatch) -> None:
     assert repository.state.questions[0].answer == "NO"
     assert repository.saved == 1
     assert queue.enqueued == [state.job_id]
+
+
+def test_draft_report_can_be_downloaded_with_missing_answers(monkeypatch) -> None:
+    state = ProjectState(
+        job_id="66666666-6666-6666-6666-666666666666",
+        branch_id="khimki",
+        first_aosr_number=1,
+        operator_name="Специалист",
+        status=JobStatus.NEEDS_INPUT,
+        draft_report_ready=True,
+        questions=[
+            NeedInputQuestion(
+                id="q-passport",
+                field_key="materials.quality_documents",
+                prompt="Укажите паспорт",
+                reason="Паспорт отсутствует",
+            )
+        ],
+    )
+    monkeypatch.setattr("executive_docs.main.repository", RecordingRepository(state))
+
+    response = asyncio.run(draft_report(state.job_id, download=True))
+
+    assert response.status_code == 200
+    assert response.headers["content-disposition"] == 'attachment; filename="draft-report-with-warnings.html"'
+    assert "Паспорт отсутствует" in response.body.decode()

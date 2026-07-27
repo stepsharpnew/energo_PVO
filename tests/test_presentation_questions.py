@@ -1,7 +1,7 @@
 import pytest
 
 from executive_docs.domain import Artifact, JobStatus, NeedInputQuestion, ProjectState
-from executive_docs.presentation import public_payload, public_state, public_text
+from executive_docs.presentation import public_draft_report_html, public_payload, public_state, public_text
 from executive_docs.questions import is_delegated_value, normalized_answer
 
 
@@ -85,3 +85,30 @@ def test_optional_answers_accept_text_or_yes_no_and_reject_delegation() -> None:
         normalized_answer(text_question, "Сделай как считаешь нужным")
     with pytest.raises(ValueError, match="Да"):
         normalized_answer(yes_no_question, "Возможно")
+
+
+def test_public_draft_report_contains_warnings_without_internal_ids() -> None:
+    state = ProjectState(
+        job_id="44444444-4444-4444-4444-444444444444",
+        branch_id="khimki",
+        first_aosr_number=4,
+        operator_name="Специалист",
+        status=JobStatus.NEEDS_INPUT,
+        draft_report_ready=True,
+        questions=[
+            NeedInputQuestion(
+                id="q-passport",
+                field_key="materials.quality_documents",
+                prompt="Укажите паспорт 44444444-4444-4444-4444-444444444444",
+                reason="Паспорт отсутствует (SHA-256 " + "a" * 64 + ")",
+            )
+        ],
+    )
+
+    report = public_draft_report_html(state)
+
+    assert "Черновой отчёт с замечаниями" in report
+    assert "Паспорт отсутствует" in report
+    assert "44444444-4444" not in report
+    assert "a" * 64 not in report
+    assert "Печать / сохранить в PDF" in report

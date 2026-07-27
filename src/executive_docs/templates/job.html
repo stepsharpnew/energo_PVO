@@ -99,6 +99,8 @@
         </div>
         <div id="draft-warning-list" class="draft-warning-list"></div>
         <div class="draft-report-actions">
+          <a class="primary-button is-coral" href="/api/kits/{{ job.public_ref }}/draft-report?download=true">Скачать отчёт с замечаниями</a>
+          <a class="secondary-button" target="_blank" rel="noopener" href="/api/kits/{{ job.public_ref }}/draft-report">Открыть / сохранить в PDF</a>
           <button class="secondary-button" id="edit-draft-answers" type="button">Вернуться и дополнить сведения</button>
         </div>
       </section>
