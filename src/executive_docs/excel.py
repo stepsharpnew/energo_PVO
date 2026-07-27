@@ -33,6 +33,7 @@ class TemplateContract:
     candidate_sheets: list[str]
     common_fields: dict[str, str | list[str]]
     sheets: dict[str, dict]
+    clear_cells: dict[str, list[str]]
     forbidden_tokens: list[str]
     sha256: str | None
 
@@ -50,6 +51,7 @@ class TemplateContract:
             candidate_sheets=list(data.get("candidate_sheets", allowed_sheets)),
             common_fields=dict(data.get("common_fields", {})),
             sheets=dict(data["sheets"]),
+            clear_cells={str(sheet): list(cells) for sheet, cells in (data.get("clear_cells") or {}).items()},
             forbidden_tokens=list(data.get("forbidden_tokens", [])),
             sha256=data.get("sha256"),
         )
@@ -63,12 +65,25 @@ class TemplateContract:
         targets: set[str] = set()
         for value in self.common_fields.values():
             targets.update(value if isinstance(value, list) else [value])
+
+        def mapping_cells(value: object) -> list[str]:
+            if isinstance(value, str):
+                return [value] if re.fullmatch(r"[A-Z]{1,3}[1-9][0-9]*", value) else []
+            if isinstance(value, list):
+                return [cell for item in value for cell in mapping_cells(item)]
+            if isinstance(value, dict):
+                return [
+                    cell
+                    for key, item in value.items()
+                    if key not in {"suffix_value", "separator_value"}
+                    for cell in mapping_cells(item)
+                ]
+            return []
+
         for sheet, mapping in self.sheets.items():
-            for key, cell in mapping.items():
-                if key in {"suffix_value"} or not isinstance(cell, str):
-                    continue
-                if re.fullmatch(r"[A-Z]{1,3}[1-9][0-9]*", cell):
-                    targets.add(f"{sheet}!{cell}")
+            targets.update(f"{sheet}!{cell}" for cell in mapping_cells(mapping))
+        for sheet, cells in self.clear_cells.items():
+            targets.update(f"{sheet}!{cell}" for cell in cells)
         return targets
 
 
@@ -201,6 +216,93 @@ class OOXMLWorkbook:
                     changed = True
             if changed:
                 self._save_sheet_root(sheet_name, root)
+
+    def clear_fill_colors(
+        self,
+        *,
+        rgb_values: set[str] | None = None,
+        indexed_values: set[int] | None = None,
+    ) -> int:
+        """Remove selected solid fills while preserving every other cell-style component.
+
+        The implementation remaps affected cells to an equivalent ``cellXf`` with
+        ``fillId=0``. It avoids reserializing worksheets or rebuilding styles, which
+        is important for the legacy pilot templates.
+        """
+
+        rgb_values = {value.upper() for value in (rgb_values or {"FFFFFF00", "00FFFF00"})}
+        indexed_values = indexed_values or {6, 13}
+        styles_part = "xl/styles.xml"
+        if styles_part not in self.parts:
+            return 0
+        styles = etree.fromstring(self.parts[styles_part])
+        fills = styles.find(f"{{{MAIN_NS}}}fills")
+        cell_xfs = styles.find(f"{{{MAIN_NS}}}cellXfs")
+        if fills is None or cell_xfs is None:
+            return 0
+
+        selected_fill_ids: set[int] = set()
+        for index, fill in enumerate(fills):
+            pattern = fill.find(f"{{{MAIN_NS}}}patternFill")
+            if pattern is None:
+                continue
+            foreground = pattern.find(f"{{{MAIN_NS}}}fgColor")
+            if foreground is None:
+                continue
+            rgb = (foreground.get("rgb") or "").upper()
+            indexed = foreground.get("indexed")
+            if rgb in rgb_values or (indexed is not None and int(indexed) in indexed_values):
+                selected_fill_ids.add(index)
+        if not selected_fill_ids:
+            return 0
+
+        def style_signature(style: etree._Element) -> bytes:
+            normalized = copy.deepcopy(style)
+            normalized.attrib.pop("fillId", None)
+            normalized.attrib.pop("applyFill", None)
+            return etree.tostring(normalized)
+
+        no_fill_by_signature: dict[bytes, int] = {}
+        for index, style in enumerate(cell_xfs):
+            if int(style.get("fillId", "0")) == 0:
+                no_fill_by_signature.setdefault(style_signature(style), index)
+
+        style_remap: dict[int, int] = {}
+        for index, style in enumerate(list(cell_xfs)):
+            if int(style.get("fillId", "0")) not in selected_fill_ids:
+                continue
+            signature = style_signature(style)
+            replacement = no_fill_by_signature.get(signature)
+            if replacement is None:
+                clean_style = copy.deepcopy(style)
+                clean_style.set("fillId", "0")
+                clean_style.attrib.pop("applyFill", None)
+                cell_xfs.append(clean_style)
+                replacement = len(cell_xfs) - 1
+                no_fill_by_signature[signature] = replacement
+            style_remap[index] = replacement
+        if not style_remap:
+            return 0
+        cell_xfs.set("count", str(len(cell_xfs)))
+        self.parts[styles_part] = etree.tostring(
+            styles, xml_declaration=True, encoding="UTF-8", standalone=True
+        )
+
+        changed_cells = 0
+        for sheet_name in self.sheet_parts:
+            root = self._sheet_root(sheet_name)
+            changed_sheet = False
+            for cell in root.xpath("//x:c[@s]", namespaces=NS):
+                style_index = int(cell.get("s"))
+                replacement = style_remap.get(style_index)
+                if replacement is None:
+                    continue
+                cell.set("s", str(replacement))
+                changed_cells += 1
+                changed_sheet = True
+            if changed_sheet:
+                self._save_sheet_root(sheet_name, root)
+        return changed_cells
 
     def remove_external_links(self) -> None:
         """Remove external-link package parts after every dependent formula was localized."""
@@ -423,20 +525,58 @@ class ExcelGenerator:
         if any(item_id not in item_map or item_map[item_id].family != expected_family for item_id in plan.work_item_ids):
             raise ValueError("Работа отсутствует или не соответствует семейству шаблона")
         workbook = OOXMLWorkbook(source)
-        workbook.set_visibility(selected, set(contract.candidate_sheets))
+        act_sheets = {
+            sheet_name
+            for sheet_name in workbook.sheet_parts
+            if sheet_name.casefold().startswith("аоср")
+        }
+        workbook.set_visibility(selected, set(contract.candidate_sheets) | act_sheets)
         claims_by_key = self._claim_map(claims)
         for field in plan.field_values:
             if claims_by_key.get(field.key) != field.value:
                 raise ValueError(f"Поле плана не подтверждено Claim: {field.key}")
         for key, target in contract.common_fields.items():
             value = claims_by_key.get(key)
-            if value is not None:
-                for cell_target in target if isinstance(target, list) else [target]:
-                    sheet, cell = cell_target.split("!", 1)
+            for cell_target in target if isinstance(target, list) else [target]:
+                sheet, cell = cell_target.split("!", 1)
+                if value is None:
+                    workbook.clear_cell(sheet, cell)
+                else:
                     workbook.set_cell(sheet, cell, value)
         for offset, (sheet, item_id) in enumerate(zip(plan.selected_sheets, plan.work_item_ids)):
             item = item_map[item_id]
             mapping = contract.sheets[sheet]
+            material_rows = mapping.get("material_rows")
+            if material_rows is not None and (
+                not isinstance(material_rows, list)
+                or any(not isinstance(row, dict) for row in material_rows)
+            ):
+                raise ValueError(f"Некорректный material_rows в контракте: {contract.template_id}:{sheet}")
+            if isinstance(material_rows, list) and len(item.materials) > len(material_rows):
+                raise ValueError(
+                    f"Для {sheet} предусмотрено материалов: {len(material_rows)}, "
+                    f"получено: {len(item.materials)}"
+                )
+            for cell in contract.clear_cells.get(sheet, []):
+                workbook.clear_cell(sheet, cell)
+            for field in (
+                "installation",
+                "volume",
+                "unit",
+                "start_date",
+                "end_date",
+                "attachment",
+                "material_name",
+                "material_document",
+                "subsequent_work",
+            ):
+                if mapping.get(field):
+                    workbook.clear_cell(sheet, mapping[field])
+            if isinstance(material_rows, list):
+                for row in material_rows:
+                    for field in ("name", "separator", "quantity", "unit", "quantity_unit", "document"):
+                        if row.get(field):
+                            workbook.clear_cell(sheet, row[field])
             workbook.set_cell(sheet, mapping.get("number", "C32"), plan.first_number + offset)
             if mapping.get("suffix"):
                 workbook.set_cell(sheet, mapping["suffix"], mapping.get("suffix_value", ""))
@@ -451,10 +591,35 @@ class ExcelGenerator:
                 workbook.set_cell(sheet, mapping["start_date"], item.actual_start)
             if item.actual_end and mapping.get("end_date"):
                 workbook.set_cell(sheet, mapping["end_date"], item.actual_end)
+            if item.subsequent_work and mapping.get("subsequent_work"):
+                workbook.set_cell(sheet, mapping["subsequent_work"], item.subsequent_work)
             if item.execution_scheme_id and mapping.get("attachment"):
                 scheme_name = claims_by_key.get(f"artifact.{item.execution_scheme_id}.name", "Исполнительная схема")
                 workbook.set_cell(sheet, mapping["attachment"], scheme_name)
-            if item.materials and mapping.get("material_name"):
+            if isinstance(material_rows, list):
+                for material, row in zip(item.materials, material_rows):
+                    if row.get("name"):
+                        workbook.set_cell(sheet, row["name"], material.name)
+                    if row.get("separator"):
+                        workbook.set_cell(
+                            sheet,
+                            row["separator"],
+                            str(row.get("separator_value", "-")),
+                        )
+                    if material.quantity is not None and row.get("quantity"):
+                        workbook.set_cell(sheet, row["quantity"], material.quantity)
+                    if material.unit and row.get("unit"):
+                        workbook.set_cell(sheet, row["unit"], material.unit)
+                    if material.quantity is not None and row.get("quantity_unit"):
+                        quantity_unit = material.quantity
+                        if material.unit and not quantity_unit.casefold().endswith(
+                            material.unit.casefold()
+                        ):
+                            quantity_unit += material.unit
+                        workbook.set_cell(sheet, row["quantity_unit"], quantity_unit)
+                    if material.quality_document and row.get("document"):
+                        workbook.set_cell(sheet, row["document"], material.quality_document)
+            elif item.materials and mapping.get("material_name"):
                 names = "; ".join(material.name for material in item.materials)
                 documents = "; ".join(
                     material.quality_document or "" for material in item.materials if material.quality_document

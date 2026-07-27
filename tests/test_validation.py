@@ -47,3 +47,32 @@ def test_unknown_change_and_bad_dates_block_release() -> None:
     plan = DocumentPlan(template_id="aosr_vrs", selected_sheets=["АОСР-1"], work_item_ids=["w1"], first_number=1, output_filename="АОСР ВРЩ.xlsx")
     codes = {issue.code for issue in validate_semantics([item], claims, [plan])}
     assert {"INVALID_DATE_ORDER", "UNKNOWN_CHANGE_STATE", "MISSING_QUALITY_DOC"}.issubset(codes)
+
+
+def test_blank_certificate_placeholder_blocks_release() -> None:
+    claims = [confirmed("actual.start", "01.06.2026"), confirmed("actual.end", "02.06.2026")]
+    item = WorkItem(
+        id="w1",
+        family="vrs",
+        work_type="Работа",
+        sequence_index=1,
+        actual_start="01.06.2026",
+        actual_end="02.06.2026",
+        materials=[
+            Material(
+                name="Арматура Ø10",
+                quality_document="(сертификат №                от )",
+            )
+        ],
+        change_state="NO",
+        source_claim_keys=["actual.start", "actual.end"],
+    )
+    plan = DocumentPlan(
+        template_id="aosr_vrs",
+        selected_sheets=["АОСР-6"],
+        work_item_ids=["w1"],
+        first_number=1,
+        output_filename="АОСР ВРЩ.xlsx",
+    )
+    codes = {issue.code for issue in validate_semantics([item], claims, [plan])}
+    assert "MISSING_QUALITY_DOC" in codes

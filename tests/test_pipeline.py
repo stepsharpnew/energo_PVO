@@ -23,7 +23,7 @@ def local_settings(tmp_path: Path) -> Settings:
         db_path=tmp_path / "data" / "app.db",
         skill_dir=ROOT / "agent-skill" / "prepare-executive-docs",
         contracts_dir=ROOT / "templates" / "contracts",
-        approved_templates_dir=tmp_path / "approved",
+        approved_templates_dir=ROOT / "templates" / "approved",
         source_templates_dir=ROOT / "template",
         agent_mode="heuristic",
         soffice_path="missing-soffice",
@@ -73,7 +73,7 @@ def test_pipeline_resumes_after_needs_input_without_overwriting_revision(tmp_pat
     state = repository.get(JOB_ID)
     assert state is not None and state.status == JobStatus.FAILED_VALIDATION
     codes = {issue.code for issue in state.validation_issues}
-    assert "TEMPLATE_NOT_APPROVED" in codes
+    assert "TEMPLATE_NOT_APPROVED" not in codes
     assert "MODEL_REVIEW_SKIPPED" in codes
     output = storage.job_dir(JOB_ID) / "output" / "revisions" / "r1" / "xlsx" / "АОСР КЛ-6кВ.xlsx"
     assert output.exists()

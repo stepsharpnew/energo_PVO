@@ -88,6 +88,7 @@ class WorkItem(StrictModel):
     volume: str | None = None
     unit: str | None = None
     installation: str | None = None
+    subsequent_work: str | None = None
     materials: list[Material] = Field(default_factory=list)
     change_state: ChangeState = ChangeState.UNKNOWN
     execution_scheme_id: str | None = None

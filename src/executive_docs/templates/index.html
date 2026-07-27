@@ -3,29 +3,256 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>ИИ-агент ИД</title>
+  <title>Новый комплект · ИД</title>
+  <meta name="theme-color" content="#f8f9f3">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
   <link rel="stylesheet" href="/static/app.css">
 </head>
-<body>
-<main>
-  <header><p class="eyebrow">Локальный MVP</p><h1>Исполнительная документация</h1><p>Загрузите проект, исполнительные схемы и подтверждающие документы. Агент сформирует АОСР или вернёт только блокирующие вопросы.</p></header>
-  <section class="card">
-    <h2>Новый комплект</h2>
-    <form action="/api/jobs" method="post" enctype="multipart/form-data">
-      <div class="grid">
-        <label>Подразделение Россетей<select name="branch_id"><option value="khimki">Химки</option><option value="solnechnogorsk">Солнечногорск</option></select></label>
-        <label>Первый номер АОСР<input name="first_aosr_number" type="number" min="1" value="1" required></label>
-        <label>Специалист<input name="operator_name" required placeholder="ФИО"></label>
-        <label>Расход модели<select name="processing_profile"><option value="balanced" {% if processing_profile == 'balanced' %}selected{% endif %}>Баланс — рекомендуется</option><option value="economy" {% if processing_profile == 'economy' %}selected{% endif %}>Экономия</option><option value="quality" {% if processing_profile == 'quality' %}selected{% endif %}>Максимум качества</option></select></label>
+<body class="app-body">
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="Главная">
+      <span class="brand-mark" aria-hidden="true">М</span>
+      <span>
+        <strong>Пошаговый помощник</strong>
+        <small>исполнительная документация · АОСР</small>
+      </span>
+    </a>
+    <div class="topbar-context">Подготовка исполнительной документации (АОСР)</div>
+    <div class="topbar-actions">
+      <button class="quiet-action" id="help-toggle" type="button">Справка</button>
+      <span class="topbar-divider" aria-hidden="true"></span>
+      <div class="operator-chip">
+        <span class="operator-avatar" aria-hidden="true">С</span>
+        <span id="operator-label">Специалист</span>
       </div>
-      <p class="muted">Баланс: Terra и выборочные страницы. Экономия: Luna и минимальный визуальный контекст. Максимум качества: Sol и больше визуальных страниц. Токен-лимиты жёсткие; лимит USD считается консервативно по зафиксированным тарифам.</p>
-      <label class="drop">Исходные файлы<input name="files" type="file" multiple required accept=".pdf,.xlsx,.docx,.png,.jpg,.jpeg,.csv,.txt"><span>Можно выбрать сразу несколько файлов</span></label>
-      <button type="submit">Запустить обработку</button>
-    </form>
-  </section>
-  <section class="card">
-    <div class="section-title"><h2>Задания</h2><span class="badge">{{ agent_mode }} · {{ processing_profile }} · {{ model }}</span></div>
-    {% if jobs %}<div class="jobs">{% for job in jobs %}<a href="/jobs/{{ job.job_id }}"><span>{{ job.created_at[:19].replace('T',' ') }}</span><strong>{{ job.status }}</strong><small>{{ job.summary or job.job_id }}</small></a>{% endfor %}</div>{% else %}<p class="muted">Заданий пока нет.</p>{% endif %}
-  </section>
-</main>
-</body></html>
+    </div>
+  </header>
+
+  <div class="wizard-shell">
+    <aside class="wizard-rail" aria-label="Этапы создания комплекта">
+      <nav class="step-nav">
+        <button class="step-link is-active" type="button" data-step-target="object" aria-current="step">
+          <span class="step-number">1</span>
+          <span><strong>Объект</strong><small>Информация об объекте и составе работ</small></span>
+        </button>
+        <button class="step-link" type="button" data-step-target="files">
+          <span class="step-number">2</span>
+          <span><strong>Файлы</strong><small>Исходные данные</small></span>
+        </button>
+        <button class="step-link" type="button" data-step-target="check">
+          <span class="step-number">3</span>
+          <span><strong>Проверка</strong><small>Состав комплекта</small></span>
+        </button>
+        <div class="step-link is-disabled" aria-disabled="true">
+          <span class="step-number">4</span>
+          <span><strong>Запуск</strong><small>Сформируем пакет документации</small></span>
+        </div>
+      </nav>
+
+      <button class="recent-toggle" id="recent-toggle" type="button">
+        <span>Последние комплекты</span>
+        <strong>{{ jobs|length }}</strong>
+      </button>
+
+      <div class="rail-date">
+        <time id="current-date" datetime="{{ today_iso }}">{{ today_iso }}</time>
+        <small>Черновик сохраняется локально</small>
+      </div>
+    </aside>
+
+    <main class="wizard-main">
+      <form id="job-form" action="/api/jobs" method="post" enctype="multipart/form-data" novalidate>
+        <section class="wizard-panel is-active" data-step-panel="object">
+          <div class="panel-heading">
+            <p class="kicker">Новый комплект</p>
+            <h1>Настройте объект</h1>
+            <p>Три коротких поля задают профиль заказчика, нумерацию актов и автора подтверждений.</p>
+          </div>
+
+          <div class="object-grid">
+            <label class="field">
+              <span>Подразделение Россетей</span>
+              <select name="branch_id" id="branch-id">
+                <option value="khimki">Химки</option>
+                <option value="solnechnogorsk">Солнечногорск</option>
+              </select>
+              <small>Профиль определяет реквизиты и подписантов.</small>
+            </label>
+            <label class="field">
+              <span>Первый номер АОСР</span>
+              <input name="first_aosr_number" id="first-number" type="number" min="1" value="1" required inputmode="numeric">
+              <small>Остальные номера агент продолжит по порядку.</small>
+            </label>
+            <label class="field field-wide">
+              <span>Специалист</span>
+              <input name="operator_name" id="operator-name" autocomplete="name" required placeholder="Фамилия Имя Отчество">
+              <small>Это имя будет указано у ответов, подтверждённых человеком.</small>
+            </label>
+            <fieldset class="profile-choice field-wide">
+              <legend>Режим обработки</legend>
+              <label>
+                <input type="radio" name="processing_profile" value="economy" {% if processing_profile == 'economy' %}checked{% endif %}>
+                <span><strong>Экономно</strong><small>Минимум визуальных страниц</small></span>
+              </label>
+              <label>
+                <input type="radio" name="processing_profile" value="balanced" {% if processing_profile == 'balanced' %}checked{% endif %}>
+                <span><strong>Баланс</strong><small>Оптимально для обычного проекта</small></span>
+              </label>
+              <label>
+                <input type="radio" name="processing_profile" value="quality" {% if processing_profile == 'quality' %}checked{% endif %}>
+                <span><strong>Тщательно</strong><small>Больше визуальных проверок</small></span>
+              </label>
+            </fieldset>
+          </div>
+
+          <div class="panel-actions">
+            <span class="autosave-note" id="draft-status">Черновик будет сохранён на этом компьютере</span>
+            <button class="primary-button" type="button" data-next-step="files">Продолжить к файлам</button>
+          </div>
+        </section>
+
+        <section class="wizard-panel" data-step-panel="files" hidden>
+          <div class="panel-heading">
+            <p class="kicker">Шаг 2 из 4</p>
+            <h1>Добавьте исходные данные</h1>
+            <p>Достаточно рабочего проекта и таблицы фактических данных. Схемы и документы качества можно приложить сразу.</p>
+          </div>
+
+          <div class="upload-stack">
+            <label class="upload-row" for="project-file" data-upload-row="project">
+              <i class="bi bi-filetype-pdf file-mark is-pdf" aria-hidden="true"></i>
+              <span class="upload-copy">
+                <strong>Рабочий проект PDF <em>*</em></strong>
+                <span data-file-name>Выберите один рабочий проект</span>
+                <small data-file-meta>PDF · до 500 МБ</small>
+              </span>
+              <span class="upload-state" data-file-state>Выбрать файл</span>
+            </label>
+            <input class="visually-hidden file-input" id="project-file" name="files" type="file" required accept=".pdf,application/pdf" data-file-kind="project">
+
+            <label class="upload-row" for="facts-file" data-upload-row="facts">
+              <i class="bi bi-filetype-xlsx file-mark is-xlsx" aria-hidden="true"></i>
+              <span class="upload-copy">
+                <strong>Фактические данные.xlsx <em>*</em></strong>
+                <span data-file-name>Даты, объёмы, материалы и порядок АОСР</span>
+                <small data-file-meta>Один лист · утверждено специалистом</small>
+              </span>
+              <span class="upload-state" data-file-state>Выбрать файл</span>
+            </label>
+            <input class="visually-hidden file-input" id="facts-file" name="files" type="file" required accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" data-file-kind="facts">
+
+            <div class="optional-upload">
+              <button class="optional-upload-toggle" id="attachments-toggle" type="button" aria-expanded="false">
+                <i class="bi bi-paperclip paperclip-mark" aria-hidden="true"></i>
+                <span><strong>Исполнительные схемы и приложения</strong><small>Необязательно. PDF, XLSX, DOCX, PNG или JPEG.</small></span>
+                <span class="attachment-count" id="attachment-count">0 файлов</span>
+              </button>
+              <div class="optional-upload-body" id="attachments-body" hidden>
+                <label class="secondary-drop" for="attachment-files">
+                  <strong>Добавить приложения</strong>
+                  <span>Исполнительные схемы, паспорта и сертификаты</span>
+                </label>
+                <input class="visually-hidden file-input" id="attachment-files" name="files" type="file" multiple accept=".pdf,.xlsx,.docx,.png,.jpg,.jpeg" data-file-kind="attachments">
+                <div class="attachment-list" id="attachment-list"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="insight-strip" id="file-insight">
+            <i class="bi bi-check-circle insight-check" aria-hidden="true"></i>
+            <span id="insight-copy">После загрузки агент сопоставит объект, работы и доступные шаблоны.</span>
+            <button type="button" id="requirements-toggle">Что будет проверено</button>
+          </div>
+
+          <div class="panel-actions">
+            <button class="secondary-button" type="button" data-next-step="object">Назад</button>
+            <div class="action-side">
+              <span class="autosave-note">Файлы сохраняются только в локальном задании</span>
+              <button class="primary-button is-coral" type="button" data-next-step="check">Продолжить к проверке</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="wizard-panel" data-step-panel="check" hidden>
+          <div class="panel-heading">
+            <p class="kicker">Шаг 3 из 4</p>
+            <h1>Проверьте перед запуском</h1>
+            <p>Агент начнёт с инвентаризации, затем извлечёт факты и остановится только при критичной нехватке данных.</p>
+          </div>
+
+          <div class="review-list">
+            <div><span>Объект</span><strong id="review-branch">Химки</strong></div>
+            <div><span>Нумерация</span><strong id="review-number">с АОСР №1</strong></div>
+            <div><span>Специалист</span><strong id="review-operator">Не указан</strong></div>
+            <div><span>Рабочий проект</span><strong id="review-project">Не выбран</strong></div>
+            <div><span>Фактические данные</span><strong id="review-facts">Не выбраны</strong></div>
+            <div><span>Дополнительные файлы</span><strong id="review-attachments">0</strong></div>
+          </div>
+
+          <div class="run-summary">
+            <div>
+              <span class="run-summary-label">Режим</span>
+              <strong id="review-profile">Баланс</strong>
+            </div>
+            <div>
+              <span class="run-summary-label">Ожидаемый сценарий</span>
+              <strong>Анализ → проверка → готовый комплект</strong>
+            </div>
+            <p>Если в таблице нет обязательного факта, задание перейдёт в <b>«Нужны сведения»</b>, не придумывая значение.</p>
+          </div>
+
+          <div class="form-error" id="form-error" role="alert" hidden></div>
+          <div class="panel-actions">
+            <button class="secondary-button" type="button" data-next-step="files">Назад к файлам</button>
+            <button class="primary-button is-coral" id="submit-job" type="submit">Запустить агента</button>
+          </div>
+        </section>
+      </form>
+    </main>
+  </div>
+
+  <aside class="side-drawer" id="help-drawer" aria-hidden="true" aria-label="Подготовка файлов">
+    <button class="drawer-close" type="button" data-close-drawer>Закрыть</button>
+    <p class="kicker">Короткая памятка</p>
+    <h2>Что загрузить</h2>
+    <ol>
+      <li><strong>Рабочий проект PDF</strong><span>Основной утверждённый проект с шифром и проектными решениями.</span></li>
+      <li><strong>Фактические данные.xlsx</strong><span>Подтверждённые даты, объёмы, материалы, отклонения и порядок работ.</span></li>
+      <li><strong>Приложения</strong><span>Схемы, паспорта и сертификаты, если они относятся к работам.</span></li>
+    </ol>
+    <p class="drawer-footnote">Имена файлов помогают менеджеру, но агент определяет тип документа по содержимому.</p>
+  </aside>
+
+  <aside class="side-drawer" id="recent-drawer" aria-hidden="true" aria-label="Последние комплекты">
+    <button class="drawer-close" type="button" data-close-drawer>Закрыть</button>
+    <p class="kicker">История</p>
+    <h2>Последние комплекты</h2>
+    {% if jobs %}
+      <div class="recent-jobs">
+        {% for job in jobs %}
+          <a href="/jobs/{{ job.job_id }}">
+            <span>{{ job.created_at[:10] }}</span>
+            <strong>{{ job.summary or "Комплект без названия" }}</strong>
+            <small data-job-status="{{ job.status }}">{{ job.status }}</small>
+          </a>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-state"><strong>Комплектов пока нет</strong><span>Первое задание появится здесь после запуска.</span></div>
+    {% endif %}
+  </aside>
+  <div class="drawer-backdrop" id="drawer-backdrop" hidden></div>
+
+  <script>
+    window.mvpConfig = {
+      model: {{ model|tojson }},
+      mode: {{ agent_mode|tojson }},
+      defaultProfile: {{ processing_profile|tojson }}
+    };
+  </script>
+  <script src="/static/index.js"></script>
+</body>
+</html>

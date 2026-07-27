@@ -103,6 +103,7 @@ def clean(plan: dict) -> dict:
             workbook.set_formula(sheet_name, coordinate, formula)
     for name in plan["remove_defined_names"]:
         workbook.remove_defined_name(name)
+    yellow_fill_cells_removed = workbook.clear_fill_colors()
     workbook.remove_external_links()
     workbook.clear_formula_caches()
     workbook.remove_calculation_chain()
@@ -133,6 +134,7 @@ def clean(plan: dict) -> dict:
         "checks": checks,
         "errors": errors,
         "stale_tokens": stale,
+        "yellow_fill_cells_removed": yellow_fill_cells_removed,
         "status": "READY_FOR_VISUAL_APPROVAL" if all(checks.values()) else "BLOCKED",
     }
 

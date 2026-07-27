@@ -1,14 +1,30 @@
 template_id: aosr_kl_6
 source_template: template/9. АОСР КЛ.xlsx
-version: 0.2-cleaned-candidate
-approved: false
-candidate_sha256: 68680d271a972ae24d4c13e2ca0957b640d75c887358df43a52b613a7f04709e
+version: 1.0.0-approved
+approved: true
+candidate_sha256: b23bf61ab27247422361a4b2e51d6133c63cfbe0c9f4aa8291ef57b589facf60
 output_filename: АОСР КЛ-6кВ.xlsx
-allowed_sheets: [АОСР-1, АОСР-2, АОСР-3, АОСР-4, АОСР-5, АОСР-6, АОСР-7]
-candidate_sheets: [АОСР-1, АОСР-2, АОСР-3, АОСР-4, АОСР-5, АОСР-6, АОСР-7]
+allowed_sheets:
+- АОСР-1
+- АОСР-2
+- АОСР-3
+- АОСР-4
+- АОСР-5
+- АОСР-6
+- АОСР-7
+candidate_sheets:
+- АОСР-1
+- АОСР-2
+- АОСР-3
+- АОСР-4
+- АОСР-5
+- АОСР-6
+- АОСР-7
 common_fields:
   project.sap: Данные объект!B2
-  project.name: [Данные объект!B3, Данные объект!B44]
+  project.name:
+  - Данные объект!B3
+  - Данные объект!B44
   project.district: Данные объект!B4
   project.address: Данные объект!B5
   actual.start: Данные объект!B6
@@ -40,15 +56,103 @@ common_fields:
   designer.address: Данные объект!B41
   designer.issue_city: Данные объект!B42
 sheets:
-  АОСР-1: {number: C32, suffix: E32, suffix_value: /КЛ-6кВ, work_name: A62, installation: O62, volume: S62, unit: U62, attachment: G72, start_date: P77, end_date: P78}
-  АОСР-2: {number: C32, suffix: E32, suffix_value: /КЛ-6кВ, work_name: A62, installation: O62, volume: R62, unit: U62, material_name: A69, material_document: K69, attachment: G72, start_date: P77, end_date: P78}
-  АОСР-3: {number: C32, suffix: E32, suffix_value: /КЛ-6кВ, work_name: A62, installation: N62, volume: R62, unit: U62, material_name: A69, material_document: O69, attachment: G72, start_date: P77, end_date: P78}
-  АОСР-4: {number: C32, suffix: E32, suffix_value: /КЛ-6кВ, work_name: A62, installation: H62, volume: P62, unit: T62, material_name: A69, material_document: Q69, attachment: G72, start_date: P77, end_date: P78}
-  АОСР-5: {number: C32, suffix: E32, suffix_value: /КЛ-6кВ, work_name: A62, installation: J62, volume: N62, unit: R62, material_name: A69, material_document: K69, attachment: G72, start_date: P77, end_date: P78}
-  АОСР-6: {number: C32, suffix: E32, suffix_value: /КЛ-6кВ, work_name: A62, material_name: A69, material_document: N69, attachment: G72, start_date: P77, end_date: P78}
-  АОСР-7: {number: C32, suffix: E32, suffix_value: /КЛ-6кВ, work_name: A62, installation: T62, volume: X62, unit: AA62, attachment: G72, start_date: P77, end_date: P78}
+  АОСР-1:
+    number: C32
+    suffix: E32
+    suffix_value: /КЛ-6кВ
+    work_name: A62
+    installation: O62
+    volume: S62
+    unit: U62
+    attachment: G72
+    start_date: P77
+    end_date: P78
+  АОСР-2:
+    number: C32
+    suffix: E32
+    suffix_value: /КЛ-6кВ
+    work_name: A62
+    installation: O62
+    volume: R62
+    unit: U62
+    material_name: A69
+    material_document: K69
+    attachment: G72
+    start_date: P77
+    end_date: P78
+  АОСР-3:
+    number: C32
+    suffix: E32
+    suffix_value: /КЛ-6кВ
+    work_name: A62
+    installation: N62
+    volume: R62
+    unit: U62
+    material_name: A69
+    material_document: O69
+    attachment: G72
+    start_date: P77
+    end_date: P78
+  АОСР-4:
+    number: C32
+    suffix: E32
+    suffix_value: /КЛ-6кВ
+    work_name: A62
+    installation: H62
+    volume: P62
+    unit: T62
+    material_name: A69
+    material_document: Q69
+    attachment: G72
+    start_date: P77
+    end_date: P78
+  АОСР-5:
+    number: C32
+    suffix: E32
+    suffix_value: /КЛ-6кВ
+    work_name: A62
+    installation: J62
+    volume: N62
+    unit: R62
+    material_name: A69
+    material_document: K69
+    attachment: G72
+    start_date: P77
+    end_date: P78
+  АОСР-6:
+    number: C32
+    suffix: E32
+    suffix_value: /КЛ-6кВ
+    work_name: A62
+    installation: J62
+    volume: N62
+    unit: R62
+    material_rows:
+    - name: A69
+      quantity: F69
+      document: N69
+    attachment: G72
+    start_date: P77
+    end_date: P78
+  АОСР-7:
+    number: C32
+    suffix: E32
+    suffix_value: /КЛ-6кВ
+    work_name: A62
+    installation: T62
+    volume: X62
+    unit: AA62
+    attachment: G72
+    start_date: P77
+    end_date: P78
+clear_cells: {}
 forbidden_tokens:
-  - SAP - 305042
-  - Красный Воин
-  - 4609-305042-221-10/24
-  - КЛ-10кВ ф.1 от ТП №3463
+- SAP - 305042
+- Красный Воин
+- 4609-305042-221-10/24
+- КЛ-10кВ ф.1 от ТП №3463
+sha256: b23bf61ab27247422361a4b2e51d6133c63cfbe0c9f4aa8291ef57b589facf60
+approved_by: Codex по прямому поручению владельца проекта
+approved_at: '2026-07-23T15:49:36.069990+00:00'
+approval_notes: Удалена жёлтая служебная заливка; формулы, структура, связи карточки
+  объекта и A4 проверены; данные project1 не переносились.

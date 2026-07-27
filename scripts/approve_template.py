@@ -64,6 +64,7 @@ def main() -> int:
         {
             "version": args.version,
             "approved": True,
+            "candidate_sha256": sha256(destination),
             "sha256": sha256(destination),
             "approved_by": args.approved_by,
             "approved_at": datetime.now(timezone.utc).isoformat(),

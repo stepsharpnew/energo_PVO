@@ -213,7 +213,13 @@ def validate_semantics(
                 issues.append(ValidationIssue(code="SCHEME_NOT_ATTACHED", severity="error", message=f"Исполнительная схема не включена в план: {item.work_type}"))
         for material in item.materials:
             quality = (material.quality_document or "").lower().strip()
-            if not quality or re.search(r"\bб\s*/\s*[нд]\b", quality) or quality in {"нет", "отсутствует", "отсутствуют"}:
+            collapsed_quality = re.sub(r"\s+", " ", quality)
+            if (
+                not quality
+                or re.search(r"\bб\s*/\s*[нд]\b", quality)
+                or quality in {"нет", "отсутствует", "отсутствуют"}
+                or re.search(r"№\s*(?:от|$|\))", collapsed_quality)
+            ):
                 issues.append(ValidationIssue(code="MISSING_QUALITY_DOC", severity="error", message=f"Нет паспорта/сертификата: {material.name}"))
             if material.source_file_id and artifact_categories is not None and artifact_categories.get(material.source_file_id) not in {"passport", "certificate", "attestation"}:
                 issues.append(ValidationIssue(code="INVALID_MATERIAL_SOURCE", severity="error", message=f"Некорректный источник документа качества: {material.name}"))

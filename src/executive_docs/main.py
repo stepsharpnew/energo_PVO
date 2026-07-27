@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import uuid
 from contextlib import asynccontextmanager
+from datetime import date
 from pathlib import Path
 
 import uvicorn
@@ -58,6 +59,7 @@ async def index(request: Request):
             "agent_mode": settings.agent_mode,
             "model": default_policy.analysis_model,
             "processing_profile": default_policy.name,
+            "today_iso": date.today().isoformat(),
         },
     )
 

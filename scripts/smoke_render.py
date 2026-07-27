@@ -44,7 +44,11 @@ def main() -> int:
             Claim(key="actual.start", raw_value=item.actual_start or "", normalized_value=item.actual_start or "", source_kind="human_answer", locator="smoke:start", evidence_fragment="smoke", status=ClaimStatus.HUMAN_CONFIRMED),
             Claim(key="actual.end", raw_value=item.actual_end or "", normalized_value=item.actual_end or "", source_kind="human_answer", locator="smoke:end", evidence_fragment="smoke", status=ClaimStatus.HUMAN_CONFIRMED),
         ]
-        output, _ = ExcelGenerator(ROOT, ROOT / "templates" / "contracts", root / "approved").generate(plan, [item], claims, root)
+        output, _ = ExcelGenerator(
+            ROOT,
+            ROOT / "templates" / "contracts",
+            ROOT / "templates" / "approved",
+        ).generate(plan, [item], claims, root)
         pdfs, issues = render_selected_sheets(output, plan.selected_sheets, root / "preview", args.soffice)
         print(f"pdf_count={len(pdfs)}")
         for issue in issues:
