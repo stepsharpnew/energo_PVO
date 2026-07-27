@@ -565,6 +565,11 @@ def build_inventory(root: Path, artifacts: list[Artifact]) -> tuple[list[Artifac
     updated: list[Artifact] = []
     manifest: list[dict] = []
     for artifact in artifacts:
+        # Older browsers can serialize an unselected optional <input
+        # type="file"> as an empty multipart part. Previous versions stored
+        # that sentinel as a zero-byte artifact named "file".
+        if artifact.size == 0 and artifact.original_name == "file":
+            continue
         path = root / "input" / artifact.stored_name
         validate_signature(path)
         try:

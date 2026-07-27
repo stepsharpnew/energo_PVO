@@ -113,6 +113,7 @@ async function refresh() {
   );
 
   show("questions", job.status === "NEEDS_INPUT");
+  show("retry-analysis", job.status === "FAILED_ANALYSIS");
   if (job.status === "NEEDS_INPUT") {
     document.getElementById("question-list").innerHTML = job.questions
       .map(
@@ -194,6 +195,20 @@ document.getElementById("answers-form").addEventListener("submit", async (event)
   } finally {
     button.disabled = false;
     button.textContent = "Передать ответы и продолжить";
+  }
+});
+
+document.getElementById("retry-analysis-button").addEventListener("click", async (event) => {
+  const button = event.currentTarget;
+  button.disabled = true;
+  button.textContent = "Ставим в очередь…";
+  try {
+    await api(`/api/jobs/${jobId}/retry`, { method: "POST" });
+    await refresh();
+  } catch (error) {
+    showFatalError(error);
+    button.disabled = false;
+    button.textContent = "Повторить анализ";
   }
 });
 

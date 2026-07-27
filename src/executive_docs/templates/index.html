@@ -118,7 +118,7 @@
           <div class="panel-heading">
             <p class="kicker">Шаг 2 из 4</p>
             <h1>Добавьте исходные данные</h1>
-            <p>Достаточно рабочего проекта и таблицы фактических данных. Схемы и документы качества можно приложить сразу.</p>
+            <p>Для запуска достаточно рабочего проекта. Таблицу фактических данных, схемы и документы качества можно приложить при наличии.</p>
           </div>
 
           <div class="upload-stack">
@@ -136,13 +136,13 @@
             <label class="upload-row" for="facts-file" data-upload-row="facts">
               <i class="bi bi-filetype-xlsx file-mark is-xlsx" aria-hidden="true"></i>
               <span class="upload-copy">
-                <strong>Фактические данные.xlsx <em>*</em></strong>
-                <span data-file-name>Даты, объёмы, материалы и порядок АОСР</span>
-                <small data-file-meta>Один лист · утверждено специалистом</small>
+                <strong>Фактические данные.xlsx</strong>
+                <span data-file-name>Необязательно: даты, объёмы, материалы и порядок АОСР</span>
+                <small data-file-meta>При отсутствии агент запросит только недостающие сведения</small>
               </span>
               <span class="upload-state" data-file-state>Выбрать файл</span>
             </label>
-            <input class="visually-hidden file-input" id="facts-file" name="files" type="file" required accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" data-file-kind="facts">
+            <input class="visually-hidden file-input" id="facts-file" name="files" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" data-file-kind="facts">
 
             <div class="optional-upload">
               <button class="optional-upload-toggle" id="attachments-toggle" type="button" aria-expanded="false">
@@ -188,7 +188,7 @@
             <div><span>Нумерация</span><strong id="review-number">с АОСР №1</strong></div>
             <div><span>Специалист</span><strong id="review-operator">Не указан</strong></div>
             <div><span>Рабочий проект</span><strong id="review-project">Не выбран</strong></div>
-            <div><span>Фактические данные</span><strong id="review-facts">Не выбраны</strong></div>
+            <div><span>Фактические данные</span><strong id="review-facts">Не выбраны (необязательно)</strong></div>
             <div><span>Дополнительные файлы</span><strong id="review-attachments">0</strong></div>
           </div>
 
@@ -201,7 +201,7 @@
               <span class="run-summary-label">Ожидаемый сценарий</span>
               <strong>Анализ → проверка → готовый комплект</strong>
             </div>
-            <p>Если в таблице нет обязательного факта, задание перейдёт в <b>«Нужны сведения»</b>, не придумывая значение.</p>
+            <p>Если в доступных источниках нет обязательного факта, задание перейдёт в <b>«Нужны сведения»</b>, не придумывая значение.</p>
           </div>
 
           <div class="form-error" id="form-error" role="alert" hidden></div>

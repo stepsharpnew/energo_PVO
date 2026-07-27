@@ -14,6 +14,11 @@ from .domain import Artifact
 SAFE_NAME = re.compile(r"[^0-9A-Za-zА-Яа-яЁё._()\- ]+")
 
 
+def is_selected_filename(name: str | None) -> bool:
+    """Distinguish a selected upload from an empty multipart file field."""
+    return bool(name and name.strip())
+
+
 class Storage:
     def __init__(self, settings: Settings):
         self.settings = settings

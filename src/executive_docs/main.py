@@ -16,7 +16,7 @@ from .domain import AnswersRequest, CorrectionReviewRequest, JobStatus, ProjectS
 from .packaging import build_result_zip, write_report
 from .pipeline import JobQueue, Pipeline
 from .repository import Repository
-from .storage import Storage
+from .storage import Storage, is_selected_filename
 
 
 settings.ensure_directories()
@@ -86,14 +86,15 @@ async def create_job(
         raise HTTPException(status_code=422, detail="Укажите специалиста")
     if processing_profile not in {"economy", "balanced", "quality"}:
         raise HTTPException(status_code=422, detail="Неизвестный профиль расхода")
-    if not files:
+    selected_files = [upload for upload in files if is_selected_filename(upload.filename)]
+    if not selected_files:
         raise HTTPException(status_code=422, detail="Добавьте исходные файлы")
     job_id = str(uuid.uuid4())
     storage.initialize_job(job_id)
     artifacts = []
     try:
-        for upload in files:
-            artifacts.append(storage.save_upload(job_id, upload.filename or "file", upload.file, upload.content_type or ""))
+        for upload in selected_files:
+            artifacts.append(storage.save_upload(job_id, upload.filename, upload.file, upload.content_type or ""))
         if sum(item.size for item in artifacts) > settings.max_job_bytes:
             raise ValueError("Общий объём задания превышает лимит")
         state = ProjectState(
@@ -149,6 +150,19 @@ async def review_correction(correction_id: int, payload: CorrectionReviewRequest
 @app.get("/api/jobs/{job_id}")
 async def get_job(job_id: str):
     return get_job_or_404(job_id).model_dump(mode="json")
+
+
+@app.post("/api/jobs/{job_id}/retry")
+async def retry_analysis(job_id: str):
+    state = get_job_or_404(job_id)
+    if state.status != JobStatus.FAILED_ANALYSIS:
+        raise HTTPException(status_code=409, detail="Повторный анализ доступен только после ошибки анализа")
+    state.status = JobStatus.FILES_UPLOADED
+    state.error = None
+    state.summary = "Повторный анализ поставлен в очередь"
+    repository.save(state)
+    await queue.enqueue(job_id)
+    return state.model_dump(mode="json")
 
 
 @app.post("/api/jobs/{job_id}/answers")

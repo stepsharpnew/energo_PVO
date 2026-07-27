@@ -7,8 +7,10 @@ from pathlib import Path
 
 import pytest
 
-from executive_docs.ingestion import classify, validate_signature
+from executive_docs.domain import Artifact
+from executive_docs.ingestion import build_inventory, classify, validate_signature
 from executive_docs.pipeline import JobQueue
+from executive_docs.storage import is_selected_filename
 
 
 class RecordingPipeline:
@@ -84,3 +86,29 @@ def test_fake_ooxml_zip_is_rejected(tmp_path: Path) -> None:
 def test_classification_uses_original_name_not_storage_prefix(tmp_path: Path) -> None:
     stored = tmp_path / "a1b2c3d4-safe.pdf"
     assert classify(stored, "чертёж", "АОСР 1-7 КЛ 6кВ.pdf") == "execution_scheme"
+
+
+def test_unselected_optional_upload_is_not_a_file() -> None:
+    assert not is_selected_filename(None)
+    assert not is_selected_filename("")
+    assert not is_selected_filename("   ")
+    assert is_selected_filename("Фактические данные.xlsx")
+
+
+def test_legacy_empty_file_placeholder_is_ignored(tmp_path: Path) -> None:
+    input_dir = tmp_path / "input"
+    input_dir.mkdir()
+    (input_dir / "deadbeef-file").write_bytes(b"")
+    artifact = Artifact(
+        id="deadbeef",
+        original_name="file",
+        stored_name="deadbeef-file",
+        media_type="application/octet-stream",
+        size=0,
+        sha256="e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    )
+
+    updated, manifest = build_inventory(tmp_path, [artifact])
+
+    assert updated == []
+    assert manifest == "[]"

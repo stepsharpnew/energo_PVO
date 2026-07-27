@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
+from lxml import html as html_parser
 
 from executive_docs.domain import JobStatus, ProjectState
 
@@ -30,6 +31,10 @@ def test_index_wizard_renders_required_inputs_and_steps() -> None:
     assert html.count('name="files"') == 3
     assert 'id="project-file"' in html and 'id="facts-file"' in html
     assert 'name="processing_profile"' in html
+    document = html_parser.fromstring(html)
+    assert "required" in document.get_element_by_id("project-file").attrib
+    assert document.get_element_by_id("facts-file").get("required") is None
+    assert "Необязательно" in document.get_element_by_id("facts-file").getprevious().text_content()
 
 
 def test_job_page_renders_manager_review_surfaces() -> None:
@@ -45,4 +50,5 @@ def test_job_page_renders_manager_review_surfaces() -> None:
     assert 'id="previews"' in html
     assert 'id="review"' in html
     assert 'id="download"' in html
+    assert 'id="retry-analysis"' in html
     assert "Решение специалиста" in html

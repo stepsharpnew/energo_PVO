@@ -57,15 +57,11 @@ function objectIsValid(showMessage = false) {
 
 function filesAreValid(showMessage = false) {
   const project = document.getElementById("project-file");
-  const facts = document.getElementById("facts-file");
-  const valid = Boolean(project.files[0] && facts.files[0]);
+  const valid = Boolean(project.files[0]);
   if (showMessage && !valid) {
-    const missing = project.files[0] ? facts : project;
-    missing.setCustomValidity(
-      missing === project ? "Добавьте рабочий проект PDF" : "Добавьте таблицу фактических данных"
-    );
-    missing.reportValidity();
-    window.setTimeout(() => missing.setCustomValidity(""), 0);
+    project.setCustomValidity("Добавьте рабочий проект PDF");
+    project.reportValidity();
+    window.setTimeout(() => project.setCustomValidity(""), 0);
   }
   return valid;
 }
@@ -129,9 +125,11 @@ function updateInsight() {
   const facts = fileFor("facts");
   const copy = document.getElementById("insight-copy");
   if (project && facts) {
-    copy.textContent = "Обязательные источники выбраны. На следующем шаге проверьте состав запуска.";
-  } else if (project || facts) {
-    copy.textContent = `Добавьте ещё ${project ? "таблицу фактических данных" : "рабочий проект PDF"}.`;
+    copy.textContent = "Рабочий проект и дополнительная таблица выбраны. Проверьте состав запуска.";
+  } else if (project) {
+    copy.textContent = "Рабочий проект выбран. Таблицу фактических данных можно не добавлять.";
+  } else if (facts) {
+    copy.textContent = "Добавьте обязательный рабочий проект PDF.";
   } else {
     copy.textContent = "После загрузки агент сопоставит объект, работы и доступные шаблоны.";
   }
@@ -153,7 +151,8 @@ function updateReview() {
   document.getElementById("review-operator").textContent =
     document.getElementById("operator-name").value.trim() || "Не указан";
   document.getElementById("review-project").textContent = fileFor("project")?.name || "Не выбран";
-  document.getElementById("review-facts").textContent = fileFor("facts")?.name || "Не выбраны";
+  document.getElementById("review-facts").textContent =
+    fileFor("facts")?.name || "Не выбраны (необязательно)";
   document.getElementById("review-attachments").textContent = String(attachments);
   document.getElementById("review-profile").textContent = profileNames[profile] || profile;
 }
@@ -304,7 +303,7 @@ form.addEventListener("submit", (event) => {
     event.preventDefault();
     error.hidden = false;
     error.textContent =
-      "Проверьте специалиста, первый номер АОСР и два обязательных файла перед запуском.";
+      "Проверьте специалиста, первый номер АОСР и обязательный рабочий проект перед запуском.";
     showStep(objectIsValid() ? "files" : "object", { validate: false });
     return;
   }
