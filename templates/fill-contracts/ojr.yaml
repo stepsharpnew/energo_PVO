@@ -1,0 +1,1018 @@
+template_id: ojr
+display_name: Общий журнал работ (ОЖР)
+document_kind: ojr
+version: 2026-07-30-discovery-2
+status: DISCOVERY_REVIEW_REQUIRED
+approved: false
+source_template: NEW_TEMPLATES/Attachments_vku@e-systems-4/3. ОЖР.xlsx
+source_sha256: e9c27c1a6875529a7713da1cc62af589d4fffab30fbbf6744fe51c7e2855679c
+etalon_example: ETALON/3. ОЖР.xlsx
+etalon_sha256: a76f77936efa72ec09b6db2124137fb17a522ddf2e7e90f9b8239e2aa3653d79
+candidate_template: templates/approved/3. ОЖР.xlsx
+candidate_sha256: d37afc32bf9394cb8da9f1a6c162352c79fbd9f69e8468acb5219d4927f4ab73
+output_filename: 3. ОЖР.xlsx
+warning_fill_rgb: FFFFE699
+structural_findings:
+  candidate_sheet_count: 11
+  etalon_sheet_count: 11
+  candidate_vs_etalon_sheet_names_match: true
+  candidate_only_sheet_count: 0
+  etalon_only_sheet_count: 0
+  candidate_vs_etalon_formula_differences: 12
+  candidate_vs_etalon_nonformula_differences: 149
+  formula_errors_observed: 0
+  etalon_external_links: 2
+  target_derivation: source_only_discovery
+  discovery_target_count: 160
+  cleared_cell_count: 160
+  localized_external_formula_references: 2
+  removed_external_links: 1
+  removed_broken_defined_names: 1
+  removed_broken_data_validations: 0
+  pruned_shared_string_count: 89
+  scrubbed_document_property_count: 6
+  removed_custom_part_count: 0
+  source_external_links: 1
+  candidate_external_links: 0
+  remaining_external_formula_reference_count: 0
+  remaining_sensitive_value_count: 0
+  remaining_sensitive_value_examples: []
+  renamed_sheet_count: 0
+  renamed_candidate_sheets: []
+  raw_ref_error_count: 0
+  package_forbidden_token_count: 0
+  package_forbidden_token_examples: []
+fields:
+- sheet: Данные организации
+  cell: C1
+  label: организация · реквизиты
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: D1
+  label: организация · реквизиты
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: E1
+  label: организация · реквизиты
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: G1
+  label: Данные организации!G1
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: C2
+  label: реквизиты · адрес
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: D2
+  label: реквизиты · адрес
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: E2
+  label: реквизиты · адрес
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: F2
+  label: реквизиты · адрес
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: G2
+  label: Данные организации!G2
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: C3
+  label: адрес · район
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: D3
+  label: адрес · район
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: E3
+  label: адрес · район
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: F3
+  label: адрес · район
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: G3
+  label: Данные организации!G3
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: G4
+  label: Данные организации!G4
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: I4
+  label: Данные организации!I4
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: G5
+  label: Данные организации!G5
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: I5
+  label: Данные организации!I5
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: C6
+  label: директор · директор ФИО
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: D6
+  label: директор · директор ФИО
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: E6
+  label: директор · директор ФИО
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: G6
+  label: Данные организации!G6
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: I6
+  label: Данные организации!I6
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: C7
+  label: директор ФИО · Строй.контроль
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: D7
+  label: директор ФИО · Строй.контроль
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: E7
+  label: директор ФИО · Строй.контроль
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: G7
+  label: Данные организации!G7
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: I7
+  label: Данные организации!I7
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: B8
+  label: Строй.контроль · Приказ стр.контр.
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: C8
+  label: Строй.контроль · Приказ стр.контр.
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: D8
+  label: Строй.контроль · Приказ стр.контр.
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: E8
+  label: Строй.контроль · Приказ стр.контр.
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: G8
+  label: Данные организации!G8
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: I8
+  label: Данные организации!I8
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: B9
+  label: Приказ стр.контр. · Строй.контроль
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: C9
+  label: Приказ стр.контр. · Строй.контроль
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: D9
+  label: Приказ стр.контр. · Строй.контроль
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: E9
+  label: Приказ стр.контр. · Строй.контроль
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: G9
+  label: Данные организации!G9
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: H9
+  label: Данные организации!H9
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: I9
+  label: Данные организации!I9
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: B10
+  label: Приказ стр.контр. · ФИО стр.контр.
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: C10
+  label: Приказ стр.контр. · ФИО стр.контр.
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: D10
+  label: Приказ стр.контр. · ФИО стр.контр.
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: E10
+  label: Приказ стр.контр. · ФИО стр.контр.
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: G10
+  label: Данные организации!G10
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: H10
+  label: Данные организации!H10
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: I10
+  label: Данные организации!I10
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: B11
+  label: ФИО стр.контр. · Представитель
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: C11
+  label: ФИО стр.контр. · Представитель
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: D11
+  label: ФИО стр.контр. · Представитель
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: E11
+  label: ФИО стр.контр. · Представитель
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: G11
+  label: Данные организации!G11
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: H11
+  label: Данные организации!H11
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: I11
+  label: Данные организации!I11
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: G12
+  label: Данные организации!G12
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: H12
+  label: Данные организации!H12
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: I12
+  label: Данные организации!I12
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: G13
+  label: Данные организации!G13
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: I13
+  label: Данные организации!I13
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: G14
+  label: Данные организации!G14
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: G16
+  label: Данные организации!G16
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: I16
+  label: Данные организации!I16
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: G17
+  label: Данные организации!G17
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: I17
+  label: Данные организации!I17
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: G18
+  label: Данные организации!G18
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: C19
+  label: Прораб · Приказ прораб
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: D19
+  label: Прораб · Приказ прораб
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: E19
+  label: Прораб · Приказ прораб
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: G19
+  label: Данные организации!G19
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: C20
+  label: Приказ прораб · Прораб
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: D20
+  label: Приказ прораб · Прораб
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: E20
+  label: Приказ прораб · Прораб
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: C21
+  label: ФИО прораб · Приказ прораб
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: D21
+  label: ФИО прораб · Приказ прораб
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: E21
+  label: ФИО прораб · Приказ прораб
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные объект
+  cell: B2
+  label: № САП · Данные объекта
+  value_kind: text
+  required: true
+  manual_reason: null
+- sheet: Данные объект
+  cell: B3
+  label: Объект · р-н
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B4
+  label: р-н · Адрес
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B7
+  label: Дата старт · Дата разбивки
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: Данные объект
+  cell: B8
+  label: Дата финиш · Дата старт
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: Данные объект
+  cell: B11
+  label: ВЛ-10 · Наименование электроустановки
+  value_kind: text
+  required: true
+  manual_reason: null
+- sheet: Данные объект
+  cell: B12
+  label: ВЛ-10 · ВЛ-0,4
+  value_kind: text
+  required: true
+  manual_reason: null
+- sheet: Данные объект
+  cell: B13
+  label: ВЛ-0,4 · ВЛ-10
+  value_kind: text
+  required: true
+  manual_reason: null
+- sheet: Данные объект
+  cell: B14
+  label: КЛ · ВЛ-0,4
+  value_kind: text
+  required: true
+  manual_reason: null
+- sheet: Данные объект
+  cell: B15
+  label: ВРЩ · КЛ
+  value_kind: text
+  required: true
+  manual_reason: null
+- sheet: Данные объект
+  cell: B17
+  label: Организация · Монтажная организация
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B18
+  label: Реквизиты · Организация
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Данные объект
+  cell: C18
+  label: Реквизиты · Организация
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B19
+  label: адрес · Должность
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Данные объект
+  cell: C19
+  label: адрес · Должность
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B20
+  label: Должность · ФИО
+  value_kind: text
+  required: true
+  manual_reason: Подписант или основание полномочий требует утверждённого профиля
+- sheet: Данные объект
+  cell: B21
+  label: ФИО · Должность
+  value_kind: text
+  required: true
+  manual_reason: ФИО и полномочия подписанта требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B22
+  label: Должность · Ф.И.О.
+  value_kind: text
+  required: true
+  manual_reason: Подписант или основание полномочий требует утверждённого профиля
+- sheet: Данные объект
+  cell: B23
+  label: Ф.И.О. · Должность
+  value_kind: text
+  required: true
+  manual_reason: ФИО и полномочия подписанта требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B24
+  label: Приказ · Ф.И.О.
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: Данные объект
+  cell: B25
+  label: Должность · Приказ
+  value_kind: text
+  required: true
+  manual_reason: Подписант или основание полномочий требует утверждённого профиля
+- sheet: Данные объект
+  cell: B26
+  label: Должность · Ф.И.О.
+  value_kind: text
+  required: true
+  manual_reason: Подписант или основание полномочий требует утверждённого профиля
+- sheet: Данные объект
+  cell: B27
+  label: Ф.И.О. · Должность
+  value_kind: text
+  required: true
+  manual_reason: ФИО и полномочия подписанта требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B28
+  label: Приказ · Заказчик
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B30
+  label: Организация · Заказчик
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B33
+  label: Должность · Ф.И.О.
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B34
+  label: Ф.И.О. · Должность
+  value_kind: text
+  required: true
+  manual_reason: ФИО и полномочия подписанта требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B35
+  label: Должность · Ф.И.О.
+  value_kind: text
+  required: true
+  manual_reason: Подписант или основание полномочий требует утверждённого профиля
+- sheet: Данные объект
+  cell: B36
+  label: Ф.И.О. · Должность
+  value_kind: text
+  required: true
+  manual_reason: ФИО и полномочия подписанта требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B37
+  label: Должность · Ф.И.О.
+  value_kind: text
+  required: true
+  manual_reason: Подписант или основание полномочий требует утверждённого профиля
+- sheet: Данные объект
+  cell: B38
+  label: Ф.И.О. · Должность
+  value_kind: text
+  required: true
+  manual_reason: ФИО и полномочия подписанта требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B39
+  label: Должность · Ф.И.О.
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: Данные объект
+  cell: B40
+  label: Должность · Ф.И.О.
+  value_kind: text
+  required: true
+  manual_reason: Подписант или основание полномочий требует утверждённого профиля
+- sheet: Данные объект
+  cell: B41
+  label: Ф.И.О. · Должность
+  value_kind: text
+  required: true
+  manual_reason: ФИО и полномочия подписанта требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B42
+  label: Приказ · Ф.И.О.
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: Данные объект
+  cell: B43
+  label: нострой · Должность
+  value_kind: text
+  required: true
+  manual_reason: Подписант или основание полномочий требует утверждённого профиля
+- sheet: Данные объект
+  cell: B44
+  label: Должность · Ф.И.О.
+  value_kind: text
+  required: true
+  manual_reason: Подписант или основание полномочий требует утверждённого профиля
+- sheet: Данные объект
+  cell: B45
+  label: Ф.И.О. · Должность
+  value_kind: text
+  required: true
+  manual_reason: Подписант или основание полномочий требует утверждённого профиля
+- sheet: Данные объект
+  cell: B46
+  label: Приказ · Должность
+  value_kind: text
+  required: true
+  manual_reason: Подписант или основание полномочий требует утверждённого профиля
+- sheet: Данные объект
+  cell: B47
+  label: Должность · Приказ
+  value_kind: text
+  required: true
+  manual_reason: Подписант или основание полномочий требует утверждённого профиля
+- sheet: Данные объект
+  cell: B48
+  label: Ф.И.О. · Должность
+  value_kind: text
+  required: true
+  manual_reason: Подписант или основание полномочий требует утверждённого профиля
+- sheet: Данные объект
+  cell: B50
+  label: Организация · Проект
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B51
+  label: Реквизиты · Организация
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B52
+  label: адрес · Город
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B53
+  label: Город · адрес
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B58
+  label: Организация · Реквизиты
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B59
+  label: Реквизиты · Организация
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B60
+  label: адрес · Реквизиты
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B61
+  label: номер свидетельства · Должность
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: Данные объект
+  cell: B62
+  label: Должность · Ф.И.О.
+  value_kind: text
+  required: true
+  manual_reason: Подписант или основание полномочий требует утверждённого профиля
+- sheet: Данные объект
+  cell: B63
+  label: Ф.И.О. · Должность
+  value_kind: text
+  required: true
+  manual_reason: ФИО и полномочия подписанта требуют утверждённого профиля
+- sheet: Обложка
+  cell: I1
+  label: Обложка!I1
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: Титульный лист
+  cell: A85
+  label: (фамилия, имя, отчество (последнее - при наличии), адрес места жительства, ОГРНИП, ИНН индивидуального предпринимателя,
+    · Лицо, осуществляющее строительство, реконструкцию, капитальный ремонт
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Титульный лист
+  cell: A87
+  label: (фамилия, имя, отчество (последнее - при наличии), адрес места жительства, ОГРНИП, ИНН индивидуального предпринимателя,
+    · полное и (или) сокращенное наименование, ОГРН, ИНН, место нахождения юридического лица, телефон/факс, адрес электронной
+    почты (при наличии),
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Титульный лист
+  cell: A89
+  label: полное и (или) сокращенное наименование, ОГРН, ИНН, место нахождения юридического лица, телефон/факс, адрес электронной
+    почты (при наличии), · (фамилия, имя, отчество (последнее - при наличии), адрес места жительства, ОГРНИП, ИНН индивидуального
+    предпринимателя,
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Раздел1
+  cell: A5
+  label: № п/п
+  value_kind: text
+  required: true
+  manual_reason: Фактическая запись общего журнала работ требует отдельного подтверждения
+- sheet: Раздел1
+  cell: B5
+  label: Фамилия, инициалы, должность (при наличии) лица, входящего в список инженерно- технического персонала · № п/п
+  value_kind: text
+  required: true
+  manual_reason: Фактическая запись общего журнала работ требует отдельного подтверждения
+- sheet: Раздел1
+  cell: C5
+  label: Фамилия, инициалы, должность (при наличии) лица, входящего в список инженерно- технического персонала · Дата начала
+    работ на объекте капитального строительства с указанием вида работ
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Раздел1
+  cell: A6
+  label: № п/п
+  value_kind: text
+  required: true
+  manual_reason: Фактическая запись общего журнала работ требует отдельного подтверждения
+- sheet: Раздел1
+  cell: B6
+  label: Фамилия, инициалы, должность (при наличии) лица, входящего в список инженерно- технического персонала · № п/п
+  value_kind: text
+  required: true
+  manual_reason: Фактическая запись общего журнала работ требует отдельного подтверждения
+- sheet: Раздел1
+  cell: C6
+  label: Фамилия, инициалы, должность (при наличии) лица, входящего в список инженерно- технического персонала · Дата начала
+    работ на объекте капитального строительства с указанием вида работ
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Раздел1
+  cell: A7
+  label: Раздел1!A7
+  value_kind: text
+  required: true
+  manual_reason: Фактическая запись общего журнала работ требует отдельного подтверждения
+- sheet: Раздел1
+  cell: B7
+  label: Раздел1!B7
+  value_kind: text
+  required: true
+  manual_reason: Фактическая запись общего журнала работ требует отдельного подтверждения
+- sheet: Раздел1
+  cell: C7
+  label: Раздел1!C7
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Раздел2
+  cell: A5
+  label: № п/п · Наименование специального журнала (журнала авторского надзора) и дата его выдачи
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: Раздел2
+  cell: B5
+  label: Наименование специального журнала (журнала авторского надзора) и дата его выдачи · № п/п
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: Раздел4
+  cell: A5
+  label: № п/п · Сведения о проведении строительного контроля при строительстве, реконструкции, капитальном ремонте объекта
+    капитального строительства
+  value_kind: text
+  required: true
+  manual_reason: Фактическая запись общего журнала работ требует отдельного подтверждения
+- sheet: Раздел4
+  cell: B5
+  label: Сведения о проведении строительного контроля при строительстве, реконструкции, капитальном ремонте объекта капитального
+    строительства · Выявленные недостатки
+  value_kind: text
+  required: true
+  manual_reason: Фактическая запись общего журнала работ требует отдельного подтверждения
+- sheet: Раздел4
+  cell: C5
+  label: Выявленные недостатки · Сведения о проведении строительного контроля при строительстве, реконструкции, капитальном
+    ремонте объекта капитального строительства
+  value_kind: text
+  required: true
+  manual_reason: Фактическая запись общего журнала работ требует отдельного подтверждения
+- sheet: Раздел4
+  cell: D5
+  label: 5 · Срок устранения выявленных недостатков
+  value_kind: text
+  required: true
+  manual_reason: Фактическая запись общего журнала работ требует отдельного подтверждения
+- sheet: Раздел4
+  cell: F5
+  label: 6 · 5
+  value_kind: text
+  required: true
+  manual_reason: Фактическая запись общего журнала работ требует отдельного подтверждения
+- sheet: Раздел4
+  cell: A6
+  label: № п/п · Сведения о проведении строительного контроля при строительстве, реконструкции, капитальном ремонте объекта
+    капитального строительства
+  value_kind: text
+  required: true
+  manual_reason: Фактическая запись общего журнала работ требует отдельного подтверждения
+- sheet: Раздел4
+  cell: B6
+  label: Сведения о проведении строительного контроля при строительстве, реконструкции, капитальном ремонте объекта капитального
+    строительства · Выявленные недостатки
+  value_kind: text
+  required: true
+  manual_reason: Фактическая запись общего журнала работ требует отдельного подтверждения
+- sheet: Раздел4
+  cell: C6
+  label: Выявленные недостатки · Сведения о проведении строительного контроля при строительстве, реконструкции, капитальном
+    ремонте объекта капитального строительства
+  value_kind: text
+  required: true
+  manual_reason: Фактическая запись общего журнала работ требует отдельного подтверждения
+- sheet: Раздел4
+  cell: D6
+  label: 5 · Срок устранения выявленных недостатков
+  value_kind: text
+  required: true
+  manual_reason: Фактическая запись общего журнала работ требует отдельного подтверждения
+- sheet: Раздел4
+  cell: F6
+  label: 6 · 5
+  value_kind: text
+  required: true
+  manual_reason: Фактическая запись общего журнала работ требует отдельного подтверждения
+- sheet: Раздел5
+  cell: A5
+  label: 1 · 2
+  value_kind: text
+  required: true
+  manual_reason: Фактическая запись общего журнала работ требует отдельного подтверждения
+- sheet: Раздел5
+  cell: B5
+  label: 2 · 1
+  value_kind: text
+  required: true
+  manual_reason: Фактическая запись общего журнала работ требует отдельного подтверждения
+- sheet: Раздел5
+  cell: C5
+  label: 3 · 2
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Раздел5
+  cell: A6
+  label: 1 · 2
+  value_kind: text
+  required: true
+  manual_reason: Фактическая запись общего журнала работ требует отдельного подтверждения
+- sheet: Раздел5
+  cell: A7
+  label: 1 · 2
+  value_kind: text
+  required: true
+  manual_reason: Фактическая запись общего журнала работ требует отдельного подтверждения
+- sheet: Раздел5
+  cell: A8
+  label: Раздел5!A8
+  value_kind: text
+  required: true
+  manual_reason: Фактическая запись общего журнала работ требует отдельного подтверждения
+- sheet: Раздел5
+  cell: A9
+  label: Раздел5!A9
+  value_kind: text
+  required: true
+  manual_reason: Фактическая запись общего журнала работ требует отдельного подтверждения
+- sheet: Раздел5
+  cell: A10
+  label: Раздел5!A10
+  value_kind: text
+  required: true
+  manual_reason: Фактическая запись общего журнала работ требует отдельного подтверждения

@@ -69,8 +69,14 @@ def public_payload(state: ProjectState) -> dict:
     payload = public_state(state).model_dump(mode="json")
     payload["job_id"] = state.public_ref
     payload["draft_excel_files"] = [Path(path).name for path in state.draft_excel_files]
+    payload.pop("selected_template_sha256", None)
+    payload.pop("selected_template_contract_sha256", None)
+    payload.pop("template_assignments", None)
+    payload.pop("template_unresolved_findings", None)
     for artifact in payload["artifacts"]:
         artifact.pop("id", None)
         artifact.pop("sha256", None)
         artifact.pop("stored_name", None)
+    for claim in payload["claims"]:
+        claim.pop("source_file_id", None)
     return payload

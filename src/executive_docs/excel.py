@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import copy
 import hashlib
+import io
 import re
 import shutil
 import tempfile
@@ -96,6 +97,8 @@ def sha256(path: Path) -> str:
 
 
 def _resolve_target(base: str, target: str) -> str:
+    if target.startswith("/"):
+        return target.lstrip("/")
     path = PurePosixPath(base).parent / target
     parts: list[str] = []
     for part in path.parts:
@@ -110,9 +113,10 @@ def _resolve_target(base: str, target: str) -> str:
 class OOXMLWorkbook:
     """Patch cell values and sheet visibility without reserializing the workbook package."""
 
-    def __init__(self, source: Path):
+    def __init__(self, source: Path | bytes):
         self.source = source
-        with zipfile.ZipFile(source) as archive:
+        archive_source = io.BytesIO(source) if isinstance(source, bytes) else source
+        with zipfile.ZipFile(archive_source) as archive:
             self.parts = {name: archive.read(name) for name in archive.namelist()}
             self.zip_infos = {name: copy.copy(archive.getinfo(name)) for name in archive.namelist()}
         self.workbook = etree.fromstring(self.parts["xl/workbook.xml"])
@@ -184,6 +188,110 @@ class OOXMLWorkbook:
         self._clear_cell_payload(cell)
         self._save_sheet_root(sheet_name, root)
 
+    def clear_cells(self, targets: dict[str, list[str] | set[str]]) -> None:
+        """Clear many cells while parsing each worksheet only once."""
+
+        for sheet_name, coordinates in targets.items():
+            root = self._sheet_root(sheet_name)
+            sheet_data = root.find(f"{{{MAIN_NS}}}sheetData")
+            if sheet_data is None:
+                raise ValueError(f"В листе {sheet_name} отсутствует sheetData")
+            changed = False
+            for coordinate in coordinates:
+                if not re.fullmatch(r"[A-Z]{1,3}[1-9][0-9]*", coordinate):
+                    raise ValueError(f"Некорректная ячейка: {coordinate}")
+                row_number = int(re.search(r"\d+", coordinate).group())
+                row = sheet_data.find(f"{{{MAIN_NS}}}row[@r='{row_number}']")
+                if row is None:
+                    continue
+                cell = row.find(f"{{{MAIN_NS}}}c[@r='{coordinate}']")
+                if cell is None:
+                    continue
+                self._clear_cell_payload(cell)
+                changed = True
+            if changed:
+                self._save_sheet_root(sheet_name, root)
+
+    def highlight_cells(
+        self,
+        targets: dict[str, list[str] | set[str]],
+        *,
+        rgb: str = "FFFFE699",
+    ) -> int:
+        """Apply a warning fill while preserving every other style component."""
+
+        rgb = rgb.upper()
+        if not re.fullmatch(r"[0-9A-F]{8}", rgb):
+            raise ValueError("Цвет заливки должен быть ARGB в формате AARRGGBB")
+        styles_part = "xl/styles.xml"
+        if styles_part not in self.parts:
+            raise ValueError("В книге отсутствует таблица стилей")
+        styles = etree.fromstring(self.parts[styles_part])
+        fills = styles.find(f"{{{MAIN_NS}}}fills")
+        cell_xfs = styles.find(f"{{{MAIN_NS}}}cellXfs")
+        if fills is None or cell_xfs is None:
+            raise ValueError("В книге отсутствуют fills/cellXfs")
+
+        fill_id: int | None = None
+        for index, fill in enumerate(fills):
+            pattern = fill.find(f"{{{MAIN_NS}}}patternFill")
+            foreground = pattern.find(f"{{{MAIN_NS}}}fgColor") if pattern is not None else None
+            if (
+                pattern is not None
+                and pattern.get("patternType") == "solid"
+                and foreground is not None
+                and (foreground.get("rgb") or "").upper() == rgb
+            ):
+                fill_id = index
+                break
+        if fill_id is None:
+            fill = etree.SubElement(fills, f"{{{MAIN_NS}}}fill")
+            pattern = etree.SubElement(fill, f"{{{MAIN_NS}}}patternFill", patternType="solid")
+            etree.SubElement(pattern, f"{{{MAIN_NS}}}fgColor", rgb=rgb)
+            etree.SubElement(pattern, f"{{{MAIN_NS}}}bgColor", indexed="64")
+            fill_id = len(fills) - 1
+            fills.set("count", str(len(fills)))
+
+        style_remap: dict[int, int] = {}
+        changed_cells = 0
+        for sheet_name, coordinates in targets.items():
+            root = self._sheet_root(sheet_name)
+            sheet_data = root.find(f"{{{MAIN_NS}}}sheetData")
+            if sheet_data is None:
+                raise ValueError(f"В листе {sheet_name} отсутствует sheetData")
+            changed_sheet = False
+            for coordinate in coordinates:
+                if not re.fullmatch(r"[A-Z]{1,3}[1-9][0-9]*", coordinate):
+                    raise ValueError(f"Некорректная ячейка: {coordinate}")
+                row_number = int(re.search(r"\d+", coordinate).group())
+                row = sheet_data.find(f"{{{MAIN_NS}}}row[@r='{row_number}']")
+                if row is None:
+                    row = etree.SubElement(sheet_data, f"{{{MAIN_NS}}}row", r=str(row_number))
+                cell = row.find(f"{{{MAIN_NS}}}c[@r='{coordinate}']")
+                if cell is None:
+                    cell = etree.SubElement(row, f"{{{MAIN_NS}}}c", r=coordinate)
+                old_style = int(cell.get("s", "0"))
+                if old_style >= len(cell_xfs):
+                    raise ValueError(f"Некорректный индекс стиля {old_style}: {sheet_name}!{coordinate}")
+                new_style = style_remap.get(old_style)
+                if new_style is None:
+                    style = copy.deepcopy(cell_xfs[old_style])
+                    style.set("fillId", str(fill_id))
+                    style.set("applyFill", "1")
+                    cell_xfs.append(style)
+                    new_style = len(cell_xfs) - 1
+                    style_remap[old_style] = new_style
+                cell.set("s", str(new_style))
+                changed_cells += 1
+                changed_sheet = True
+            if changed_sheet:
+                self._save_sheet_root(sheet_name, root)
+        cell_xfs.set("count", str(len(cell_xfs)))
+        self.parts[styles_part] = etree.tostring(
+            styles, xml_declaration=True, encoding="UTF-8", standalone=True
+        )
+        return changed_cells
+
     def set_formula(self, sheet_name: str, coordinate: str, formula: str) -> None:
         """Set an OOXML formula without a cached result so Excel recalculates it."""
 
@@ -192,6 +300,67 @@ class OOXMLWorkbook:
         self._clear_cell_payload(cell)
         etree.SubElement(cell, f"{{{MAIN_NS}}}f").text = formula.removeprefix("=")
         self._save_sheet_root(sheet_name, root)
+
+    def localize_external_sheet_references(self, sheet_names: list[str]) -> int:
+        """Point formulas like '[1]Sheet'!A1 at an identically named local sheet."""
+
+        known = set(sheet_names)
+        quoted = re.compile(r"'\[(?:[1-9][0-9]*)\](?P<sheet>(?:''|[^'])+)'!")
+        unquoted = re.compile(r"\[(?:[1-9][0-9]*)\](?P<sheet>[^'!\[\]]+)!")
+
+        def replace_quoted(match: re.Match[str]) -> str:
+            sheet = match.group("sheet").replace("''", "'")
+            if sheet not in known:
+                return match.group(0)
+            return f"'{sheet.replace(chr(39), chr(39) * 2)}'!"
+
+        def replace_unquoted(match: re.Match[str]) -> str:
+            sheet = match.group("sheet")
+            if sheet not in known:
+                return match.group(0)
+            return f"'{sheet.replace(chr(39), chr(39) * 2)}'!"
+
+        changed = 0
+        for sheet_name in sheet_names:
+            root = self._sheet_root(sheet_name)
+            changed_sheet = False
+            for formula in root.iter(f"{{{MAIN_NS}}}f"):
+                if not formula.text:
+                    continue
+                updated = quoted.sub(replace_quoted, formula.text)
+                updated = unquoted.sub(replace_unquoted, updated)
+                if updated != formula.text:
+                    formula.text = updated
+                    changed += 1
+                    changed_sheet = True
+            if changed_sheet:
+                self._save_sheet_root(sheet_name, root)
+        return changed
+
+    def rename_sheet(self, old_name: str, new_name: str) -> None:
+        """Rename a worksheet and update textual references throughout the OOXML package."""
+
+        if old_name not in self.sheet_parts:
+            raise ValueError(f"Лист не найден: {old_name}")
+        if (
+            not new_name
+            or len(new_name) > 31
+            or re.search(r"[\[\]:*?/\\]", new_name)
+            or new_name in self.sheet_parts
+        ):
+            raise ValueError(f"Некорректное новое имя листа: {new_name}")
+        sheet = next(
+            item
+            for item in self.workbook.xpath("//x:sheets/x:sheet", namespaces=NS)
+            if item.get("name") == old_name
+        )
+        sheet.set("name", new_name)
+        old_bytes = old_name.encode("utf-8")
+        new_bytes = new_name.encode("utf-8")
+        for part, payload in list(self.parts.items()):
+            if part.endswith((".xml", ".rels")) and old_bytes in payload:
+                self.parts[part] = payload.replace(old_bytes, new_bytes)
+        self.sheet_parts[new_name] = self.sheet_parts.pop(old_name)
 
     def remove_defined_name(self, name: str) -> None:
         defined_names = self.workbook.find(f"{{{MAIN_NS}}}definedNames")
@@ -202,6 +371,50 @@ class OOXMLWorkbook:
                 defined_names.remove(item)
         if len(defined_names) == 0:
             self.workbook.remove(defined_names)
+
+    def remove_broken_defined_names(self) -> int:
+        """Remove workbook names whose formulas already contain a broken #REF!."""
+
+        defined_names = self.workbook.find(f"{{{MAIN_NS}}}definedNames")
+        if defined_names is None:
+            return 0
+        removed = 0
+        for item in list(defined_names):
+            if "#REF!" in (item.text or "").upper():
+                defined_names.remove(item)
+                removed += 1
+        if len(defined_names) == 0:
+            self.workbook.remove(defined_names)
+        return removed
+
+    def remove_broken_data_validations(self) -> int:
+        """Remove validation rules containing broken or source-machine references."""
+
+        removed = 0
+        for sheet_name in list(self.sheet_parts):
+            root = self._sheet_root(sheet_name)
+            changed = False
+            for validation in list(root.iter()):
+                if etree.QName(validation).localname != "dataValidation":
+                    continue
+                payload = etree.tostring(validation, encoding="unicode")
+                if "#REF!" not in payload.upper() and not re.search(
+                    r"[A-Z]:\\",
+                    payload,
+                    flags=re.IGNORECASE,
+                ):
+                    continue
+                parent = validation.getparent()
+                if parent is not None:
+                    parent.remove(validation)
+                    count = parent.get("count")
+                    if count and count.isdigit():
+                        parent.set("count", str(max(0, int(count) - 1)))
+                    removed += 1
+                    changed = True
+            if changed:
+                self._save_sheet_root(sheet_name, root)
+        return removed
 
     def clear_formula_caches(self) -> None:
         """Remove cached formula results to prevent values from a prior object leaking into previews."""
@@ -304,9 +517,12 @@ class OOXMLWorkbook:
                 self._save_sheet_root(sheet_name, root)
         return changed_cells
 
-    def remove_external_links(self) -> None:
+    def remove_external_links(self) -> int:
         """Remove external-link package parts after every dependent formula was localized."""
 
+        external_parts = [
+            name for name in self.parts if name.startswith("xl/externalLinks/")
+        ]
         external_references = self.workbook.find(f"{{{MAIN_NS}}}externalReferences")
         if external_references is not None:
             self.workbook.remove(external_references)
@@ -328,8 +544,15 @@ class OOXMLWorkbook:
         self.parts[content_types_name] = etree.tostring(
             content_types, xml_declaration=True, encoding="UTF-8", standalone=True
         )
-        for part in [name for name in self.parts if name.startswith("xl/externalLinks/")]:
+        for part in external_parts:
             del self.parts[part]
+        return len(
+            [
+                name
+                for name in external_parts
+                if re.fullmatch(r"xl/externalLinks/externalLink\d+\.xml", name)
+            ]
+        )
 
     def remove_calculation_chain(self) -> None:
         """Drop calcChain so repaired formulas are rebuilt by Excel/LibreOffice."""
@@ -355,12 +578,12 @@ class OOXMLWorkbook:
             content_types, xml_declaration=True, encoding="UTF-8", standalone=True
         )
 
-    def prune_shared_strings(self) -> None:
+    def prune_shared_strings(self) -> int:
         """Remove unreferenced shared strings, including cleared prior-object values."""
 
         part = "xl/sharedStrings.xml"
         if part not in self.parts:
-            return
+            return 0
         roots: dict[str, etree._Element] = {}
         references: list[tuple[etree._Element, int]] = []
         for sheet_name, sheet_part in self.sheet_parts.items():
@@ -389,6 +612,102 @@ class OOXMLWorkbook:
             self.parts[sheet_part] = etree.tostring(
                 root, xml_declaration=True, encoding="UTF-8", standalone=True
             )
+        return len(items) - len(used)
+
+    def scrub_document_properties(self) -> int:
+        """Remove author, editor, company, and other source-document metadata."""
+
+        changed = 0
+        core_name = "docProps/core.xml"
+        if core_name in self.parts:
+            core = etree.fromstring(self.parts[core_name])
+            for item in list(core):
+                core.remove(item)
+                changed += 1
+            creator = etree.SubElement(
+                core,
+                "{http://purl.org/dc/elements/1.1/}creator",
+            )
+            creator.text = "Executive Docs"
+            modified_by = etree.SubElement(
+                core,
+                "{http://schemas.openxmlformats.org/package/2006/metadata/core-properties}lastModifiedBy",
+            )
+            modified_by.text = "Executive Docs"
+            self.parts[core_name] = etree.tostring(
+                core,
+                xml_declaration=True,
+                encoding="UTF-8",
+                standalone=True,
+            )
+        app_name = "docProps/app.xml"
+        if app_name in self.parts:
+            app = etree.fromstring(self.parts[app_name])
+            for item in app.iter():
+                if etree.QName(item).localname in {
+                    "Company",
+                    "Manager",
+                    "HyperlinkBase",
+                } and item.text:
+                    item.text = ""
+                    changed += 1
+            self.parts[app_name] = etree.tostring(
+                app,
+                xml_declaration=True,
+                encoding="UTF-8",
+                standalone=True,
+            )
+        return changed
+
+    def remove_embedded_custom_data(self) -> int:
+        """Drop custom XML/custom properties that can retain prior-project payloads."""
+
+        removed_parts = {
+            name
+            for name in self.parts
+            if name.startswith("customXml/") or name == "docProps/custom.xml"
+        }
+        if not removed_parts:
+            return 0
+        for name in removed_parts:
+            del self.parts[name]
+
+        content_types_name = "[Content_Types].xml"
+        content_types = etree.fromstring(self.parts[content_types_name])
+        for item in list(content_types):
+            part_name = item.get("PartName", "").lstrip("/")
+            if part_name in removed_parts:
+                content_types.remove(item)
+        self.parts[content_types_name] = etree.tostring(
+            content_types,
+            xml_declaration=True,
+            encoding="UTF-8",
+            standalone=True,
+        )
+
+        for name, payload in list(self.parts.items()):
+            if not name.endswith(".rels"):
+                continue
+            relationships = etree.fromstring(payload)
+            changed = False
+            for relationship in list(relationships):
+                rel_type = relationship.get("Type", "")
+                target = relationship.get("Target", "")
+                if (
+                    rel_type.endswith(("/customXml", "/customXmlProps", "/custom-properties"))
+                    or "customXml/" in target
+                    or target.endswith("docProps/custom.xml")
+                ):
+                    relationships.remove(relationship)
+                    changed = True
+            if changed:
+                self.parts[name] = etree.tostring(
+                    relationships,
+                    xml_declaration=True,
+                    encoding="UTF-8",
+                    standalone=True,
+                )
+        return len(removed_parts)
 
     def set_visibility(self, selected: set[str], candidates: set[str]) -> None:
         for sheet in self.workbook.xpath("//x:sheets/x:sheet", namespaces=NS):

@@ -76,6 +76,28 @@ def test_enqueue_during_active_job_schedules_resume() -> None:
     assert pipeline.calls == 2
 
 
+def test_cancel_and_wait_suppresses_rerun_and_waits_for_active_job() -> None:
+    async def scenario() -> tuple[BlockingPipeline, bool]:
+        pipeline = BlockingPipeline()
+        queue = JobQueue(pipeline)  # type: ignore[arg-type]
+        await queue.start()
+        await queue.enqueue("same")
+        assert await asyncio.to_thread(pipeline.started.wait, 1)
+        await queue.enqueue("same")
+        waiting = asyncio.create_task(queue.cancel_and_wait("same"))
+        await asyncio.sleep(0)
+        was_waiting = not waiting.done()
+        pipeline.release.set()
+        await waiting
+        await queue.queue.join()
+        await queue.stop()
+        return pipeline, was_waiting
+
+    pipeline, was_waiting = asyncio.run(scenario())
+    assert was_waiting is True
+    assert pipeline.calls == 1
+
+
 def test_fake_ooxml_zip_is_rejected(tmp_path: Path) -> None:
     path = tmp_path / "broken.xlsx"
     path.write_bytes(b"PK-not-a-real-zip")

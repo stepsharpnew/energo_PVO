@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Комплект исполнительной документации</title>
+  <title>Заполнение шаблона исполнительной документации</title>
   <meta name="theme-color" content="#f8f9f3">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,33 +15,37 @@
   <header class="topbar">
     <a class="brand" href="/">
       <span class="brand-mark" aria-hidden="true">М</span>
-      <span><strong>Пошаговый помощник</strong><small>исполнительная документация · АОСР</small></span>
+      <span><strong>Пошаговый помощник</strong><small>исполнительная документация · Excel</small></span>
     </a>
-    <div class="topbar-context">Комплект документов · ревизия <span id="revision">{{ job.revision }}</span></div>
+    <div class="topbar-context">
+      Одна выбранная книга ·
+      {% if job.flow_version == "selected-template-v2" %}запуск{% else %}ревизия{% endif %}
+      <span id="revision">{{ job.revision }}</span>
+    </div>
     <div class="topbar-actions">
-      <a class="quiet-action is-link" href="/">Новый комплект</a>
+      <a class="quiet-action is-link" href="/">Новая книга</a>
       <span class="topbar-divider" aria-hidden="true"></span>
       <div class="operator-chip"><span class="operator-avatar" aria-hidden="true">{{ job.operator_name[:1]|upper }}</span><span>{{ job.operator_name }}</span></div>
     </div>
   </header>
 
   <div class="wizard-shell job-shell">
-    <aside class="wizard-rail" aria-label="Этапы подготовки комплекта">
+    <aside class="wizard-rail" aria-label="Этапы заполнения книги">
       <nav class="step-nav job-steps">
-        <div class="step-link is-complete"><span class="step-number">✓</span><span><strong>Объект</strong><small>{{ "Химки" if job.branch_id == "khimki" else "Солнечногорск" }}</small></span></div>
-        <div class="step-link is-complete"><span class="step-number">✓</span><span><strong>Файлы</strong><small>{{ job.artifacts|length }} загружено</small></span></div>
+        <div class="step-link is-complete"><span class="step-number">✓</span><span><strong>Шаблон</strong><small>{{ job.selected_template_name or ("Химки" if job.branch_id == "khimki" else "Солнечногорск") }}</small></span></div>
+        <div class="step-link is-complete"><span class="step-number">✓</span><span><strong>Проект PDF</strong><small>{{ job.artifacts|length }} загружен</small></span></div>
         <div class="step-link is-active" id="step-check"><span class="step-number">3</span><span><strong>Проверка</strong><small id="step-check-copy">Агент работает</small></span></div>
-        <div class="step-link" id="step-release"><span class="step-number">4</span><span><strong>Выпуск</strong><small id="step-release-copy">Ожидает проверки</small></span></div>
+        <div class="step-link" id="step-release"><span class="step-number">4</span><span><strong>{% if job.flow_version == "selected-template-v2" %}Черновик{% else %}Выпуск{% endif %}</strong><small id="step-release-copy">Ожидает проверки</small></span></div>
       </nav>
       <div class="rail-date">
-        <a class="rail-back" href="/">Все комплекты</a>
-        <small>Номера закреплены за ревизией</small>
+        <a class="rail-back" href="/">Все запуски</a>
+        <small>Выбранный шаблон закреплён за {% if job.flow_version == "selected-template-v2" %}запуском{% else %}ревизией{% endif %}</small>
       </div>
     </aside>
 
     <main class="wizard-main job-main">
       <header class="job-heading">
-        <p class="kicker" id="status-kicker">Состояние комплекта</p>
+        <p class="kicker" id="status-kicker">Состояние книги</p>
         <div class="job-title-row">
           <div>
             <h1 id="status">{{ job.status }}</h1>
@@ -54,7 +58,7 @@
       <section class="status-surface" id="progress">
         <div class="progress-track"><i></i></div>
         <div>
-          <strong>Агент обрабатывает комплект</strong>
+          <strong>Агент обрабатывает PDF и выбранный шаблон</strong>
           <p>Страница обновится автоматически. Её можно оставить открытой.</p>
         </div>
       </section>
@@ -90,12 +94,12 @@
 
       <section class="content-section draft-report hidden" id="draft-excel">
         <div class="section-heading">
-          <div><p class="kicker">Шаг 4</p><h2>Заполненные Excel-файлы</h2></div>
+          <div><p class="kicker">Шаг 4</p><h2>Заполненная Excel-книга</h2></div>
           <span class="attention-note">Есть замечания</span>
         </div>
         <div class="missing-warning" role="status">
           <strong id="draft-warning-title">Excel сформирован с предупреждениями</strong>
-          <span>В книги внесены все найденные и подтверждённые сведения. Пропуски отмечены непосредственно в ячейках; такие книги нельзя считать финальными АОСР.</span>
+          <span>В книгу внесены только сведения, подтверждённые PDF. Остальные целевые ячейки оставлены пустыми и выделены светло-жёлтым цветом.</span>
         </div>
         <div id="draft-excel-list" class="preview-list"></div>
         <p class="answer-feedback" id="draft-excel-error" role="alert" hidden></p>
@@ -112,16 +116,16 @@
       </section>
 
       <section class="content-section hidden" id="previews">
-        <div class="section-heading"><h2>Предпросмотр АОСР</h2><span class="muted">PDF откроется в новой вкладке</span></div>
+        <div class="section-heading"><h2>Предпросмотр книги</h2><span class="muted">PDF откроется в новой вкладке</span></div>
         <div id="preview-list" class="preview-list"></div>
       </section>
 
       <section class="content-section hidden" id="review">
         <div class="section-heading">
-          <div><p class="kicker">Решение специалиста</p><h2>Комплект готов к проверке</h2></div>
+          <div><p class="kicker">Решение специалиста</p><h2>Книга готова к проверке</h2></div>
         </div>
         <div class="review-actions">
-          <button class="primary-button is-coral" id="approve" type="button">Подтвердить комплект</button>
+          <button class="primary-button is-coral" id="approve" type="button">Подтвердить книгу</button>
           <button class="secondary-button" id="revision-btn" type="button">Описать исправление</button>
         </div>
         <form id="revision-form" class="revision-form hidden">
@@ -138,7 +142,7 @@
       </section>
 
       <section class="download-surface hidden" id="download">
-        <div><p class="kicker">Готово</p><h2>Комплект подтверждён</h2><p>Excel, PDF, приложения и отчёт собраны в один архив.</p></div>
+        <div><p class="kicker">Готово</p><h2>Книга подтверждена</h2><p>Excel, PDF и отчёт собраны в один архив.</p></div>
         <a class="primary-button is-coral" href="/api/kits/{{ job.public_ref }}/download">Скачать финальный ZIP</a>
       </section>
     </main>

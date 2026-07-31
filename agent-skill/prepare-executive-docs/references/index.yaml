@@ -1,7 +1,8 @@
-version: 3
+version: 4
 topics:
   workflow: workflow.md
   token_efficiency: token-efficiency.md
+  selected_template_v2: selected-template-v2.md
   source_priority: source-priority.md
   document_rules: document-rules.md
   semantic_fields: semantic-fields.md

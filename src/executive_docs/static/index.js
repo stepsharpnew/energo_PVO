@@ -3,15 +3,23 @@ const panels = [...document.querySelectorAll("[data-step-panel]")];
 const stepLinks = [...document.querySelectorAll("[data-step-target]")];
 const fileInputs = [...document.querySelectorAll(".file-input")];
 const drawerBackdrop = document.getElementById("drawer-backdrop");
-const draftKey = "executive-docs-mvp-draft-v1";
+const draftKey = "executive-docs-single-template-draft-v2";
 const profileNames = {
   economy: "Экономно",
   balanced: "Баланс",
   quality: "Тщательно",
 };
+const templateStatusNames = {
+  APPROVED: "Утверждён",
+  READY: "Готов к заполнению",
+  READY_FOR_USE: "Готов к заполнению",
+  READY_FOR_VISUAL_APPROVAL: "Ожидает визуального утверждения",
+  DISCOVERY_REVIEW_REQUIRED: "Требует проверки списка полей",
+  NEEDS_INPUT: "Нужно уточнение",
+};
 const statusNames = {
   CREATED: "Создан",
-  FILES_UPLOADED: "Файлы загружены",
+  FILES_UPLOADED: "PDF загружен",
   ANALYZING: "Анализ",
   NEEDS_INPUT: "Нужны сведения",
   GENERATING: "Формирование",
@@ -41,25 +49,35 @@ function fileFor(kind) {
   return input?.files?.[0] || null;
 }
 
-function objectIsValid(showMessage = false) {
+function selectedTemplateOption() {
+  const select = document.getElementById("template-id");
+  return select.value ? select.options[select.selectedIndex] : null;
+}
+
+function setupIsValid(showMessage = false) {
+  const template = document.getElementById("template-id");
   const operator = document.getElementById("operator-name");
-  const number = document.getElementById("first-number");
-  const valid = operator.value.trim().length > 1 && Number(number.value) >= 1;
+  const valid = Boolean(template.value) && operator.value.trim().length > 1;
   if (showMessage && !valid) {
+    if (!template.value) template.setCustomValidity("Выберите шаблон Excel");
+    else template.setCustomValidity("");
     if (!operator.value.trim()) operator.setCustomValidity("Укажите специалиста");
     else operator.setCustomValidity("");
-    if (Number(number.value) < 1) number.setCustomValidity("Номер должен быть больше нуля");
-    else number.setCustomValidity("");
-    (operator.checkValidity() ? number : operator).reportValidity();
+    (template.checkValidity() ? operator : template).reportValidity();
   }
   return valid;
 }
 
 function filesAreValid(showMessage = false) {
   const project = document.getElementById("project-file");
-  const valid = Boolean(project.files[0]);
+  const file = project.files[0];
+  const valid = Boolean(
+    file &&
+      /\.pdf$/i.test(file.name) &&
+      (!file.type || file.type.toLowerCase() === "application/pdf")
+  );
   if (showMessage && !valid) {
-    project.setCustomValidity("Добавьте рабочий проект PDF");
+    project.setCustomValidity("Добавьте один рабочий проект в формате PDF");
     project.reportValidity();
     window.setTimeout(() => project.setCustomValidity(""), 0);
   }
@@ -67,11 +85,11 @@ function filesAreValid(showMessage = false) {
 }
 
 function showStep(step, { validate = true } = {}) {
-  if (step === "files" && validate && !objectIsValid(true)) {
+  if (step === "files" && validate && !setupIsValid(true)) {
     step = "object";
   }
   if (step === "check" && validate) {
-    if (!objectIsValid(true)) step = "object";
+    if (!setupIsValid(true)) step = "object";
     else if (!filesAreValid(true)) step = "files";
   }
   activeStep = step;
@@ -95,43 +113,43 @@ function showStep(step, { validate = true } = {}) {
 
 function updateUploadRow(input) {
   const kind = input.dataset.fileKind;
-  if (kind === "attachments") return updateAttachments();
   const row = document.querySelector(`[data-upload-row="${kind}"]`);
   const file = input.files[0];
   row.classList.toggle("has-file", Boolean(file));
-  if (!file) return;
+  if (!file) {
+    row.querySelector("[data-file-name]").textContent = "Выберите один PDF-файл";
+    row.querySelector("[data-file-meta]").textContent = "Только PDF";
+    row.querySelector("[data-file-state]").textContent = "Выбрать файл";
+    return;
+  }
   row.querySelector("[data-file-name]").textContent = file.name;
   row.querySelector("[data-file-meta]").textContent = `${formatBytes(file.size)} · готов к загрузке`;
   row.querySelector("[data-file-state]").textContent = "Файл выбран";
 }
 
-function updateAttachments() {
-  const input = document.getElementById("attachment-files");
-  const files = [...input.files];
-  const count = document.getElementById("attachment-count");
-  const list = document.getElementById("attachment-list");
-  const noun = files.length === 1 ? "файл" : files.length > 1 && files.length < 5 ? "файла" : "файлов";
-  count.textContent = `${files.length} ${noun}`;
-  list.innerHTML = files
-    .map(
-      (file) =>
-        `<div><span>${escapeHtml(file.name)}</span><small>${formatBytes(file.size)}</small></div>`
-    )
-    .join("");
+function updateTemplateMeta() {
+  const option = selectedTemplateOption();
+  const meta = document.getElementById("template-meta");
+  if (!option) {
+    meta.textContent = "За один запуск формируется только выбранная книга.";
+    return;
+  }
+  const normalizedStatus = String(option.dataset.status || "").toUpperCase();
+  const status = templateStatusNames[normalizedStatus] || option.dataset.status || "Доступен";
+  const targetCount = Number(option.dataset.targetCount || 0);
+  const targets = targetCount > 0 ? ` · полей для заполнения: ${targetCount}` : "";
+  meta.textContent = `${status}${targets}`;
 }
 
 function updateInsight() {
   const project = fileFor("project");
-  const facts = fileFor("facts");
   const copy = document.getElementById("insight-copy");
-  if (project && facts) {
-    copy.textContent = "Рабочий проект и дополнительная таблица выбраны. Проверьте состав запуска.";
-  } else if (project) {
-    copy.textContent = "Рабочий проект выбран. Таблицу фактических данных можно не добавлять.";
-  } else if (facts) {
-    copy.textContent = "Добавьте обязательный рабочий проект PDF.";
+  if (project) {
+    copy.textContent =
+      "PDF выбран. Агент перенесёт подтверждённые сведения только в выбранную Excel-книгу.";
   } else {
-    copy.textContent = "После загрузки агент сопоставит объект, работы и доступные шаблоны.";
+    copy.textContent =
+      "Недоступные в PDF сведения останутся пустыми и будут выделены в готовой книге.";
   }
 }
 
@@ -143,32 +161,19 @@ function updateOperator() {
 }
 
 function updateReview() {
-  const branch = document.getElementById("branch-id");
-  const attachments = document.getElementById("attachment-files").files.length;
+  const template = selectedTemplateOption();
   const profile = new FormData(form).get("processing_profile") || "balanced";
-  document.getElementById("review-branch").textContent = branch.options[branch.selectedIndex].text;
-  document.getElementById("review-number").textContent = `с АОСР №${document.getElementById("first-number").value}`;
+  document.getElementById("review-template").textContent = template?.textContent.trim() || "Не выбран";
   document.getElementById("review-operator").textContent =
     document.getElementById("operator-name").value.trim() || "Не указан";
   document.getElementById("review-project").textContent = fileFor("project")?.name || "Не выбран";
-  document.getElementById("review-facts").textContent =
-    fileFor("facts")?.name || "Не выбраны (необязательно)";
-  document.getElementById("review-attachments").textContent = String(attachments);
   document.getElementById("review-profile").textContent = profileNames[profile] || profile;
-}
-
-function escapeHtml(value) {
-  return String(value).replace(
-    /[&<>'"]/g,
-    (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[char]
-  );
 }
 
 function saveDraft() {
   const profile = new FormData(form).get("processing_profile") || "balanced";
   const draft = {
-    branch: document.getElementById("branch-id").value,
-    firstNumber: document.getElementById("first-number").value,
+    template: document.getElementById("template-id").value,
     operator: document.getElementById("operator-name").value,
     profile,
   };
@@ -189,13 +194,12 @@ function loadDraft() {
   try {
     const draft = JSON.parse(localStorage.getItem(draftKey) || "null");
     if (!draft) return;
-    document.getElementById("branch-id").value = draft.branch || "khimki";
-    document.getElementById("first-number").value = draft.firstNumber || "1";
+    document.getElementById("template-id").value = draft.template || "";
     document.getElementById("operator-name").value = draft.operator || "";
     const profile = form.querySelector(`[name="processing_profile"][value="${CSS.escape(draft.profile || "")}"]`);
     if (profile) profile.checked = true;
     document.getElementById("draft-status").textContent =
-      "Восстановлен локальный черновик. Файлы нужно выбрать заново.";
+      "Восстановлен локальный черновик. PDF нужно выбрать заново.";
   } catch {
     localStorage.removeItem(draftKey);
   }
@@ -203,28 +207,18 @@ function loadDraft() {
 
 function applyDesignDemo() {
   if (new URLSearchParams(window.location.search).get("demo") !== "1") return false;
+  const template = document.getElementById("template-id");
+  if (!template.value && template.options.length > 1) template.selectedIndex = 1;
   document.getElementById("operator-name").value = "Иванова М. А.";
-  const demoFiles = {
-    project: {
-      name: "4708-308092-125-11_24.ЭС_РП.pdf",
-      meta: "12,4 МБ · выбран для загрузки",
-    },
-    facts: {
-      name: "Фактические данные_4708-308092.xlsx",
-      meta: "0,9 МБ · выбран для загрузки",
-    },
-  };
-  Object.entries(demoFiles).forEach(([kind, file]) => {
-    const row = document.querySelector(`[data-upload-row="${kind}"]`);
-    row.classList.add("has-file");
-    row.querySelector("[data-file-name]").textContent = file.name;
-    row.querySelector("[data-file-meta]").textContent = file.meta;
-    row.querySelector("[data-file-state]").textContent = "Файл выбран";
-  });
-  document.getElementById("attachment-count").textContent = "3 файла";
+  const row = document.querySelector('[data-upload-row="project"]');
+  row.classList.add("has-file");
+  row.querySelector("[data-file-name]").textContent = "4708-308092-125-11_24.ЭС_РП.pdf";
+  row.querySelector("[data-file-meta]").textContent = "12,4 МБ · выбран для загрузки";
+  row.querySelector("[data-file-state]").textContent = "Файл выбран";
   document.getElementById("insight-copy").textContent =
-    "Мы уже нашли: объект в Химках, шифр 4708-308092-125-11/24.ЭС, 15 отдельных работ.";
+    "PDF выбран. За один запуск будет заполнен только указанный специалистом шаблон.";
   updateOperator();
+  updateTemplateMeta();
   showStep("files", { validate: false });
   return true;
 }
@@ -259,17 +253,11 @@ document.querySelectorAll("[data-next-step]").forEach((button) => {
 
 fileInputs.forEach((input) => {
   input.addEventListener("change", () => {
+    input.setCustomValidity("");
     updateUploadRow(input);
     updateInsight();
     updateReview();
   });
-});
-
-document.getElementById("attachments-toggle").addEventListener("click", (event) => {
-  const body = document.getElementById("attachments-body");
-  const expanded = event.currentTarget.getAttribute("aria-expanded") === "true";
-  event.currentTarget.setAttribute("aria-expanded", String(!expanded));
-  body.hidden = expanded;
 });
 
 document.getElementById("help-toggle").addEventListener("click", () => {
@@ -290,21 +278,28 @@ document.addEventListener("keydown", (event) => {
 });
 
 form.addEventListener("input", () => {
+  document.getElementById("template-id").setCustomValidity("");
   document.getElementById("operator-name").setCustomValidity("");
-  document.getElementById("first-number").setCustomValidity("");
   updateOperator();
   scheduleDraft();
 });
-form.addEventListener("change", scheduleDraft);
+form.addEventListener("change", (event) => {
+  if (event.target.id === "template-id") {
+    event.target.setCustomValidity("");
+    updateTemplateMeta();
+  }
+  updateReview();
+  scheduleDraft();
+});
 
 form.addEventListener("submit", (event) => {
   const error = document.getElementById("form-error");
-  if (!objectIsValid() || !filesAreValid()) {
+  if (!setupIsValid() || !filesAreValid()) {
     event.preventDefault();
     error.hidden = false;
     error.textContent =
-      "Проверьте специалиста, первый номер АОСР и обязательный рабочий проект перед запуском.";
-    showStep(objectIsValid() ? "files" : "object", { validate: false });
+      "Выберите шаблон, укажите специалиста и добавьте один рабочий проект PDF.";
+    showStep(setupIsValid() ? "files" : "object", { validate: false });
     return;
   }
   error.hidden = true;
@@ -317,7 +312,7 @@ form.addEventListener("submit", (event) => {
 document.querySelectorAll("[data-job-status]").forEach((item) => {
   item.textContent =
     item.dataset.jobStatus === "NEEDS_INPUT" && item.dataset.draftReady === "true"
-      ? "Excel с замечаниями"
+      ? "Книга с предупреждениями"
       : statusNames[item.dataset.jobStatus] || item.dataset.jobStatus;
 });
 
@@ -333,5 +328,6 @@ if (today) {
 
 loadDraft();
 updateOperator();
+updateTemplateMeta();
 updateInsight();
 if (!applyDesignDemo()) showStep(activeStep, { validate: false });

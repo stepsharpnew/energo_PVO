@@ -15,6 +15,16 @@ from .excel import OOXMLWorkbook, sha256
 from .usage import PRICING_SNAPSHOT_DATE, job_estimated_cost
 
 
+UNRESOLVED_CATEGORY_LABELS = {
+    "missing_from_pdf": "Нет подтверждения в PDF",
+    "manual_confirmation": "Требуется ручное подтверждение",
+    "conflict": "В PDF найдены противоречащие значения",
+    "ambiguous": "Значение в PDF неоднозначно",
+    "rejected": "Значение отклонено проверкой",
+    "unapproved_rule": "Правило переноса ещё не утверждено",
+}
+
+
 def revision_paths(job_root: Path, revision: int) -> tuple[Path, Path, Path]:
     revision_root = job_root / "output" / "revisions" / f"r{revision}"
     preview_root = job_root / "preview" / f"r{revision}"
@@ -112,11 +122,28 @@ def write_report(state: ProjectState, job_root: Path) -> tuple[Path, Path, Path]
                 "revision": state.revision,
                 "status": state.status,
                 "summary": state.summary,
+                "flow_version": state.flow_version,
+                "selected_template": (
+                    {
+                        "id": state.selected_template_id,
+                        "name": state.selected_template_name,
+                        "status": state.selected_template_status,
+                        "version": state.selected_template_version,
+                        "sha256": state.selected_template_sha256,
+                        "contract_sha256": state.selected_template_contract_sha256,
+                    }
+                    if state.selected_template_id
+                    else None
+                ),
                 "processing_profile": state.processing_profile,
                 "model_usage": [item.model_dump(mode="json") for item in state.model_usage],
                 "estimated_cost_usd": job_estimated_cost(state),
                 "pricing_snapshot_date": PRICING_SNAPSHOT_DATE,
                 "claims": [item.model_dump(mode="json") for item in state.claims],
+                "unresolved_template_cells": [
+                    item.model_dump(mode="json")
+                    for item in state.unresolved_template_cells
+                ],
                 "work_items": [item.model_dump(mode="json") for item in state.work_items],
                 "document_plans": [item.model_dump(mode="json") for item in state.document_plans],
                 "questions": [item.model_dump(mode="json") for item in state.questions],
@@ -139,20 +166,39 @@ def write_report(state: ProjectState, job_root: Path) -> tuple[Path, Path, Path]
         f"<tr><td>{html.escape(item.stage)}</td><td>{html.escape(item.model)}</td><td>{item.input_tokens}</td><td>{item.cached_tokens}</td><td>{item.output_tokens}</td><td>{item.estimated_cost_usd if item.estimated_cost_usd is not None else 'нет тарифа'}</td></tr>"
         for item in state.model_usage
     ) or "<tr><td colspan='6'>Платных вызовов не было</td></tr>"
-    warning_rows = "".join(
-        (
-            f"<tr><td>{html.escape(item.prompt)}</td>"
-            f"<td>{html.escape(item.reason)}</td>"
-            f"<td>{html.escape(item.answer or 'Не заполнено')}</td></tr>"
+    if state.unresolved_template_cells:
+        warning_rows = "".join(
+            (
+                f"<tr><td>{html.escape(item.label)}</td>"
+                f"<td>{html.escape(item.reason)}</td>"
+                f"<td>{html.escape(UNRESOLVED_CATEGORY_LABELS[item.category])}</td>"
+                f"<td>{html.escape(', '.join(item.source_locators) or '—')}</td>"
+                f"<td>{html.escape(item.sheet)}!{html.escape(item.cell)}</td></tr>"
+            )
+            for item in state.unresolved_template_cells
         )
-        for item in state.questions
-        if not item.answer
-    ) or "<tr><td colspan='3'>Незаполненных сведений нет</td></tr>"
+        warning_headers = (
+            "<th>Что нужно уточнить</th><th>Почему</th><th>Категория</th>"
+            "<th>Источники</th><th>Ячейка</th>"
+        )
+    else:
+        warning_rows = "".join(
+            (
+                f"<tr><td>{html.escape(item.prompt)}</td>"
+                f"<td>{html.escape(item.reason)}</td>"
+                f"<td>{html.escape(item.answer or 'Не заполнено')}</td></tr>"
+            )
+            for item in state.questions
+            if not item.answer
+        ) or "<tr><td colspan='3'>Незаполненных сведений нет</td></tr>"
+        warning_headers = (
+            "<th>Что нужно уточнить</th><th>Почему</th><th>Ячейка / состояние</th>"
+        )
     report_html.write_text(
         f"""<!doctype html><html lang='ru'><meta charset='utf-8'><title>Отчёт {state.job_id}</title>
 <style>body{{font:14px Arial;max-width:1100px;margin:30px auto;color:#172033}}table{{border-collapse:collapse;width:100%;margin:16px 0}}th,td{{border:1px solid #d8dfeb;padding:8px;text-align:left}}h1,h2{{color:#153a67}}</style>
 <h1>Отчёт по комплекту</h1><p><b>Статус:</b> {html.escape(state.status)}</p><p>{html.escape(state.summary)}</p>
-<h2>Замечания к черновому отчёту</h2><table><tr><th>Что нужно уточнить</th><th>Почему</th><th>Состояние</th></tr>{warning_rows}</table>
+<h2>Замечания к черновому отчёту</h2><table><tr>{warning_headers}</tr>{warning_rows}</table>
 <h2>Расход модели</h2><p><b>Профиль:</b> {html.escape(state.processing_profile)}</p><table><tr><th>Этап</th><th>Модель</th><th>Вход</th><th>Кэш</th><th>Выход</th><th>Оценка, USD</th></tr>{usage_rows}</table>
 <h2>Проверки</h2><table><tr><th>Уровень</th><th>Код</th><th>Сообщение</th></tr>{issue_rows}</table>
 <h2>Источники значений</h2><table><tr><th>Поле</th><th>Значение</th><th>Источник</th></tr>{claim_rows}</table></html>""",
@@ -160,12 +206,35 @@ def write_report(state: ProjectState, job_root: Path) -> tuple[Path, Path, Path]
     )
     revision_root, preview_root, _ = revision_paths(job_root, state.revision)
     files = []
+    seen_files: set[str] = set()
     for root in (revision_root, preview_root, report_dir):
         if not root.exists():
             continue
         for path in sorted(root.rglob("*")):
             if path.is_file() and path != manifest_json:
-                files.append({"path": path.relative_to(job_root).as_posix(), "sha256": sha256(path), "size": path.stat().st_size})
+                relative = path.relative_to(job_root).as_posix()
+                if relative not in seen_files:
+                    files.append({"path": relative, "sha256": sha256(path), "size": path.stat().st_size})
+                    seen_files.add(relative)
+    resolved_job_root = job_root.resolve()
+    for relative in state.draft_excel_files:
+        path = (resolved_job_root / relative).resolve()
+        if (
+            resolved_job_root not in path.parents
+            or not path.is_file()
+            or path.suffix.lower() != ".xlsx"
+        ):
+            continue
+        normalized = path.relative_to(resolved_job_root).as_posix()
+        if normalized not in seen_files:
+            files.append(
+                {
+                    "path": normalized,
+                    "sha256": sha256(path),
+                    "size": path.stat().st_size,
+                }
+            )
+            seen_files.add(normalized)
     manifest_json.write_text(
         json.dumps(
             {
@@ -179,6 +248,18 @@ def write_report(state: ProjectState, job_root: Path) -> tuple[Path, Path, Path]
                 "skill_version": state.skill_version,
                 "knowledge_version": state.knowledge_version,
                 "template_versions": state.template_versions,
+                "flow_version": state.flow_version,
+                "selected_template": (
+                    {
+                        "id": state.selected_template_id,
+                        "status": state.selected_template_status,
+                        "version": state.selected_template_version,
+                        "sha256": state.selected_template_sha256,
+                        "contract_sha256": state.selected_template_contract_sha256,
+                    }
+                    if state.selected_template_id
+                    else None
+                ),
                 "sources": [item.model_dump(mode="json") for item in state.artifacts],
                 "validation_issues": [item.model_dump(mode="json") for item in state.validation_issues],
                 "files": files,
@@ -195,6 +276,20 @@ def build_result_zip(state: ProjectState, job_root: Path) -> Path:
     destination = job_root / "output" / f"result-r{state.revision}.zip"
     revision_root, preview_root, report_root = revision_paths(job_root, state.revision)
     with zipfile.ZipFile(destination, "w", zipfile.ZIP_DEFLATED) as archive:
+        archived: set[str] = set()
+        resolved_job_root = job_root.resolve()
+        for relative in state.draft_excel_files:
+            path = (resolved_job_root / relative).resolve()
+            target = (Path("xlsx") / path.name).as_posix()
+            if (
+                resolved_job_root not in path.parents
+                or not path.is_file()
+                or path.suffix.lower() != ".xlsx"
+                or target in archived
+            ):
+                continue
+            archive.write(path, target)
+            archived.add(target)
         for folder, archive_prefix in (
             (revision_root / "xlsx", Path("xlsx")),
             (revision_root / "attachments", Path("attachments")),
@@ -205,5 +300,8 @@ def build_result_zip(state: ProjectState, job_root: Path) -> Path:
                 continue
             for path in folder.rglob("*"):
                 if path.is_file() and path != destination:
-                    archive.write(path, archive_prefix / path.relative_to(folder))
+                    target = (archive_prefix / path.relative_to(folder)).as_posix()
+                    if target not in archived:
+                        archive.write(path, target)
+                        archived.add(target)
     return destination

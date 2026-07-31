@@ -10,3 +10,8 @@ data/app.db*
 data/runs/*
 !data/runs/.gitkeep
 templates/approved/*.xlsx
+!templates/approved/1. ЭМР1.xlsx
+!templates/approved/2. Протоколы.xlsx
+!templates/approved/3. ОЖР.xlsx
+!templates/approved/4. АВК.xlsx
+!templates/approved/8. АОСР ВЛ1.xlsx

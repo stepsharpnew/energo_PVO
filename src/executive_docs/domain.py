@@ -130,6 +130,100 @@ class ValidationIssue(StrictModel):
     locator: str | None = None
 
 
+class TemplateCellAssignment(StrictModel):
+    sheet: str
+    cell: str
+    value: str
+    source_file_id: str
+    locator: str
+    evidence_fragment: str
+
+
+class UnresolvedTemplateCell(StrictModel):
+    template_id: str
+    sheet: str
+    cell: str
+    label: str
+    reason: str
+    category: Literal[
+        "missing_from_pdf",
+        "manual_confirmation",
+        "conflict",
+        "ambiguous",
+        "rejected",
+        "unapproved_rule",
+    ] = "missing_from_pdf"
+    required: bool = True
+    blocking: bool = True
+    source_locators: list[str] = Field(default_factory=list)
+
+
+class TemplateUnresolvedFinding(StrictModel):
+    sheet: str
+    cell: str
+    category: Literal[
+        "missing_from_pdf",
+        "conflict",
+        "ambiguous",
+        "rejected",
+        "unapproved_rule",
+    ]
+    reason: str
+    source_locators: list[str] = Field(default_factory=list)
+    source_values: list[str] = Field(default_factory=list)
+    evidence_fragments: list[str] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def validate_evidence(self) -> "TemplateUnresolvedFinding":
+        evidence_count = len(self.source_locators)
+        if (
+            len(self.source_values) != evidence_count
+            or len(self.evidence_fragments) != evidence_count
+        ):
+            raise ValueError(
+                "Unresolved values, locators, and evidence fragments must align"
+            )
+        if any(not value.strip() for value in self.source_values):
+            raise ValueError("Unresolved source values must not be empty")
+        if self.category == "conflict" and (
+            evidence_count < 2
+            or len({value.casefold().strip() for value in self.source_values}) < 2
+        ):
+            raise ValueError(
+                "Conflict requires at least two distinct source values"
+            )
+        if self.category in {"ambiguous", "rejected"} and evidence_count < 1:
+            raise ValueError(
+                f"{self.category} requires at least one source evidence item"
+            )
+        if self.category == "missing_from_pdf" and evidence_count:
+            raise ValueError(
+                "missing_from_pdf cannot contain source evidence"
+            )
+        return self
+
+
+class TemplateFillAnalysis(StrictModel):
+    summary: str
+    assignments: list[TemplateCellAssignment] = Field(default_factory=list)
+    unresolved: list[TemplateUnresolvedFinding] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def validate_assignments(self) -> "TemplateFillAnalysis":
+        coordinates = [(item.sheet, item.cell) for item in self.assignments]
+        if len(coordinates) != len(set(coordinates)):
+            raise ValueError("Template cell assignments must be unique")
+        unresolved_coordinates = [
+            (item.sheet, item.cell)
+            for item in self.unresolved
+        ]
+        if len(unresolved_coordinates) != len(set(unresolved_coordinates)):
+            raise ValueError("Template unresolved findings must be unique")
+        if set(coordinates) & set(unresolved_coordinates):
+            raise ValueError("A template cell cannot be both assigned and unresolved")
+        return self
+
+
 class ModelUsageRecord(StrictModel):
     stage: Literal["analysis", "review"]
     revision: int = Field(ge=1)
@@ -180,9 +274,22 @@ class CorrectionPayload(StrictModel):
 class ProjectState(StrictModel):
     job_id: str
     revision: int = 1
-    branch_id: Literal["khimki", "solnechnogorsk"]
-    first_aosr_number: int
+    branch_id: Literal["khimki", "solnechnogorsk"] | None = None
+    first_aosr_number: int = 1
     operator_name: str
+    flow_version: Literal["legacy-aosr-v1", "selected-template-v2"] = "legacy-aosr-v1"
+    selected_template_id: str | None = None
+    selected_template_name: str | None = None
+    selected_template_status: str | None = None
+    selected_template_version: str | None = None
+    selected_template_sha256: str | None = None
+    selected_template_contract_sha256: str | None = None
+    template_assignments: list[TemplateCellAssignment] = Field(default_factory=list)
+    template_unresolved_findings: list[TemplateUnresolvedFinding] = Field(
+        default_factory=list
+    )
+    unresolved_template_cells: list[UnresolvedTemplateCell] = Field(default_factory=list)
+    template_analysis_complete: bool = False
     processing_profile: Literal["economy", "balanced", "quality"] = "balanced"
     status: JobStatus = JobStatus.CREATED
     artifacts: list[Artifact] = Field(default_factory=list)

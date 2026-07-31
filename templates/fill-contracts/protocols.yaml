@@ -1,0 +1,3874 @@
+template_id: protocols
+display_name: Протоколы испытаний
+document_kind: protocols
+version: 2026-07-30-discovery-2
+status: DISCOVERY_REVIEW_REQUIRED
+approved: false
+source_template: NEW_TEMPLATES/Attachments_vku@e-systems-4/2. Протоколы.xlsx
+source_sha256: 2e0fef59590b73bbdc6164204f2d881b8d0511cb97417bff678a8e2bf6cab0ab
+etalon_example: ETALON/2. Протоколы.xlsx
+etalon_sha256: 37cd7d1b6ab1595395f536352d596ecc9c2317c69a566346d38aacbe94083cc3
+candidate_template: templates/approved/2. Протоколы.xlsx
+candidate_sha256: 101cef7b041a0ecf03563f9623e828c8f6573c12653721045a5f14b1e9a6242a
+output_filename: 2. Протоколы.xlsx
+warning_fill_rgb: FFFFE699
+structural_findings:
+  candidate_sheet_count: 19
+  etalon_sheet_count: 19
+  candidate_vs_etalon_sheet_names_match: true
+  candidate_only_sheet_count: 0
+  etalon_only_sheet_count: 0
+  candidate_vs_etalon_formula_differences: 98
+  candidate_vs_etalon_nonformula_differences: 640
+  formula_errors_observed: 0
+  etalon_external_links: 0
+  target_derivation: source_only_discovery
+  discovery_target_count: 637
+  cleared_cell_count: 637
+  localized_external_formula_references: 0
+  removed_external_links: 0
+  removed_broken_defined_names: 0
+  removed_broken_data_validations: 0
+  pruned_shared_string_count: 176
+  scrubbed_document_property_count: 6
+  removed_custom_part_count: 0
+  source_external_links: 0
+  candidate_external_links: 0
+  remaining_external_formula_reference_count: 0
+  remaining_sensitive_value_count: 0
+  remaining_sensitive_value_examples: []
+  renamed_sheet_count: 0
+  renamed_candidate_sheets: []
+  raw_ref_error_count: 0
+  package_forbidden_token_count: 0
+  package_forbidden_token_examples: []
+fields:
+- sheet: Данные организации
+  cell: B1
+  label: организация · реквизиты
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: C1
+  label: организация · реквизиты
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: D1
+  label: организация · реквизиты
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: F1
+  label: организация · реквизиты
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: B2
+  label: реквизиты · адрес
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: C2
+  label: реквизиты · адрес
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: D2
+  label: реквизиты · адрес
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: F2
+  label: реквизиты · адрес
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: B3
+  label: адрес · район
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: C3
+  label: адрес · район
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: D3
+  label: адрес · район
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: F3
+  label: адрес · район
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: F4
+  label: район · адрес
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: G4
+  label: Данные организации!G4
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: F5
+  label: директор · район
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: G5
+  label: Данные организации!G5
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: B6
+  label: директор · директор ФИО
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: C6
+  label: директор · директор ФИО
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: D6
+  label: директор · директор ФИО
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: F6
+  label: директор · директор ФИО
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: G6
+  label: Данные организации!G6
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: B7
+  label: директор ФИО · Строй.контроль
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: C7
+  label: директор ФИО · Строй.контроль
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: D7
+  label: директор ФИО · Строй.контроль
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: F7
+  label: директор ФИО · Строй.контроль
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: G7
+  label: Данные организации!G7
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: B8
+  label: Строй.контроль · Приказ стр.контр.
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: C8
+  label: Строй.контроль · Приказ стр.контр.
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: D8
+  label: Строй.контроль · Приказ стр.контр.
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: F8
+  label: Строй.контроль · Приказ стр.контр.
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: G8
+  label: Данные организации!G8
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: B9
+  label: Приказ стр.контр. · Строй.контроль
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: C9
+  label: Приказ стр.контр. · Строй.контроль
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: D9
+  label: Приказ стр.контр. · Строй.контроль
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: F9
+  label: Приказ стр.контр. · Строй.контроль
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: G9
+  label: Данные организации!G9
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: B10
+  label: ФИО стр.контр. · Представитель
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: C10
+  label: ФИО стр.контр. · Представитель
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: D10
+  label: ФИО стр.контр. · Представитель
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: F10
+  label: ФИО стр.контр. · Представитель
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: G10
+  label: Данные организации!G10
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: F11
+  label: Представитель · ФИО предст.
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: G11
+  label: Данные организации!G11
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: I11
+  label: Данные организации!I11
+  value_kind: number
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: F12
+  label: ФИО предст. · Представитель
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: I12
+  label: Данные организации!I12
+  value_kind: number
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: F14
+  label: ФИО предст. · Представитель
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: G14
+  label: Данные организации!G14
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: F15
+  label: Прораб · ФИО предст.
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: G15
+  label: Данные организации!G15
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: F16
+  label: Прораб · Приказ прораб
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: F17
+  label: Прораб · Приказ прораб
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: B18
+  label: Прораб · Приказ прораб
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: C18
+  label: Прораб · Приказ прораб
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: D18
+  label: Прораб · Приказ прораб
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: B19
+  label: Приказ прораб · Прораб
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: C19
+  label: Приказ прораб · Прораб
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: D19
+  label: Приказ прораб · Прораб
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: B20
+  label: ФИО прораб · Приказ прораб
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: C20
+  label: ФИО прораб · Приказ прораб
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: D20
+  label: ФИО прораб · Приказ прораб
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные объект
+  cell: B2
+  label: № САП · Данные объекта
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Данные объект
+  cell: B3
+  label: Объект · р-н
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B4
+  label: р-н · Адрес
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B5
+  label: Адрес · Дата разбивки
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B6
+  label: Дата разбивки · Адрес
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B7
+  label: Дата старт · Дата разбивки
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: Данные объект
+  cell: B8
+  label: Дата финиш · Дата старт
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: Данные объект
+  cell: B9
+  label: год · Дата финиш
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: Данные объект
+  cell: B10
+  label: Температура воздуха · Влажность
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Данные объект
+  cell: B11
+  label: Влажность · Атмосферное давление
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Данные объект
+  cell: B12
+  label: Атмосферное давление · Влажность
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Данные объект
+  cell: B15
+  label: ТП · Общий
+  value_kind: text
+  required: true
+  manual_reason: null
+- sheet: Данные объект
+  cell: B16
+  label: ТП · ВЛ-10
+  value_kind: text
+  required: true
+  manual_reason: null
+- sheet: Данные объект
+  cell: B17
+  label: ВЛ-10 · ВЛ-0,4
+  value_kind: text
+  required: true
+  manual_reason: null
+- sheet: Данные объект
+  cell: B18
+  label: ВЛ-0,4 · ВЛ-10
+  value_kind: text
+  required: true
+  manual_reason: null
+- sheet: Данные объект
+  cell: B19
+  label: КЛ · ВЛ-0,4
+  value_kind: text
+  required: true
+  manual_reason: null
+- sheet: Данные объект
+  cell: B20
+  label: ВРЩ · КЛ
+  value_kind: text
+  required: true
+  manual_reason: null
+- sheet: Данные объект
+  cell: B22
+  label: Организация · Монтажная организация
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B25
+  label: Должность · ФИО
+  value_kind: text
+  required: true
+  manual_reason: Подписант или основание полномочий требует утверждённого профиля
+- sheet: Данные объект
+  cell: B26
+  label: ФИО · Должность
+  value_kind: text
+  required: true
+  manual_reason: ФИО и полномочия подписанта требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B27
+  label: Должность · Ф.И.О.
+  value_kind: text
+  required: true
+  manual_reason: Подписант или основание полномочий требует утверждённого профиля
+- sheet: Данные объект
+  cell: B28
+  label: Ф.И.О. · Должность
+  value_kind: text
+  required: true
+  manual_reason: ФИО и полномочия подписанта требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B29
+  label: Приказ · Должность
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: Данные объект
+  cell: B30
+  label: Должность · Приказ
+  value_kind: text
+  required: true
+  manual_reason: Подписант или основание полномочий требует утверждённого профиля
+- sheet: Данные объект
+  cell: B31
+  label: Ф.И.О. · Должность
+  value_kind: text
+  required: true
+  manual_reason: ФИО и полномочия подписанта требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B32
+  label: Приказ · Заказчик
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B37
+  label: Должность · Ф.И.О.
+  value_kind: text
+  required: true
+  manual_reason: Подписант или основание полномочий требует утверждённого профиля
+- sheet: Данные объект
+  cell: B38
+  label: Ф.И.О. · Должность
+  value_kind: text
+  required: true
+  manual_reason: Подписант или основание полномочий требует утверждённого профиля
+- sheet: Данные объект
+  cell: B39
+  label: Должность · Ф.И.О.
+  value_kind: text
+  required: true
+  manual_reason: Подписант или основание полномочий требует утверждённого профиля
+- sheet: Данные объект
+  cell: B40
+  label: Ф.И.О. · Должность
+  value_kind: text
+  required: true
+  manual_reason: Подписант или основание полномочий требует утверждённого профиля
+- sheet: Данные объект
+  cell: B41
+  label: Должность · Ф.И.О.
+  value_kind: text
+  required: true
+  manual_reason: Подписант или основание полномочий требует утверждённого профиля
+- sheet: Данные объект
+  cell: B42
+  label: Ф.И.О. · Должность
+  value_kind: text
+  required: true
+  manual_reason: Подписант или основание полномочий требует утверждённого профиля
+- sheet: Данные объект
+  cell: B43
+  label: Должность · Ф.И.О.
+  value_kind: text
+  required: true
+  manual_reason: Подписант или основание полномочий требует утверждённого профиля
+- sheet: Данные объект
+  cell: B44
+  label: Ф.И.О. · Должность
+  value_kind: text
+  required: true
+  manual_reason: Подписант или основание полномочий требует утверждённого профиля
+- sheet: Данные объект
+  cell: B45
+  label: Приказ · Должность
+  value_kind: text
+  required: true
+  manual_reason: Подписант или основание полномочий требует утверждённого профиля
+- sheet: Данные объект
+  cell: B46
+  label: Должность · Приказ
+  value_kind: text
+  required: true
+  manual_reason: Подписант или основание полномочий требует утверждённого профиля
+- sheet: Данные объект
+  cell: B47
+  label: Ф.И.О. · Должность
+  value_kind: text
+  required: true
+  manual_reason: Подписант или основание полномочий требует утверждённого профиля
+- sheet: Данные объект
+  cell: B48
+  label: Приказ · Проект
+  value_kind: text
+  required: true
+  manual_reason: Подписант или основание полномочий требует утверждённого профиля
+- sheet: Данные объект
+  cell: B50
+  label: Организация · Проект
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B51
+  label: Реквизиты · Организация
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B52
+  label: адрес · Город
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B53
+  label: Город · адрес
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B54
+  label: № · Город
+  value_kind: text
+  required: true
+  manual_reason: null
+- sheet: Данные объект
+  cell: A56
+  label: Название · Организация
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B58
+  label: Организация · Реквизиты
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B59
+  label: Реквизиты · Организация
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B60
+  label: адрес · Должность
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B61
+  label: Должность · Ф.И.О.
+  value_kind: text
+  required: true
+  manual_reason: Подписант или основание полномочий требует утверждённого профиля
+- sheet: Данные объект
+  cell: B62
+  label: Ф.И.О. · Должность
+  value_kind: text
+  required: true
+  manual_reason: ФИО и полномочия подписанта требуют утверждённого профиля
+- sheet: Данные объект
+  cell: A63
+  label: Должность · Ф.И.О.
+  value_kind: text
+  required: true
+  manual_reason: Подписант или основание полномочий требует утверждённого профиля
+- sheet: Данные объект
+  cell: B63
+  label: Должность · Ф.И.О.
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: Данные объект
+  cell: B64
+  label: Должность · Ф.И.О.
+  value_kind: text
+  required: true
+  manual_reason: Подписант или основание полномочий требует утверждённого профиля
+- sheet: Данные объект
+  cell: B65
+  label: Ф.И.О. · Должность
+  value_kind: text
+  required: true
+  manual_reason: ФИО и полномочия подписанта требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B66
+  label: Должность · Ф.И.О.
+  value_kind: text
+  required: true
+  manual_reason: Подписант или основание полномочий требует утверждённого профиля
+- sheet: Данные объект
+  cell: B67
+  label: Ф.И.О. · Дата окончания
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: Данные объект
+  cell: B68
+  label: Дата окончания · Ф.И.О.
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: Оборудование
+  cell: J1
+  label: Дата поверки очередная · Метрологические характеристики
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: Оборудование
+  cell: G2
+  label: Метрологические характеристики · Заводской номер
+  value_kind: text
+  required: true
+  manual_reason: Прибор, заводской номер и сведения о поверке требуют отдельного подтверждения
+- sheet: Оборудование
+  cell: H2
+  label: Дата поверки очередная · Метрологические характеристики
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: Оборудование
+  cell: N2
+  label: Просрочен · Дата поверки очередная
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: Оборудование
+  cell: A3
+  label: № п/п · Тип
+  value_kind: number
+  required: true
+  manual_reason: Прибор, заводской номер и сведения о поверке требуют отдельного подтверждения
+- sheet: Оборудование
+  cell: B3
+  label: Тип · № п/п
+  value_kind: text
+  required: true
+  manual_reason: Прибор, заводской номер и сведения о поверке требуют отдельного подтверждения
+- sheet: Оборудование
+  cell: F3
+  label: Заводской номер · Метрологические характеристики
+  value_kind: number
+  required: true
+  manual_reason: Прибор, заводской номер и сведения о поверке требуют отдельного подтверждения
+- sheet: Оборудование
+  cell: G3
+  label: Метрологические характеристики · Заводской номер
+  value_kind: text
+  required: true
+  manual_reason: Прибор, заводской номер и сведения о поверке требуют отдельного подтверждения
+- sheet: Оборудование
+  cell: H3
+  label: Дата поверки очередная · Метрологические характеристики
+  value_kind: number
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: Оборудование
+  cell: I3
+  label: Дата поверки очередная · Метрологические характеристики
+  value_kind: date
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: Оборудование
+  cell: J3
+  label: Дата поверки очередная · Метрологические характеристики
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: Оборудование
+  cell: A4
+  label: № п/п · Тип
+  value_kind: number
+  required: true
+  manual_reason: Прибор, заводской номер и сведения о поверке требуют отдельного подтверждения
+- sheet: Оборудование
+  cell: B4
+  label: Тип · № п/п
+  value_kind: text
+  required: true
+  manual_reason: Прибор, заводской номер и сведения о поверке требуют отдельного подтверждения
+- sheet: Оборудование
+  cell: F4
+  label: Заводской номер · Метрологические характеристики
+  value_kind: text
+  required: true
+  manual_reason: Прибор, заводской номер и сведения о поверке требуют отдельного подтверждения
+- sheet: Оборудование
+  cell: G4
+  label: Метрологические характеристики · Заводской номер
+  value_kind: text
+  required: true
+  manual_reason: Прибор, заводской номер и сведения о поверке требуют отдельного подтверждения
+- sheet: Оборудование
+  cell: H4
+  label: Дата поверки очередная · Метрологические характеристики
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: Оборудование
+  cell: I4
+  label: Дата поверки очередная · Метрологические характеристики
+  value_kind: date
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: Оборудование
+  cell: J4
+  label: Дата поверки очередная · Метрологические характеристики
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: Оборудование
+  cell: A5
+  label: Оборудование!A5
+  value_kind: number
+  required: true
+  manual_reason: Прибор, заводской номер и сведения о поверке требуют отдельного подтверждения
+- sheet: Оборудование
+  cell: B5
+  label: Оборудование!B5
+  value_kind: text
+  required: true
+  manual_reason: Прибор, заводской номер и сведения о поверке требуют отдельного подтверждения
+- sheet: Оборудование
+  cell: F5
+  label: Оборудование!F5
+  value_kind: number
+  required: true
+  manual_reason: Прибор, заводской номер и сведения о поверке требуют отдельного подтверждения
+- sheet: Оборудование
+  cell: G5
+  label: Оборудование!G5
+  value_kind: text
+  required: true
+  manual_reason: Прибор, заводской номер и сведения о поверке требуют отдельного подтверждения
+- sheet: Оборудование
+  cell: H5
+  label: Оборудование!H5
+  value_kind: number
+  required: true
+  manual_reason: Прибор, заводской номер и сведения о поверке требуют отдельного подтверждения
+- sheet: Оборудование
+  cell: I5
+  label: Оборудование!I5
+  value_kind: date
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: Оборудование
+  cell: J5
+  label: Оборудование!J5
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: Оборудование
+  cell: A6
+  label: Оборудование!A6
+  value_kind: number
+  required: true
+  manual_reason: Прибор, заводской номер и сведения о поверке требуют отдельного подтверждения
+- sheet: Оборудование
+  cell: B6
+  label: Оборудование!B6
+  value_kind: text
+  required: true
+  manual_reason: Прибор, заводской номер и сведения о поверке требуют отдельного подтверждения
+- sheet: Оборудование
+  cell: F6
+  label: Оборудование!F6
+  value_kind: text
+  required: true
+  manual_reason: Прибор, заводской номер и сведения о поверке требуют отдельного подтверждения
+- sheet: Оборудование
+  cell: G6
+  label: Оборудование!G6
+  value_kind: text
+  required: true
+  manual_reason: Прибор, заводской номер и сведения о поверке требуют отдельного подтверждения
+- sheet: Оборудование
+  cell: H6
+  label: Оборудование!H6
+  value_kind: number
+  required: true
+  manual_reason: Прибор, заводской номер и сведения о поверке требуют отдельного подтверждения
+- sheet: Оборудование
+  cell: I6
+  label: Оборудование!I6
+  value_kind: date
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: Оборудование
+  cell: J6
+  label: Оборудование!J6
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: Оборудование
+  cell: A7
+  label: Оборудование!A7
+  value_kind: number
+  required: true
+  manual_reason: Прибор, заводской номер и сведения о поверке требуют отдельного подтверждения
+- sheet: Оборудование
+  cell: B7
+  label: Оборудование!B7
+  value_kind: text
+  required: true
+  manual_reason: Прибор, заводской номер и сведения о поверке требуют отдельного подтверждения
+- sheet: Оборудование
+  cell: F7
+  label: Оборудование!F7
+  value_kind: text
+  required: true
+  manual_reason: Прибор, заводской номер и сведения о поверке требуют отдельного подтверждения
+- sheet: Оборудование
+  cell: G7
+  label: Оборудование!G7
+  value_kind: text
+  required: true
+  manual_reason: Прибор, заводской номер и сведения о поверке требуют отдельного подтверждения
+- sheet: Оборудование
+  cell: H7
+  label: Оборудование!H7
+  value_kind: number
+  required: true
+  manual_reason: Прибор, заводской номер и сведения о поверке требуют отдельного подтверждения
+- sheet: Оборудование
+  cell: I7
+  label: Оборудование!I7
+  value_kind: date
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: Оборудование
+  cell: J7
+  label: Оборудование!J7
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: Оборудование
+  cell: A8
+  label: Оборудование!A8
+  value_kind: number
+  required: true
+  manual_reason: Прибор, заводской номер и сведения о поверке требуют отдельного подтверждения
+- sheet: Оборудование
+  cell: B8
+  label: Оборудование!B8
+  value_kind: text
+  required: true
+  manual_reason: Прибор, заводской номер и сведения о поверке требуют отдельного подтверждения
+- sheet: Оборудование
+  cell: F8
+  label: Оборудование!F8
+  value_kind: number
+  required: true
+  manual_reason: Прибор, заводской номер и сведения о поверке требуют отдельного подтверждения
+- sheet: Оборудование
+  cell: G8
+  label: Оборудование!G8
+  value_kind: text
+  required: true
+  manual_reason: Прибор, заводской номер и сведения о поверке требуют отдельного подтверждения
+- sheet: Оборудование
+  cell: H8
+  label: Оборудование!H8
+  value_kind: number
+  required: true
+  manual_reason: Прибор, заводской номер и сведения о поверке требуют отдельного подтверждения
+- sheet: Оборудование
+  cell: I8
+  label: Оборудование!I8
+  value_kind: text
+  required: true
+  manual_reason: Прибор, заводской номер и сведения о поверке требуют отдельного подтверждения
+- sheet: Оборудование
+  cell: J8
+  label: Оборудование!J8
+  value_kind: text
+  required: true
+  manual_reason: Прибор, заводской номер и сведения о поверке требуют отдельного подтверждения
+- sheet: Оборудование
+  cell: A9
+  label: Оборудование!A9
+  value_kind: number
+  required: true
+  manual_reason: Прибор, заводской номер и сведения о поверке требуют отдельного подтверждения
+- sheet: Оборудование
+  cell: B9
+  label: Оборудование!B9
+  value_kind: text
+  required: true
+  manual_reason: Прибор, заводской номер и сведения о поверке требуют отдельного подтверждения
+- sheet: Оборудование
+  cell: F9
+  label: Оборудование!F9
+  value_kind: number
+  required: true
+  manual_reason: Прибор, заводской номер и сведения о поверке требуют отдельного подтверждения
+- sheet: Оборудование
+  cell: G9
+  label: Оборудование!G9
+  value_kind: text
+  required: true
+  manual_reason: Прибор, заводской номер и сведения о поверке требуют отдельного подтверждения
+- sheet: Оборудование
+  cell: H9
+  label: Оборудование!H9
+  value_kind: number
+  required: true
+  manual_reason: Прибор, заводской номер и сведения о поверке требуют отдельного подтверждения
+- sheet: Оборудование
+  cell: I9
+  label: Оборудование!I9
+  value_kind: date
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: Оборудование
+  cell: J9
+  label: Оборудование!J9
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: Оборудование
+  cell: A10
+  label: Оборудование!A10
+  value_kind: number
+  required: true
+  manual_reason: Прибор, заводской номер и сведения о поверке требуют отдельного подтверждения
+- sheet: Оборудование
+  cell: B10
+  label: Оборудование!B10
+  value_kind: text
+  required: true
+  manual_reason: Прибор, заводской номер и сведения о поверке требуют отдельного подтверждения
+- sheet: Оборудование
+  cell: F10
+  label: Оборудование!F10
+  value_kind: number
+  required: true
+  manual_reason: Прибор, заводской номер и сведения о поверке требуют отдельного подтверждения
+- sheet: Оборудование
+  cell: G10
+  label: Оборудование!G10
+  value_kind: text
+  required: true
+  manual_reason: Прибор, заводской номер и сведения о поверке требуют отдельного подтверждения
+- sheet: Оборудование
+  cell: H10
+  label: Оборудование!H10
+  value_kind: number
+  required: true
+  manual_reason: Прибор, заводской номер и сведения о поверке требуют отдельного подтверждения
+- sheet: Оборудование
+  cell: I10
+  label: Оборудование!I10
+  value_kind: text
+  required: true
+  manual_reason: Прибор, заводской номер и сведения о поверке требуют отдельного подтверждения
+- sheet: Оборудование
+  cell: J10
+  label: Оборудование!J10
+  value_kind: text
+  required: true
+  manual_reason: Прибор, заводской номер и сведения о поверке требуют отдельного подтверждения
+- sheet: Оборудование
+  cell: A11
+  label: Оборудование!A11
+  value_kind: number
+  required: true
+  manual_reason: Прибор, заводской номер и сведения о поверке требуют отдельного подтверждения
+- sheet: Оборудование
+  cell: B11
+  label: Оборудование!B11
+  value_kind: text
+  required: true
+  manual_reason: Прибор, заводской номер и сведения о поверке требуют отдельного подтверждения
+- sheet: Оборудование
+  cell: F11
+  label: Оборудование!F11
+  value_kind: number
+  required: true
+  manual_reason: Прибор, заводской номер и сведения о поверке требуют отдельного подтверждения
+- sheet: Оборудование
+  cell: G11
+  label: Оборудование!G11
+  value_kind: text
+  required: true
+  manual_reason: Прибор, заводской номер и сведения о поверке требуют отдельного подтверждения
+- sheet: Оборудование
+  cell: H11
+  label: Оборудование!H11
+  value_kind: number
+  required: true
+  manual_reason: Прибор, заводской номер и сведения о поверке требуют отдельного подтверждения
+- sheet: Оборудование
+  cell: I11
+  label: Оборудование!I11
+  value_kind: date
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: Оборудование
+  cell: J11
+  label: Оборудование!J11
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: Оборудование
+  cell: A12
+  label: Оборудование!A12
+  value_kind: number
+  required: true
+  manual_reason: Прибор, заводской номер и сведения о поверке требуют отдельного подтверждения
+- sheet: Оборудование
+  cell: B12
+  label: Оборудование!B12
+  value_kind: text
+  required: true
+  manual_reason: Прибор, заводской номер и сведения о поверке требуют отдельного подтверждения
+- sheet: Оборудование
+  cell: F12
+  label: Оборудование!F12
+  value_kind: number
+  required: true
+  manual_reason: Прибор, заводской номер и сведения о поверке требуют отдельного подтверждения
+- sheet: Оборудование
+  cell: G12
+  label: Оборудование!G12
+  value_kind: text
+  required: true
+  manual_reason: Прибор, заводской номер и сведения о поверке требуют отдельного подтверждения
+- sheet: Оборудование
+  cell: H12
+  label: Оборудование!H12
+  value_kind: number
+  required: true
+  manual_reason: Прибор, заводской номер и сведения о поверке требуют отдельного подтверждения
+- sheet: Оборудование
+  cell: I12
+  label: Оборудование!I12
+  value_kind: date
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: Оборудование
+  cell: J12
+  label: Оборудование!J12
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: Оборудование
+  cell: A13
+  label: Оборудование!A13
+  value_kind: number
+  required: true
+  manual_reason: Прибор, заводской номер и сведения о поверке требуют отдельного подтверждения
+- sheet: Оборудование
+  cell: B13
+  label: Оборудование!B13
+  value_kind: text
+  required: true
+  manual_reason: Прибор, заводской номер и сведения о поверке требуют отдельного подтверждения
+- sheet: Оборудование
+  cell: F13
+  label: Оборудование!F13
+  value_kind: number
+  required: true
+  manual_reason: Прибор, заводской номер и сведения о поверке требуют отдельного подтверждения
+- sheet: Оборудование
+  cell: G13
+  label: Оборудование!G13
+  value_kind: text
+  required: true
+  manual_reason: Прибор, заводской номер и сведения о поверке требуют отдельного подтверждения
+- sheet: Оборудование
+  cell: H13
+  label: Оборудование!H13
+  value_kind: number
+  required: true
+  manual_reason: Прибор, заводской номер и сведения о поверке требуют отдельного подтверждения
+- sheet: Оборудование
+  cell: I13
+  label: Оборудование!I13
+  value_kind: date
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: Оборудование
+  cell: J13
+  label: Оборудование!J13
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: прот.№1
+  cell: E18
+  label: '6. Удельное сопротивление грунта, Ом × м: · Расстояние до потенциальных и токовых электродов, м'
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№1
+  cell: B22
+  label: Назначение заземлителя, заземляющего устройства · № п/п
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№1
+  cell: E22
+  label: Допус-тимое · Расстояние до потенциальных и токовых электродов, м
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№1
+  cell: F22
+  label: Допус-тимое · Изме-ренное
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№1
+  cell: G22
+  label: Изме-ренное · Допус-тимое
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№1
+  cell: H22
+  label: Приведённое · Изме-ренное
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№1
+  cell: I22
+  label: Кпопр. · Приведённое
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№1
+  cell: J22
+  label: Вывод о соответств. Нормативн. Документу · Кпопр.
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№1
+  cell: B23
+  label: '8. Условия окружающей среды при проведении измерений: · Назначение заземлителя, заземляющего устройства'
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№1
+  cell: E23
+  label: Допус-тимое · Расстояние до потенциальных и токовых электродов, м
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№1
+  cell: F23
+  label: Допус-тимое · Изме-ренное
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№1
+  cell: G23
+  label: Изме-ренное · Допус-тимое
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№1
+  cell: H23
+  label: Приведённое · Изме-ренное
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№1
+  cell: I23
+  label: Кпопр. · Приведённое
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№1
+  cell: J23
+  label: Вывод о соответств. Нормативн. Документу · Кпопр.
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№1
+  cell: A29
+  label: '10. Измерительные приборы: · 8.3 Атмосферное давление'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: прот.№1
+  cell: J32
+  label: Дата поверки очередная · Метрологические характеристики
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: прот.№1
+  cell: F35
+  label: Микроомметр ИКС-30А · 13909.21
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№1
+  cell: H35
+  label: 1[мОм]¸ 100[кОм] · 2,5
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№1
+  cell: F36
+  label: Аппараты испытания диэлектриков СКАТ-70М · 0-70кВ
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№1
+  cell: H36
+  label: 0-70кВ · 0,01- 999 Ом
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№1
+  cell: F37
+  label: Измеритель сопротивления заземления ИС-20 · 0,01- 999 Ом
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№1
+  cell: H37
+  label: 0,01- 999 Ом · 0-70кВ
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№2
+  cell: B13
+  label: Месторасположение и наименование электрооборудования · п/п
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№2
+  cell: B14
+  label: '2. Условия окружающей среды при проведении измерений: · Месторасположение и наименование электрооборудования'
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№2
+  cell: B15
+  label: '2. Условия окружающей среды при проведении измерений: · 2.1 Температура воздуха'
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№2
+  cell: A20
+  label: '2.3 Атмосферное давление · 4. Измерительные приборы:'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: прот.№2
+  cell: J23
+  label: Дата поверки очередная · Метрологические характеристики
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: прот.№2
+  cell: F26
+  label: Микроомметр ИКС-30А · 13909.21
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№2
+  cell: H26
+  label: 1[мОм]¸ 100[кОм] · 2,5
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№2
+  cell: F27
+  label: Аппараты испытания диэлектриков СКАТ-70М · 0-70кВ
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№2
+  cell: H27
+  label: 0-70кВ · 0,01- 999 Ом
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№2
+  cell: F28
+  label: Измеритель сопротивления заземления ИС-20 · 0,01- 999 Ом
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№2
+  cell: H28
+  label: 0,01- 999 Ом · 0-70кВ
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: B11
+  label: Наименование объектов испытаний · Номин. напряжкВ.
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: B12
+  label: Наименование объектов испытаний · Номин. напряжкВ.
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: C12
+  label: Номин. напряжкВ. · Наименование объектов испытаний
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: D12
+  label: Рабочее. напряж. кВ. · Номин. напряжкВ.
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: E12
+  label: Сопрот. изоляции. МОм. · Испытат. напряж. кВ
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: F12
+  label: Испытат. напряж. кВ · Продолж. испыт. (мин.)
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: G12
+  label: Продолж. испыт. (мин.) · Испытат. напряж. кВ
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: H12
+  label: Результат испытания. · Продолж. испыт. (мин.)
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: B13
+  label: Наименование объектов испытаний · Номин. напряжкВ.
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: C13
+  label: Номин. напряжкВ. · Наименование объектов испытаний
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: D13
+  label: Рабочее. напряж. кВ. · Номин. напряжкВ.
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: E13
+  label: Сопрот. изоляции. МОм. · Испытат. напряж. кВ
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: F13
+  label: Испытат. напряж. кВ · Продолж. испыт. (мин.)
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: G13
+  label: Продолж. испыт. (мин.) · Испытат. напряж. кВ
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: H13
+  label: Результат испытания. · Продолж. испыт. (мин.)
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: B14
+  label: прот.№3!B14
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: C14
+  label: прот.№3!C14
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: D14
+  label: прот.№3!D14
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: E14
+  label: прот.№3!E14
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: F14
+  label: прот.№3!F14
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: G14
+  label: прот.№3!G14
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: H14
+  label: прот.№3!H14
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: B15
+  label: прот.№3!B15
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: B16
+  label: прот.№3!B16
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: C16
+  label: прот.№3!C16
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: D16
+  label: прот.№3!D16
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: E16
+  label: прот.№3!E16
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: F16
+  label: прот.№3!F16
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: G16
+  label: прот.№3!G16
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: H16
+  label: прот.№3!H16
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: B17
+  label: прот.№3!B17
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: C17
+  label: прот.№3!C17
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: D17
+  label: прот.№3!D17
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: E17
+  label: прот.№3!E17
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: F17
+  label: прот.№3!F17
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: G17
+  label: прот.№3!G17
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: H17
+  label: прот.№3!H17
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: B18
+  label: прот.№3!B18
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: C18
+  label: прот.№3!C18
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: D18
+  label: прот.№3!D18
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: E18
+  label: прот.№3!E18
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: F18
+  label: прот.№3!F18
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: G18
+  label: прот.№3!G18
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: H18
+  label: прот.№3!H18
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: B19
+  label: прот.№3!B19
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: B20
+  label: прот.№3!B20
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: C20
+  label: прот.№3!C20
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: D20
+  label: прот.№3!D20
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: E20
+  label: прот.№3!E20
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: F20
+  label: прот.№3!F20
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: G20
+  label: прот.№3!G20
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: H20
+  label: прот.№3!H20
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: B21
+  label: прот.№3!B21
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: C21
+  label: прот.№3!C21
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: D21
+  label: прот.№3!D21
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: E21
+  label: прот.№3!E21
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: F21
+  label: прот.№3!F21
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: G21
+  label: прот.№3!G21
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: H21
+  label: прот.№3!H21
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: B22
+  label: 'ЗАКЛЮЧЕНИЕ: Оборудование испытание выдержало и может нормально эксплуатироваться.'
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: C22
+  label: 'ЗАКЛЮЧЕНИЕ: Оборудование испытание выдержало и может нормально эксплуатироваться.'
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: D22
+  label: 'ЗАКЛЮЧЕНИЕ: Оборудование испытание выдержало и может нормально эксплуатироваться.'
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: E22
+  label: 'ЗАКЛЮЧЕНИЕ: Оборудование испытание выдержало и может нормально эксплуатироваться.'
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: F22
+  label: 'ЗАКЛЮЧЕНИЕ: Оборудование испытание выдержало и может нормально эксплуатироваться.'
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: G22
+  label: прот.№3!G22
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: H22
+  label: прот.№3!H22
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: A24
+  label: 'ЗАКЛЮЧЕНИЕ: Оборудование испытание выдержало и может нормально эксплуатироваться. · Перепечатка без разрешения производственной
+    лаборатории запрещена.'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: прот.№3
+  cell: J31
+  label: Дата поверки очередная · Метрологические характеристики
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: прот.№3
+  cell: F34
+  label: Микроомметр ИКС-30А · 13909.21
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: H34
+  label: 1[мОм]¸ 100[кОм] · 2,5
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: F35
+  label: Аппараты испытания диэлектриков СКАТ-70М · 0-70кВ
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: H35
+  label: 0-70кВ · 0,01- 999 Ом
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: F36
+  label: Измеритель сопротивления заземления ИС-20 · 0,01- 999 Ом
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№3
+  cell: H36
+  label: 0,01- 999 Ом · 0-70кВ
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: J6
+  label: 'Дата проведения испытания: · Адрес:'
+  value_kind: date
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: прот.№4
+  cell: A11
+  label: Тип · 1. Паспортные данные трансформатора
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: B11
+  label: А, В, С · Заводской №
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: D11
+  label: А, В, С · Мощность кВА
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: E11
+  label: А, В, С · Напряжение кВ
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: F11
+  label: А, В, С · Ток А
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: G11
+  label: А, В, С · Uк,%
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: E12
+  label: а, в, с, 0 · Напряжение кВ
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: F12
+  label: а, в, с, 0 · Ток А
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: B18
+  label: АВ · I
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: C18
+  label: АВ · II
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: D18
+  label: АВ · III
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: E18
+  label: АВ · IV
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: F18
+  label: АВ · V
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: H18
+  label: а-0 · в-0
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: B19
+  label: ВС · I
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: C19
+  label: ВС · II
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: D19
+  label: ВС · III
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: E19
+  label: ВС · IV
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: F19
+  label: ВС · в-0
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: H19
+  label: в-0 · а-0
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: B20
+  label: АС · ВС
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: C20
+  label: АС · II
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: D20
+  label: АС · III
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: E20
+  label: АС · IV
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: F20
+  label: АС · с-0
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: H20
+  label: с-0 · в-0
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: B21
+  label: Максимальное расхождение между фазами, % · 3. Сопротивление изоляции обмоток относительно корпуса и других обмоток
+    измеренное
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: C21
+  label: Максимальное расхождение между фазами, % · 3. Сопротивление изоляции обмоток относительно корпуса и других обмоток
+    измеренное
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: D21
+  label: Максимальное расхождение между фазами, % · 3. Сопротивление изоляции обмоток относительно корпуса и других обмоток
+    измеренное
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: E21
+  label: Максимальное расхождение между фазами, % · 3. Сопротивление изоляции обмоток относительно корпуса и других обмоток
+    измеренное
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: F21
+  label: Максимальное расхождение между фазами, % · с-0
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: H21
+  label: с-0 · в-0
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: A26
+  label: '4. Увлажнённость обмоток проверена методом абсорбции при температуре + 10 С · 5. Дополнительные испытания:'
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: B33
+  label: I · АВ
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: C33
+  label: I · ав
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: D33
+  label: I · ВС
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: E33
+  label: I · ВС
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: F33
+  label: I · вс
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: G33
+  label: Коэфф. трансф. · СА
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: H33
+  label: СА · Напряжение
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: I33
+  label: са · СА
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: J33
+  label: Коэфф. трансф. · са
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: B34
+  label: II · I
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: C34
+  label: II · ав
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: D34
+  label: II · ВС
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: E34
+  label: II · ВС
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: F34
+  label: II · вс
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: G34
+  label: Коэфф. трансф. · СА
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: H34
+  label: СА · Напряжение
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: I34
+  label: са · СА
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: J34
+  label: Коэфф. трансф. · са
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: B35
+  label: III · II
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: C35
+  label: III · II
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: D35
+  label: III · II
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: E35
+  label: III · ВС
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: F35
+  label: III · вс
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: G35
+  label: СА · вс
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: H35
+  label: СА · са
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: I35
+  label: са · СА
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: J35
+  label: са · СА
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: B36
+  label: IV · III
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: C36
+  label: IV · III
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: D36
+  label: IV · III
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: E36
+  label: IV · III
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: F36
+  label: IV · III
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: G36
+  label: прот.№4!G36
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: H36
+  label: прот.№4!H36
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: I36
+  label: прот.№4!I36
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: J36
+  label: прот.№4!J36
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: B37
+  label: 'V · 6. Замечания и приложения: __Переключатель положений установлен в положение III__'
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: C37
+  label: 'V · 6. Замечания и приложения: __Переключатель положений установлен в положение III__'
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: D37
+  label: 'V · 6. Замечания и приложения: __Переключатель положений установлен в положение III__'
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: E37
+  label: 'V · 6. Замечания и приложения: __Переключатель положений установлен в положение III__'
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: F37
+  label: 'V · 6. Замечания и приложения: __Переключатель положений установлен в положение III__'
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: G37
+  label: прот.№4!G37
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: H37
+  label: прот.№4!H37
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: I37
+  label: прот.№4!I37
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: J37
+  label: прот.№4!J37
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: A40
+  label: 'Раздел 6 РД 34.45-51.300-97 · 6. Замечания и приложения: __Переключатель положений установлен в положение III__'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: прот.№4
+  cell: J46
+  label: Дата поверки очередная · Метрологические характеристики
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: прот.№4
+  cell: F49
+  label: Микроомметр ИКС-30А · 13909.21
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: H49
+  label: 1[мОм]¸ 100[кОм] · 2,5
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: F50
+  label: Аппараты испытания диэлектриков СКАТ-70М · 0-70кВ
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: H50
+  label: 0-70кВ · 0,01- 999 Ом
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: F51
+  label: Измеритель сопротивления заземления ИС-20 · 0,01- 999 Ом
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№4
+  cell: H51
+  label: 0,01- 999 Ом · 0-70кВ
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№5
+  cell: A13
+  label: Результат испытаний · Тип
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№5
+  cell: B13
+  label: Номинальное линейное 1 элем., кВ · Число элементов на фазу
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№5
+  cell: C13
+  label: Число элементов на фазу · Конструктивное исполнение
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№5
+  cell: D13
+  label: '- · Ном. напр. элем. на фазу, кВ'
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№5
+  cell: C19
+  label: А · КСО-399
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№5
+  cell: D19
+  label: А · КСО-399
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№5
+  cell: E19
+  label: А · КСО-399
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№5
+  cell: C20
+  label: В · А
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№5
+  cell: D20
+  label: В · А
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№5
+  cell: E20
+  label: В · 0,54
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№5
+  cell: C21
+  label: С · В
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№5
+  cell: D21
+  label: С · В
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№5
+  cell: E21
+  label: С · 0,57
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№5
+  cell: J25
+  label: Дата поверки очередная · Метрологические характеристики
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: прот.№5
+  cell: F28
+  label: Микроомметр ИКС-30А · 13909.21
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№5
+  cell: H28
+  label: 1[мОм]¸ 100[кОм] · 2,5
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№5
+  cell: F29
+  label: Аппараты испытания диэлектриков СКАТ-70М · 0-70кВ
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№5
+  cell: H29
+  label: 0-70кВ · 0,01- 999 Ом
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№5
+  cell: F30
+  label: Измеритель сопротивления заземления ИС-20 · 0,01- 999 Ом
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№5
+  cell: H30
+  label: 0,01- 999 Ом · 0-70кВ
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№5
+  cell: A38
+  label: 'Объёмы ПНР утверждены заказчиком. · 5. Нормативно-технический документ:'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: прот.№6
+  cell: A13
+  label: Место установки, назначение · Тип, характеристика
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№6
+  cell: B13
+  label: Тип, характеристика · I ном. (А)
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№6
+  cell: C13
+  label: I ном. (А) · Фаза А
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№6
+  cell: A14
+  label: Тип, характеристика
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№6
+  cell: B14
+  label: Тип, характеристика · I ном. (А)
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№6
+  cell: C14
+  label: I ном. (А) · Фаза А
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№6
+  cell: A15
+  label: прот.№6!A15
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№6
+  cell: B15
+  label: прот.№6!B15
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№6
+  cell: C15
+  label: Фаза А
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№6
+  cell: A16
+  label: прот.№6!A16
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№6
+  cell: B16
+  label: прот.№6!B16
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№6
+  cell: C16
+  label: прот.№6!C16
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№6
+  cell: A17
+  label: прот.№6!A17
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№6
+  cell: B17
+  label: прот.№6!B17
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№6
+  cell: C17
+  label: прот.№6!C17
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№6
+  cell: A18
+  label: прот.№6!A18
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№6
+  cell: B18
+  label: прот.№6!B18
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№6
+  cell: C18
+  label: прот.№6!C18
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№6
+  cell: A19
+  label: 'Условия окружающей среды при проведении измерений:'
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№6
+  cell: B19
+  label: 'Условия окружающей среды при проведении измерений:'
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№6
+  cell: C19
+  label: 'Условия окружающей среды при проведении измерений:'
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№6
+  cell: A20
+  label: 'Условия окружающей среды при проведении измерений:'
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№6
+  cell: B20
+  label: 'Условия окружающей среды при проведении измерений:'
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№6
+  cell: C20
+  label: 'Условия окружающей среды при проведении измерений:'
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№6
+  cell: A21
+  label: 'Условия окружающей среды при проведении измерений: · Температура воздуха'
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№6
+  cell: B21
+  label: 'Условия окружающей среды при проведении измерений: · Температура воздуха'
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№6
+  cell: C21
+  label: 'Условия окружающей среды при проведении измерений: · °С'
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№6
+  cell: J30
+  label: Дата поверки очередная · Метрологические характеристики
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: прот.№6
+  cell: F33
+  label: Микроомметр ИКС-30А · 13909.21
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№6
+  cell: H33
+  label: 1[мОм]¸ 100[кОм] · 2,5
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№6
+  cell: F34
+  label: Аппараты испытания диэлектриков СКАТ-70М · 0-70кВ
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№6
+  cell: H34
+  label: 0-70кВ · 0,01- 999 Ом
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№6
+  cell: F35
+  label: Измеритель сопротивления заземления ИС-20 · 0,01- 999 Ом
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№6
+  cell: H35
+  label: 0,01- 999 Ом · 0-70кВ
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№6
+  cell: A39
+  label: 'ЗАКЛЮЧЕНИЕ: Автоматические выключатели соответствуют НД. · Перепечатка без разрешения испытательной лаборатории
+    запрещена.'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: прот.№7
+  cell: E18
+  label: '6. Удельное сопротивление грунта, Ом × м: · Расстояние до потенциальных и токовых электродов, м'
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№7
+  cell: B23
+  label: Назначение заземлителя, заземляющего устройства · № п/п
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№7
+  cell: F23
+  label: 20-30 · 12,4
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№7
+  cell: I23
+  label: 12,4 · 20-30
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№7
+  cell: B24
+  label: 'Назначение заземлителя, заземляющего устройства · 8. Условия окружающей среды при проведении измерений:'
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№7
+  cell: F24
+  label: 20-30 · 12,7
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№7
+  cell: I24
+  label: 12,7 · 20-30
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№7
+  cell: B25
+  label: '8. Условия окружающей среды при проведении измерений: · 8.1 Температура воздуха'
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№7
+  cell: F25
+  label: 20-30 · 13,0
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№7
+  cell: I25
+  label: 13,0 · 20-30
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№7
+  cell: B26
+  label: '8. Условия окружающей среды при проведении измерений: · 8.1 Температура воздуха'
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№7
+  cell: F26
+  label: 20-30 · 12,9
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№7
+  cell: I26
+  label: 12,9 · 20-30
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№7
+  cell: A31
+  label: 8.3 Атмосферное давление · Объёмы ПНР утверждены заказчиком.
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: прот.№7
+  cell: J35
+  label: Дата поверки очередная · Метрологические характеристики
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: прот.№7
+  cell: F38
+  label: Микроомметр ИКС-30А · 13909.21
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№7
+  cell: H38
+  label: 1[мОм]¸ 100[кОм] · 2,5
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№7
+  cell: F39
+  label: Аппараты испытания диэлектриков СКАТ-70М · 0-70кВ
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№7
+  cell: H39
+  label: 0-70кВ · 0,01- 999 Ом
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№7
+  cell: F40
+  label: Измеритель сопротивления заземления ИС-20 · 0,01- 999 Ом
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№7
+  cell: H40
+  label: 0,01- 999 Ом · 0-70кВ
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№8
+  cell: B15
+  label: Наименование линий, по проекту · Выполнена фазировка жил провода.
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№8
+  cell: C15
+  label: Рабочее напряжение,В · Марка провода, кабеля
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№8
+  cell: D15
+  label: Марка провода, кабеля · Количество жил, сечение провода кабеля,мм²
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№8
+  cell: E15
+  label: '>103 · L1-L2 (А-В)'
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№8
+  cell: B16
+  label: 'Выполнена фазировка жил провода. · 2. Условия окружающей среды при проведении измерений:'
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№8
+  cell: C16
+  label: 'Выполнена фазировка жил провода. · 2. Условия окружающей среды при проведении измерений:'
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№8
+  cell: D16
+  label: 'Выполнена фазировка жил провода. · 2. Условия окружающей среды при проведении измерений:'
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№8
+  cell: E16
+  label: '>103 · L1-L2 (А-В)'
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№8
+  cell: B17
+  label: 'Выполнена фазировка жил провода. · 2. Условия окружающей среды при проведении измерений:'
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№8
+  cell: C17
+  label: 'Выполнена фазировка жил провода. · 2. Условия окружающей среды при проведении измерений:'
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№8
+  cell: D17
+  label: °С · Выполнена фазировка жил провода.
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№8
+  cell: E17
+  label: '>103 · °С'
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№8
+  cell: A23
+  label: 'Атмосферное давление · Измерительные приборы:'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: прот.№8
+  cell: J26
+  label: Дата поверки очередная · Метрологические характеристики
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: прот.№8
+  cell: F29
+  label: Микроомметр ИКС-30А · 13909.21
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№8
+  cell: H29
+  label: 1[мОм]¸ 100[кОм] · 2,5
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№8
+  cell: F30
+  label: Аппараты испытания диэлектриков СКАТ-70М · 0-70кВ
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№8
+  cell: H30
+  label: 0-70кВ · 0,01- 999 Ом
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№8
+  cell: F31
+  label: Измеритель сопротивления заземления ИС-20 · 0,01- 999 Ом
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№8
+  cell: H31
+  label: 0,01- 999 Ом · 0-70кВ
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№9
+  cell: B14
+  label: ф.А · -
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№9
+  cell: D14
+  label: '- · ф.А'
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№9
+  cell: F14
+  label: '- · ф.А'
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№9
+  cell: H14
+  label: '- · 4,7'
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№9
+  cell: D15
+  label: ф.В · -
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№9
+  cell: F15
+  label: '- · ф.В'
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№9
+  cell: H15
+  label: '- · 4,8'
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№9
+  cell: D16
+  label: ф.С · -
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№9
+  cell: F16
+  label: '- · ф.С'
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№9
+  cell: H16
+  label: '- · 4,9'
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№9
+  cell: A22
+  label: Атмосферное давление · Объёмы ПНР утверждены заказчиком.
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: прот.№9
+  cell: J26
+  label: Дата поверки очередная · Метрологические характеристики
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: прот.№9
+  cell: F29
+  label: Микроомметр ИКС-30А · 13909.21
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№9
+  cell: H29
+  label: 1[мОм]¸ 100[кОм] · 2,5
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№9
+  cell: F30
+  label: Аппараты испытания диэлектриков СКАТ-70М · 0-70кВ
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№9
+  cell: H30
+  label: 0-70кВ · 0,01- 999 Ом
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№9
+  cell: F31
+  label: Измеритель сопротивления заземления ИС-20 · 0,01- 999 Ом
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№9
+  cell: H31
+  label: 0,01- 999 Ом · 0-70кВ
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№10
+  cell: B13
+  label: Месторасположение и наименование электрооборудования · № п/п
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№10
+  cell: F13
+  label: Измеренное · Сопротивление цепи заземления (Ом)
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№10
+  cell: B14
+  label: Месторасположение и наименование электрооборудования · № п/п
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№10
+  cell: F14
+  label: Измеренное · Сопротивление цепи заземления (Ом)
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№10
+  cell: B15
+  label: прот.№10!B15
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№10
+  cell: F15
+  label: Измеренное
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№10
+  cell: B16
+  label: '2. Условия окружающей среды при проведении измерений:'
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№10
+  cell: F16
+  label: '2. Условия окружающей среды при проведении измерений:'
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№10
+  cell: B17
+  label: '2. Условия окружающей среды при проведении измерений: · 2.1 Температура воздуха'
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№10
+  cell: F17
+  label: '°С · 2. Условия окружающей среды при проведении измерений:'
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№10
+  cell: A23
+  label: '2.3 Атмосферное давление · 4. Измерительные приборы:'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: прот.№10
+  cell: J26
+  label: Дата поверки очередная · Метрологические характеристики
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: прот.№10
+  cell: F29
+  label: Микроомметр ИКС-30А · 13909.21
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№10
+  cell: H29
+  label: 1[мОм]¸ 100[кОм] · 2,5
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№10
+  cell: F30
+  label: Аппараты испытания диэлектриков СКАТ-70М · 0-70кВ
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№10
+  cell: H30
+  label: 0-70кВ · 0,01- 999 Ом
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№10
+  cell: F31
+  label: Измеритель сопротивления заземления ИС-20 · 0,01- 999 Ом
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№10
+  cell: H31
+  label: 0,01- 999 Ом · 0-70кВ
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№11
+  cell: A13
+  label: Место установки, назначение · Тип, характеристика
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№11
+  cell: B13
+  label: Тип, характеристика · I ном. (А)
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№11
+  cell: C13
+  label: I ном. (А) · Фаза А
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№11
+  cell: J23
+  label: Дата поверки очередная · Метрологические характеристики
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: прот.№11
+  cell: F26
+  label: Микроомметр ИКС-30А · 13909.21
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№11
+  cell: H26
+  label: 1[мОм]¸ 100[кОм] · 2,5
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№11
+  cell: F27
+  label: Аппараты испытания диэлектриков СКАТ-70М · 0-70кВ
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№11
+  cell: H27
+  label: 0-70кВ · 0,01- 999 Ом
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№11
+  cell: F28
+  label: Измеритель сопротивления заземления ИС-20 · 0,01- 999 Ом
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№11
+  cell: H28
+  label: 0,01- 999 Ом · 0-70кВ
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: прот.№11
+  cell: A33
+  label: 'ЗАКЛЮЧЕНИЕ: Автоматические выключатели соответствуют НД. · Объёмы ПНР утверждены заказчиком.'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Прот.№12
+  cell: B15
+  label: Прот.№12!B15
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: D15
+  label: После монтажа · А-В+С+Зазем.
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: E15
+  label: А-В+С+Зазем. · В-А+С+Зазем.
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: F15
+  label: до испыт. · А-В+С+Зазем.
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: G15
+  label: после испыт. · до испыт.
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: H15
+  label: Испыт. напр. (кВ) · после испыт.
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: I15
+  label: Imax · Продолжительность испыт. (мин.)
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: J15
+  label: Imax · Imin
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: K15
+  label: Imin · Imax
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: L15
+  label: Доп. · Imin
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: M15
+  label: Изм. · Доп.
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: N15
+  label: Доп. · Выдержал
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: O15
+  label: Выдержал · Доп.
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: B16
+  label: Прот.№12!B16
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: F16
+  label: А-В+С+Зазем. · После монтажа
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: G16
+  label: А-В+С+Зазем. · После монтажа
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: H16
+  label: А-В+С+Зазем. · После монтажа
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: I16
+  label: А-В+С+Зазем. · После монтажа
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: J16
+  label: А-В+С+Зазем. · Imax
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: K16
+  label: Imin · Imax
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: L16
+  label: Доп. · Imin
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: M16
+  label: Изм. · Доп.
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: N16
+  label: Выдержал · Доп.
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: F17
+  label: В-А+С+Зазем. · А-В+С+Зазем.
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: G17
+  label: В-А+С+Зазем. · А-В+С+Зазем.
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: H17
+  label: В-А+С+Зазем. · А-В+С+Зазем.
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: I17
+  label: В-А+С+Зазем. · Imax
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: J17
+  label: В-А+С+Зазем. · Imax
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: K17
+  label: Imin · Imax
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: L17
+  label: Доп. · Imin
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: M17
+  label: Изм. · Доп.
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: N17
+  label: Выдержал · Доп.
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: F18
+  label: С-А+В+Зазем. · А-В+С+Зазем.
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: G18
+  label: С-А+В+Зазем. · А-В+С+Зазем.
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: H18
+  label: С-А+В+Зазем. · А-В+С+Зазем.
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: I18
+  label: С-А+В+Зазем. · А-В+С+Зазем.
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: J18
+  label: С-А+В+Зазем. · А-В+С+Зазем.
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: K18
+  label: Прот.№12!K18
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: L18
+  label: Прот.№12!L18
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: M18
+  label: Прот.№12!M18
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: N18
+  label: Выдержал
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: B19
+  label: Прот.№12!B19
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: F19
+  label: А-В+С+Зазем. · После монтажа
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: G19
+  label: А-В+С+Зазем. · После монтажа
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: H19
+  label: А-В+С+Зазем. · После монтажа
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: I19
+  label: А-В+С+Зазем. · После монтажа
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: J19
+  label: А-В+С+Зазем. · В-А+С+Зазем.
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: K19
+  label: Прот.№12!K19
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: L19
+  label: Прот.№12!L19
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: M19
+  label: Прот.№12!M19
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: N19
+  label: Выдержал
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: F20
+  label: В-А+С+Зазем. · А-В+С+Зазем.
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: G20
+  label: В-А+С+Зазем. · А-В+С+Зазем.
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: H20
+  label: В-А+С+Зазем. · А-В+С+Зазем.
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: I20
+  label: В-А+С+Зазем. · А-В+С+Зазем.
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: J20
+  label: В-А+С+Зазем. · А-В+С+Зазем.
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: K20
+  label: Прот.№12!K20
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: L20
+  label: Прот.№12!L20
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: M20
+  label: Прот.№12!M20
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: N20
+  label: Выдержал
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: F21
+  label: С-А+В+Зазем. · В-А+С+Зазем.
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: G21
+  label: С-А+В+Зазем. · В-А+С+Зазем.
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: H21
+  label: С-А+В+Зазем. · В-А+С+Зазем.
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: I21
+  label: С-А+В+Зазем. · В-А+С+Зазем.
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: J21
+  label: С-А+В+Зазем. · В-А+С+Зазем.
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: K21
+  label: Прот.№12!K21
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: L21
+  label: Прот.№12!L21
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: M21
+  label: Прот.№12!M21
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: N21
+  label: Выдержал
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: A28
+  label: Атмосферное давление · Объёмы ПНР утверждены заказчиком.
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Прот.№12
+  cell: J32
+  label: Дата поверки очередная · Метрологические характеристики
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: Прот.№12
+  cell: F35
+  label: Микроомметр ИКС-30А · 13909.21
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: H35
+  label: 1[мОм]¸ 100[кОм] · 2,5
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: F36
+  label: Аппараты испытания диэлектриков СКАТ-70М · 0-70кВ
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: H36
+  label: 0-70кВ · 0,01- 999 Ом
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: F37
+  label: Измеритель сопротивления заземления ИС-20 · 0,01- 999 Ом
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№12
+  cell: H37
+  label: 0,01- 999 Ом · 0-70кВ
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№13
+  cell: A8
+  label: Протокол №13 · №
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Прот.№13
+  cell: A19
+  label: Объёмы ПНР утверждены заказчиком. · Проверить фиксацию конечных наложений рукоятки привода фиксаторами. Проверить
+    работу блок-замка
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Протокол _ВНА
+  cell: A12
+  label: Тип ВНА · 1.Технические данные
+  value_kind: text
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Протокол _ВНА
+  cell: B12
+  label: Заводской № · Год вып.
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Протокол _ВНА
+  cell: C12
+  label: Год вып. · Заводской №
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Протокол _ВНА
+  cell: D12
+  label: Ином, кВ · Uном, кВ
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Протокол _ВНА
+  cell: E12
+  label: Uном, кВ · Ином, кВ
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Протокол _ВНА
+  cell: A22
+  label: 'ГОСТ Р 55154-2019 · ЗАКЛЮЧЕНИЕ: Оборудование испытание выдержало и может нормально эксплуатироваться.'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: Протокол _ВНА
+  cell: J29
+  label: Дата поверки очередная · Метрологические характеристики
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: Протокол _ВНА
+  cell: I31
+  label: 2,5 · 1[Ом]- 99,9[ГОм]
+  value_kind: date
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: Протокол _ВНА
+  cell: J31
+  label: 2,5 · 1[Ом]- 99,9[ГОм]
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: Протокол _ВНА
+  cell: F32
+  label: Микроомметр ИКС-30А · 13909.21
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Протокол _ВНА
+  cell: H32
+  label: 1[мОм]¸ 100[кОм] · 2,5
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Протокол _ВНА
+  cell: I32
+  label: 1[мОм]¸ 100[кОм] · 2,5
+  value_kind: date
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: Протокол _ВНА
+  cell: J32
+  label: 1[мОм]¸ 100[кОм] · 2,5
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: Протокол _ВНА
+  cell: F33
+  label: Аппараты испытания диэлектриков СКАТ-70М · 0-70кВ
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Протокол _ВНА
+  cell: H33
+  label: 0-70кВ · 0,01- 999 Ом
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Протокол _ВНА
+  cell: I33
+  label: 0-70кВ · 0,01- 999 Ом
+  value_kind: date
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: Протокол _ВНА
+  cell: J33
+  label: 0-70кВ · 0,01- 999 Ом
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: Протокол _ВНА
+  cell: F34
+  label: Измеритель сопротивления заземления ИС-20 · 0,01- 999 Ом
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Протокол _ВНА
+  cell: H34
+  label: 0,01- 999 Ом · 0-70кВ
+  value_kind: number
+  required: true
+  manual_reason: Фактический параметр или результат испытания требует отдельного подтверждения
+- sheet: Протокол _ВНА
+  cell: I34
+  label: 0,01- 999 Ом · (Ф.И.О.)
+  value_kind: date
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: Протокол _ВНА
+  cell: J34
+  label: 0,01- 999 Ом · (Ф.И.О.)
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения

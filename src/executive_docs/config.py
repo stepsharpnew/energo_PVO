@@ -50,6 +50,7 @@ class Settings:
     db_path: Path = ROOT / "data" / "app.db"
     skill_dir: Path = ROOT / "agent-skill" / "prepare-executive-docs"
     contracts_dir: Path = ROOT / "templates" / "contracts"
+    fill_contracts_dir: Path = ROOT / "templates" / "fill-contracts"
     approved_templates_dir: Path = ROOT / "templates" / "approved"
     source_templates_dir: Path = ROOT / "template"
     profiles_dir: Path = ROOT / "profiles"
@@ -134,6 +135,7 @@ class Settings:
             self.data_dir,
             self.runs_dir,
             self.contracts_dir,
+            self.fill_contracts_dir,
             self.approved_templates_dir,
             self.profiles_dir,
         ):

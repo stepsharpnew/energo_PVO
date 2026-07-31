@@ -1,0 +1,4285 @@
+template_id: avk
+display_name: Входной контроль (АВК)
+document_kind: avk
+version: 2026-07-30-discovery-2
+status: DISCOVERY_REVIEW_REQUIRED
+approved: false
+source_template: NEW_TEMPLATES/Attachments_vku@e-systems-4/4. АВК.xlsx
+source_sha256: ff761ad2119710d39d12563e59cdbd1c46982d07f0d519aef02510fa227709bf
+etalon_example: ETALON/4. АВК.xlsx
+etalon_sha256: af107975b9d48c97471b7aeb3920572b225710120f919ac2bce5c9651ccb2f86
+candidate_template: templates/approved/4. АВК.xlsx
+candidate_sha256: fb23d0bd5285c7f66b5b1b17888cf2c5321d0f71af5ccd077c3695d5582cd0a9
+output_filename: 4. АВК.xlsx
+warning_fill_rgb: FFFFE699
+structural_findings:
+  candidate_sheet_count: 46
+  etalon_sheet_count: 46
+  candidate_vs_etalon_sheet_names_match: false
+  candidate_only_sheet_count: 0
+  etalon_only_sheet_count: 0
+  candidate_vs_etalon_formula_differences: 241
+  candidate_vs_etalon_nonformula_differences: 775
+  formula_errors_observed: 0
+  etalon_external_links: 3
+  target_derivation: source_only_discovery
+  discovery_target_count: 700
+  cleared_cell_count: 700
+  localized_external_formula_references: 2
+  removed_external_links: 3
+  removed_broken_defined_names: 0
+  removed_broken_data_validations: 1
+  pruned_shared_string_count: 305
+  scrubbed_document_property_count: 4
+  removed_custom_part_count: 0
+  source_external_links: 3
+  candidate_external_links: 0
+  remaining_external_formula_reference_count: 2
+  remaining_sensitive_value_count: 0
+  remaining_sensitive_value_examples: []
+  renamed_sheet_count: 0
+  renamed_candidate_sheets: []
+  raw_ref_error_count: 0
+  package_forbidden_token_count: 0
+  package_forbidden_token_examples: []
+fields:
+- sheet: Данные организации
+  cell: B1
+  label: организация · реквизиты
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: C1
+  label: организация · реквизиты
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: D1
+  label: организация · реквизиты
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: F1
+  label: организация · реквизиты
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: I1
+  label: Данные организации!I1
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: B2
+  label: реквизиты · адрес
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: C2
+  label: реквизиты · адрес
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: D2
+  label: реквизиты · адрес
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: F2
+  label: реквизиты · адрес
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: I2
+  label: Данные организации!I2
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: J2
+  label: Данные организации!J2
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: K2
+  label: Данные организации!K2
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: L2
+  label: Данные организации!L2
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: B3
+  label: адрес · район
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: C3
+  label: адрес · район
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: D3
+  label: адрес · район
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: F3
+  label: адрес · район
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: I3
+  label: Данные организации!I3
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: J3
+  label: Данные организации!J3
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: K3
+  label: Данные организации!K3
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: F4
+  label: район · адрес
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: H4
+  label: Данные организации!H4
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: I4
+  label: Данные организации!I4
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: J4
+  label: Данные организации!J4
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: K4
+  label: Данные организации!K4
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: F5
+  label: директор · район
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: H5
+  label: Данные организации!H5
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: I5
+  label: Данные организации!I5
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: J5
+  label: Данные организации!J5
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: K5
+  label: Данные организации!K5
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: B6
+  label: директор · директор ФИО
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: C6
+  label: директор · директор ФИО
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: D6
+  label: директор · директор ФИО
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: F6
+  label: директор · директор ФИО
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: H6
+  label: Данные организации!H6
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: I6
+  label: Данные организации!I6
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: J6
+  label: Данные организации!J6
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: K6
+  label: Данные организации!K6
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: B7
+  label: директор ФИО · Строй.контроль
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: C7
+  label: директор ФИО · Строй.контроль
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: D7
+  label: директор ФИО · Строй.контроль
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: F7
+  label: директор ФИО · Строй.контроль
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: H7
+  label: Данные организации!H7
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: I7
+  label: Данные организации!I7
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: J7
+  label: Данные организации!J7
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: K7
+  label: Данные организации!K7
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: B8
+  label: Строй.контроль · Приказ стр.контр.
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: C8
+  label: Строй.контроль · Приказ стр.контр.
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: F8
+  label: Строй.контроль · Приказ стр.контр.
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: G8
+  label: Данные организации!G8
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: H8
+  label: Данные организации!H8
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: I8
+  label: Данные организации!I8
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: J8
+  label: Данные организации!J8
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: K8
+  label: Данные организации!K8
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: B9
+  label: Приказ стр.контр. · Строй.контроль
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: C9
+  label: Приказ стр.контр. · Строй.контроль
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: F9
+  label: Приказ стр.контр. · Строй.контроль
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: G9
+  label: Данные организации!G9
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: H9
+  label: Данные организации!H9
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: B10
+  label: ФИО стр.контр. · Представитель
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: C10
+  label: ФИО стр.контр. · Представитель
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: F10
+  label: ФИО стр.контр. · Представитель
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: G10
+  label: Данные организации!G10
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: H10
+  label: Данные организации!H10
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: F11
+  label: Представитель · ФИО предст.
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: H11
+  label: Данные организации!H11
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: F14
+  label: ФИО предст. · Представитель
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: H14
+  label: Данные организации!H14
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: F15
+  label: Прораб · ФИО предст.
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: H15
+  label: Данные организации!H15
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: F16
+  label: Прораб · Приказ прораб
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: F17
+  label: Прораб · Приказ прораб
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: B18
+  label: Прораб · Приказ прораб
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: C18
+  label: Прораб · Приказ прораб
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: D18
+  label: Прораб · Приказ прораб
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: B19
+  label: Приказ прораб · Прораб
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: C19
+  label: Приказ прораб · Прораб
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: D19
+  label: Приказ прораб · Прораб
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: B20
+  label: ФИО прораб · Приказ прораб
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: C20
+  label: ФИО прораб · Приказ прораб
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: D20
+  label: ФИО прораб · Приказ прораб
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: I24
+  label: Данные организации!I24
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: J24
+  label: Данные организации!J24
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: A33
+  label: Приказы НТД
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: B33
+  label: Приказы НТД
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: A34
+  label: Приказы НТД
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: B34
+  label: Приказы НТД
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: B35
+  label: Приказы НТД
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: B36
+  label: Данные организации!B36
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные организации
+  cell: B37
+  label: Данные организации!B37
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, подписанты и полномочия требуют утверждённого профиля организации
+- sheet: Данные объект
+  cell: B2
+  label: № САП · Данные объекта
+  value_kind: text
+  required: true
+  manual_reason: null
+- sheet: Данные объект
+  cell: B3
+  label: Объект · р-н
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B4
+  label: р-н · Адрес
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B5
+  label: Адрес · Дата старт
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B6
+  label: Дата старт · Адрес
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B7
+  label: Дата финиш · Дата старт
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: Данные объект
+  cell: B9
+  label: ТП · Монтажная организация
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B11
+  label: Организация · Монтажная организация
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B12
+  label: Реквизиты · Организация
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B13
+  label: адрес · Должность
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B14
+  label: Должность · ФИО
+  value_kind: text
+  required: true
+  manual_reason: Подписант или основание полномочий требует утверждённого профиля
+- sheet: Данные объект
+  cell: B15
+  label: ФИО · Должность
+  value_kind: text
+  required: true
+  manual_reason: ФИО и полномочия подписанта требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B16
+  label: Должность · Ф.И.О.
+  value_kind: text
+  required: true
+  manual_reason: Подписант или основание полномочий требует утверждённого профиля
+- sheet: Данные объект
+  cell: B17
+  label: Ф.И.О. · Должность
+  value_kind: text
+  required: true
+  manual_reason: ФИО и полномочия подписанта требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B18
+  label: Приказ · Должность
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: Данные объект
+  cell: B19
+  label: Должность · Приказ
+  value_kind: text
+  required: true
+  manual_reason: Подписант или основание полномочий требует утверждённого профиля
+- sheet: Данные объект
+  cell: B20
+  label: Ф.И.О. · Должность
+  value_kind: text
+  required: true
+  manual_reason: ФИО и полномочия подписанта требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B21
+  label: Приказ · Заказчик
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B23
+  label: Организация · Заказчик
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B26
+  label: Должность · Ф.И.О.
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B27
+  label: Ф.И.О. · Должность
+  value_kind: text
+  required: true
+  manual_reason: ФИО и полномочия подписанта требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B28
+  label: Должность · Ф.И.О.
+  value_kind: text
+  required: true
+  manual_reason: Подписант или основание полномочий требует утверждённого профиля
+- sheet: Данные объект
+  cell: B29
+  label: Ф.И.О. · Должность
+  value_kind: text
+  required: true
+  manual_reason: ФИО и полномочия подписанта требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B30
+  label: Должность · Ф.И.О.
+  value_kind: text
+  required: true
+  manual_reason: Подписант или основание полномочий требует утверждённого профиля
+- sheet: Данные объект
+  cell: B31
+  label: Ф.И.О. · Должность
+  value_kind: text
+  required: true
+  manual_reason: ФИО и полномочия подписанта требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B32
+  label: Должность · Ф.И.О.
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B33
+  label: Ф.И.О. · Должность
+  value_kind: text
+  required: true
+  manual_reason: ФИО и полномочия подписанта требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B34
+  label: Приказ · Проект
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: Данные объект
+  cell: B36
+  label: Организация · Проект
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B37
+  label: Реквизиты · Организация
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B38
+  label: адрес · Город
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B39
+  label: Город · адрес
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B40
+  label: № · Город
+  value_kind: text
+  required: true
+  manual_reason: null
+- sheet: Данные объект
+  cell: B41
+  label: Название · Члены комиссии
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Данные объект
+  cell: C42
+  label: Члены комиссии · Название
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B43
+  label: Приказ · Ф.И.О.
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: Данные объект
+  cell: C43
+  label: Приказ · Ф.И.О.
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B44
+  label: Ф.И.О. · Приказ
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Данные объект
+  cell: C44
+  label: Ф.И.О. · Приказ
+  value_kind: text
+  required: true
+  manual_reason: Подписант или основание полномочий требует утверждённого профиля
+- sheet: Данные объект
+  cell: B45
+  label: Ф.И.О. · Приказ
+  value_kind: text
+  required: true
+  manual_reason: ФИО и полномочия подписанта требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B46
+  label: Ф.И.О. · Приказ
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B47
+  label: Ф.И.О. · Приказы НТД
+  value_kind: text
+  required: true
+  manual_reason: ФИО и полномочия подписанта требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B48
+  label: Ф.И.О. · Приказы НТД
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B49
+  label: Ф.И.О. · Приказы НТД
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Данные объект
+  cell: B51
+  label: № · Приказы НТД
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: ' Журнал АВК'
+  cell: J3
+  label: Приложение 2
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: ' Журнал АВК'
+  cell: B11
+  label: ЖУРНАЛ №
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: B12
+  label: ЖУРНАЛ №
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: B13
+  label: ЖУРНАЛ №
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: B20
+  label: ' Журнал АВК!B20'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: B21
+  label: ' Журнал АВК!B21'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: ' Журнал АВК'
+  cell: B22
+  label: ' Журнал АВК!B22'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: ' Журнал АВК'
+  cell: H27
+  label: ' Журнал АВК!H27'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: H28
+  label: ' Журнал АВК!H28'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: A34
+  label: ' Журнал АВК!A34'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: B34
+  label: ' Журнал АВК!B34'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: ' Журнал АВК'
+  cell: C34
+  label: ' Журнал АВК!C34'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: D34
+  label: ' Журнал АВК!D34'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: E34
+  label: ' Журнал АВК!E34'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: F34
+  label: ' Журнал АВК!F34'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: G34
+  label: ' Журнал АВК!G34'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: H34
+  label: ' Журнал АВК!H34'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: I34
+  label: ' Журнал АВК!I34'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: J34
+  label: ' Журнал АВК!J34'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: ' Журнал АВК'
+  cell: B35
+  label: ' Журнал АВК!B35'
+  value_kind: number
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: C35
+  label: ' Журнал АВК!C35'
+  value_kind: number
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: D35
+  label: ' Журнал АВК!D35'
+  value_kind: number
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: E35
+  label: ' Журнал АВК!E35'
+  value_kind: number
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: F35
+  label: ' Журнал АВК!F35'
+  value_kind: number
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: G35
+  label: ' Журнал АВК!G35'
+  value_kind: number
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: H35
+  label: ' Журнал АВК!H35'
+  value_kind: number
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: I35
+  label: ' Журнал АВК!I35'
+  value_kind: number
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: J35
+  label: ' Журнал АВК!J35'
+  value_kind: number
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: G36
+  label: ' Журнал АВК!G36'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: H36
+  label: ' Журнал АВК!H36'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: I36
+  label: ' Журнал АВК!I36'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: J36
+  label: ' Журнал АВК!J36'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: G37
+  label: ' Журнал АВК!G37'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: H37
+  label: ' Журнал АВК!H37'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: I37
+  label: ' Журнал АВК!I37'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: J37
+  label: ' Журнал АВК!J37'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: G38
+  label: ' Журнал АВК!G38'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: H38
+  label: ' Журнал АВК!H38'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: I38
+  label: ' Журнал АВК!I38'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: J38
+  label: ' Журнал АВК!J38'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: G39
+  label: ' Журнал АВК!G39'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: H39
+  label: ' Журнал АВК!H39'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: I39
+  label: ' Журнал АВК!I39'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: J39
+  label: ' Журнал АВК!J39'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: D40
+  label: ' Журнал АВК!D40'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: G40
+  label: ' Журнал АВК!G40'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: H40
+  label: ' Журнал АВК!H40'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: I40
+  label: ' Журнал АВК!I40'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: J40
+  label: ' Журнал АВК!J40'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: G41
+  label: ' Журнал АВК!G41'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: H41
+  label: ' Журнал АВК!H41'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: I41
+  label: ' Журнал АВК!I41'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: J41
+  label: ' Журнал АВК!J41'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: G42
+  label: ' Журнал АВК!G42'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: H42
+  label: ' Журнал АВК!H42'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: I42
+  label: ' Журнал АВК!I42'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: J42
+  label: ' Журнал АВК!J42'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: G43
+  label: ' Журнал АВК!G43'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: H43
+  label: ' Журнал АВК!H43'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: I43
+  label: ' Журнал АВК!I43'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: J43
+  label: ' Журнал АВК!J43'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: G44
+  label: ' Журнал АВК!G44'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: H44
+  label: ' Журнал АВК!H44'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: I44
+  label: ' Журнал АВК!I44'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: J44
+  label: ' Журнал АВК!J44'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: G45
+  label: ' Журнал АВК!G45'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: H45
+  label: ' Журнал АВК!H45'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: I45
+  label: ' Журнал АВК!I45'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: J45
+  label: ' Журнал АВК!J45'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: G46
+  label: ' Журнал АВК!G46'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: H46
+  label: ' Журнал АВК!H46'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: I46
+  label: ' Журнал АВК!I46'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: J46
+  label: ' Журнал АВК!J46'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: G47
+  label: ' Журнал АВК!G47'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: H47
+  label: ' Журнал АВК!H47'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: I47
+  label: ' Журнал АВК!I47'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: J47
+  label: ' Журнал АВК!J47'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: G48
+  label: ' Журнал АВК!G48'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: H48
+  label: ' Журнал АВК!H48'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: I48
+  label: ' Журнал АВК!I48'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: J48
+  label: ' Журнал АВК!J48'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: G49
+  label: ' Журнал АВК!G49'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: H49
+  label: ' Журнал АВК!H49'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: I49
+  label: ' Журнал АВК!I49'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: J49
+  label: ' Журнал АВК!J49'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: G50
+  label: ' Журнал АВК!G50'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: H50
+  label: ' Журнал АВК!H50'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: I50
+  label: ' Журнал АВК!I50'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: J50
+  label: ' Журнал АВК!J50'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: G51
+  label: ' Журнал АВК!G51'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: H51
+  label: ' Журнал АВК!H51'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: I51
+  label: ' Журнал АВК!I51'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: J51
+  label: ' Журнал АВК!J51'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: G52
+  label: ' Журнал АВК!G52'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: H52
+  label: ' Журнал АВК!H52'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: I52
+  label: ' Журнал АВК!I52'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: J52
+  label: ' Журнал АВК!J52'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: G53
+  label: ' Журнал АВК!G53'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: H53
+  label: ' Журнал АВК!H53'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: I53
+  label: ' Журнал АВК!I53'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: J53
+  label: ' Журнал АВК!J53'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: G54
+  label: ' Журнал АВК!G54'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: H54
+  label: ' Журнал АВК!H54'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: I54
+  label: ' Журнал АВК!I54'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: J54
+  label: ' Журнал АВК!J54'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: G55
+  label: ' Журнал АВК!G55'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: H55
+  label: ' Журнал АВК!H55'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: I55
+  label: ' Журнал АВК!I55'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: J55
+  label: ' Журнал АВК!J55'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: G56
+  label: ' Журнал АВК!G56'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: H56
+  label: ' Журнал АВК!H56'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: I56
+  label: ' Журнал АВК!I56'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: J56
+  label: ' Журнал АВК!J56'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: G57
+  label: ' Журнал АВК!G57'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: H57
+  label: ' Журнал АВК!H57'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: I57
+  label: ' Журнал АВК!I57'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: J57
+  label: ' Журнал АВК!J57'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: G58
+  label: ' Журнал АВК!G58'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: H58
+  label: ' Журнал АВК!H58'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: I58
+  label: ' Журнал АВК!I58'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: J58
+  label: ' Журнал АВК!J58'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: G59
+  label: ' Журнал АВК!G59'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: H59
+  label: ' Журнал АВК!H59'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: I59
+  label: ' Журнал АВК!I59'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: J59
+  label: ' Журнал АВК!J59'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: G60
+  label: ' Журнал АВК!G60'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: H60
+  label: ' Журнал АВК!H60'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: I60
+  label: ' Журнал АВК!I60'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: J60
+  label: ' Журнал АВК!J60'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: G61
+  label: ' Журнал АВК!G61'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: H61
+  label: ' Журнал АВК!H61'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: I61
+  label: ' Журнал АВК!I61'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: J61
+  label: ' Журнал АВК!J61'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: G62
+  label: ' Журнал АВК!G62'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: H62
+  label: ' Журнал АВК!H62'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: I62
+  label: ' Журнал АВК!I62'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: J62
+  label: ' Журнал АВК!J62'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: G63
+  label: ' Журнал АВК!G63'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: H63
+  label: ' Журнал АВК!H63'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: I63
+  label: ' Журнал АВК!I63'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: J63
+  label: ' Журнал АВК!J63'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: G64
+  label: ' Журнал АВК!G64'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: H64
+  label: ' Журнал АВК!H64'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: I64
+  label: ' Журнал АВК!I64'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: J64
+  label: ' Журнал АВК!J64'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: G65
+  label: ' Журнал АВК!G65'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: H65
+  label: ' Журнал АВК!H65'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: I65
+  label: ' Журнал АВК!I65'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: J65
+  label: ' Журнал АВК!J65'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: G66
+  label: ' Журнал АВК!G66'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: H66
+  label: ' Журнал АВК!H66'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: I66
+  label: ' Журнал АВК!I66'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: J66
+  label: ' Журнал АВК!J66'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: G67
+  label: ' Журнал АВК!G67'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: H67
+  label: ' Журнал АВК!H67'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: I67
+  label: ' Журнал АВК!I67'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: J67
+  label: ' Журнал АВК!J67'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: G68
+  label: ' Журнал АВК!G68'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: H68
+  label: ' Журнал АВК!H68'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: I68
+  label: ' Журнал АВК!I68'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: J68
+  label: ' Журнал АВК!J68'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: G69
+  label: ' Журнал АВК!G69'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: H69
+  label: ' Журнал АВК!H69'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: I69
+  label: ' Журнал АВК!I69'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: J69
+  label: ' Журнал АВК!J69'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: G70
+  label: ' Журнал АВК!G70'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: H70
+  label: ' Журнал АВК!H70'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: I70
+  label: ' Журнал АВК!I70'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: J70
+  label: ' Журнал АВК!J70'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: G71
+  label: ' Журнал АВК!G71'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: H71
+  label: ' Журнал АВК!H71'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: I71
+  label: ' Журнал АВК!I71'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: J71
+  label: ' Журнал АВК!J71'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: G72
+  label: ' Журнал АВК!G72'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: H72
+  label: ' Журнал АВК!H72'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: I72
+  label: ' Журнал АВК!I72'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: J72
+  label: ' Журнал АВК!J72'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: G73
+  label: ' Журнал АВК!G73'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: H73
+  label: ' Журнал АВК!H73'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: I73
+  label: ' Журнал АВК!I73'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: J73
+  label: ' Журнал АВК!J73'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: G74
+  label: ' Журнал АВК!G74'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: H74
+  label: ' Журнал АВК!H74'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: I74
+  label: ' Журнал АВК!I74'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: J74
+  label: ' Журнал АВК!J74'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: G75
+  label: ' Журнал АВК!G75'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: H75
+  label: ' Журнал АВК!H75'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: I75
+  label: ' Журнал АВК!I75'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: J75
+  label: ' Журнал АВК!J75'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: G76
+  label: ' Журнал АВК!G76'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: H76
+  label: ' Журнал АВК!H76'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: I76
+  label: ' Журнал АВК!I76'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: J76
+  label: ' Журнал АВК!J76'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: G77
+  label: ' Журнал АВК!G77'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: H77
+  label: ' Журнал АВК!H77'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: I77
+  label: ' Журнал АВК!I77'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: J77
+  label: ' Журнал АВК!J77'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: G78
+  label: ' Журнал АВК!G78'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: H78
+  label: ' Журнал АВК!H78'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: I78
+  label: ' Журнал АВК!I78'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: J78
+  label: ' Журнал АВК!J78'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: G79
+  label: ' Журнал АВК!G79'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: H79
+  label: ' Журнал АВК!H79'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: I79
+  label: ' Журнал АВК!I79'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: J79
+  label: ' Журнал АВК!J79'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: G80
+  label: ' Журнал АВК!G80'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: H80
+  label: ' Журнал АВК!H80'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: I80
+  label: ' Журнал АВК!I80'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: J80
+  label: ' Журнал АВК!J80'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: G81
+  label: ' Журнал АВК!G81'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: H81
+  label: ' Журнал АВК!H81'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: I81
+  label: ' Журнал АВК!I81'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: J81
+  label: ' Журнал АВК!J81'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: G82
+  label: ' Журнал АВК!G82'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: H82
+  label: ' Журнал АВК!H82'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: I82
+  label: ' Журнал АВК!I82'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: J82
+  label: ' Журнал АВК!J82'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: G83
+  label: ' Журнал АВК!G83'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: H83
+  label: ' Журнал АВК!H83'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: I83
+  label: ' Журнал АВК!I83'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: J83
+  label: ' Журнал АВК!J83'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: G84
+  label: ' Журнал АВК!G84'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: H84
+  label: ' Журнал АВК!H84'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: I84
+  label: ' Журнал АВК!I84'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: J84
+  label: ' Журнал АВК!J84'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: G85
+  label: ' Журнал АВК!G85'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: H85
+  label: ' Журнал АВК!H85'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: I85
+  label: ' Журнал АВК!I85'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: J85
+  label: ' Журнал АВК!J85'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: G86
+  label: ' Журнал АВК!G86'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: H86
+  label: ' Журнал АВК!H86'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: I86
+  label: ' Журнал АВК!I86'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' Журнал АВК'
+  cell: J86
+  label: ' Журнал АВК!J86'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: КТП
+  cell: K3
+  label: Приложение 1 · ГОДЕН
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: КТП
+  cell: A11
+  label: 'АКТ № 1/ · Объект строительства:'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: КТП
+  cell: K39
+  label: (изготовитель, · НТД
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: КТП
+  cell: A41
+  label: '№ документа и дата, № партии, дата изготовления) (ГОСТ, ТУ, чертеж КМД) · 1.1. Наименование, номер документа, удостоверяющего
+    качество и НТД на продукцию:'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: КТП
+  cell: I41
+  label: НТД · 1 комп.
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: КТП
+  cell: G45
+  label: Договор · 1 комп.
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: КТП
+  cell: D70
+  label: 'д) Наличие ЗАК/протокола КДО: · соответствует'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: ТМГ
+  cell: K3
+  label: Приложение 1 · ГОДЕН
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: ТМГ
+  cell: A11
+  label: 'АКТ № 2/ · Объект строительства:'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: ТМГ
+  cell: A41
+  label: '№ документа и дата, № партии, дата изготовления) (ГОСТ, ТУ, чертеж КМД) · 1.1. Наименование, номер документа, удостоверяющего
+    качество и НТД на продукцию:'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: ТМГ
+  cell: C43
+  label: '1.2. Кол-во: · (штуки, объем, вес в ед. изм.) (штуки, объем, вес в ед. изм.)'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ТМГ
+  cell: G43
+  label: 'Кол-во партии: · Договор'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ТМГ
+  cell: C45
+  label: '1.3. Поставщик: · (наименование организации) (реквизиты договора на поставку)'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: ТМГ
+  cell: G45
+  label: Договор · выполнена
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: ТМГ
+  cell: D70
+  label: 'д) Наличие ЗАК/протокола КДО: · соответствует'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: РЛК
+  cell: K3
+  label: Приложение 1 · ГОДЕН
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: РЛК
+  cell: A11
+  label: 'АКТ №0/ · Объект строительства:'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: РЛК
+  cell: K39
+  label: (изготовитель, · ГОСТ Р 52726-2007
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: РЛК
+  cell: A41
+  label: '№ документа и дата, № партии, дата изготовления) (ГОСТ, ТУ, чертеж КМД) · 1.1. Наименование, номер документа, удостоверяющего
+    качество и НТД на продукцию:'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: РЛК
+  cell: C43
+  label: '1.2. Кол-во: · ООО ТК "Норма-кабель"'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: РЛК
+  cell: G43
+  label: 'Кол-во партии: · Договор'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: РЛК
+  cell: G45
+  label: Договор · ООО ТК "Норма-кабель"
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: РЛК
+  cell: D70
+  label: 'д) Наличие ЗАК/протокола КДО: · соответствует'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: ПРВТ
+  cell: K3
+  label: Приложение 1 · ГОДЕН
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: ПРВТ
+  cell: A11
+  label: 'АКТ № 3/ · Объект строительства:'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: ПРВТ
+  cell: A41
+  label: '№ документа и дата, № партии, дата изготовления) (ГОСТ, ТУ, чертеж КМД) · 1.1. Наименование, номер документа, удостоверяющего
+    качество и НТД на продукцию:'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: ПРВТ
+  cell: I41
+  label: 'НТД · Кол-во партии:'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ПРВТ
+  cell: C43
+  label: '1.2. Кол-во: · ООО ТК "Норма-кабель"'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: ПРВТ
+  cell: G43
+  label: 'Кол-во партии: · Договор'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ПРВТ
+  cell: G45
+  label: Договор · ООО ТК "Норма-кабель"
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: счетчик СТЭМ
+  cell: K3
+  label: Приложение 1 · ГОДЕН
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: счетчик СТЭМ
+  cell: A11
+  label: 'АКТ № 4/ · Объект строительства:'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: счетчик СТЭМ
+  cell: K39
+  label: (изготовитель, · ТР ТС 004/2011, ТР ТС 020/2011
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: счетчик СТЭМ
+  cell: A41
+  label: '№ документа и дата, № партии, дата изготовления) (ГОСТ, ТУ, чертеж КМД) · 1.1. Наименование, номер документа, удостоверяющего
+    качество и НТД на продукцию:'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: счетчик СТЭМ
+  cell: C43
+  label: '1.2. Кол-во: · ООО ТК "Норма-кабель"'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: счетчик СТЭМ
+  cell: G45
+  label: Договор · ООО ТК "Норма-кабель"
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: счетчик СТЭМ
+  cell: D68
+  label: 'д) Наличие ЗАК/протокола КДО: · соответствует'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: выключатели ВА
+  cell: K3
+  label: Приложение 1 · ГОДЕН
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: выключатели ВА
+  cell: A11
+  label: 'АКТ № 5/ · Объект строительства:'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: выключатели ВА
+  cell: A37
+  label: '(наименование продукции) · 1. К входному контролю представлена следующая продукция:'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: выключатели ВА
+  cell: K39
+  label: (изготовитель, · НТД
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: выключатели ВА
+  cell: A41
+  label: '№ документа и дата, № партии, дата изготовления) (ГОСТ, ТУ, чертеж КМД) · 1.1. Наименование, номер документа, удостоверяющего
+    качество и НТД на продукцию:'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: выключатели ВА
+  cell: I41
+  label: 'НТД · Кол-во партии:'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: выключатели ВА
+  cell: G45
+  label: Договор · ООО ТК "Норма-кабель"
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: стойки
+  cell: K3
+  label: Приложение 1 · ГОДЕН
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: стойки
+  cell: A11
+  label: 'АКТ №6/ · Объект строительства:'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: стойки
+  cell: K39
+  label: (изготовитель, · НТД
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: стойки
+  cell: A41
+  label: '№ документа и дата, № партии, дата изготовления) (ГОСТ, ТУ, чертеж КМД) · 1.1. Наименование, номер документа, удостоверяющего
+    качество и НТД на продукцию:'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: стойки
+  cell: I41
+  label: 'НТД · Кол-во партии:'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: стойки
+  cell: C43
+  label: '1.2. Кол-во: · ООО ТК "Норма-кабель"'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: стойки
+  cell: G43
+  label: 'Кол-во партии: · Договор'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: стойки
+  cell: G45
+  label: Договор · ООО ТК "Норма-кабель"
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: стойки
+  cell: D70
+  label: 'д) Наличие ЗАК/протокола КДО: · соответствует'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: лин.армат 6-10к
+  cell: K3
+  label: Приложение 1 · ГОДЕН
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: лин.армат 6-10к
+  cell: A11
+  label: 'АКТ № 7/ · Объект строительства:'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: лин.армат 6-10к
+  cell: K39
+  label: (изготовитель, · НТД
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: лин.армат 6-10к
+  cell: A41
+  label: '№ документа и дата, № партии, дата изготовления) (ГОСТ, ТУ, чертеж КМД) · 1.1. Наименование, номер документа, удостоверяющего
+    качество и НТД на продукцию:'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: лин.армат 6-10к
+  cell: I41
+  label: 'НТД · Кол-во партии:'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: лин.армат 6-10к
+  cell: C43
+  label: '1.2. Кол-во: · ООО ТК "Норма-кабель"'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: лин.армат 6-10к
+  cell: G45
+  label: Договор · ООО ТК "Норма-кабель"
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: лин.армат 6-10к
+  cell: A57
+  label: лин.армат 6-10к!A57
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: лин.армат 6-10к
+  cell: A58
+  label: лин.армат 6-10к!A58
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: лин.армат 6-10к
+  cell: A59
+  label: лин.армат 6-10к!A59
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: лин.армат 6-10к
+  cell: A60
+  label: лин.армат 6-10к!A60
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: лин.армат 6-10к
+  cell: A61
+  label: лин.армат 6-10к!A61
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: лин.армат 6-10к
+  cell: A62
+  label: лин.армат 6-10к!A62
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: лин.армат 6-10к
+  cell: A63
+  label: лин.армат 6-10к!A63
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: лин.армат 6-10к
+  cell: A64
+  label: лин.армат 6-10к!A64
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: лин.армат 6-10к
+  cell: A65
+  label: лин.армат 6-10к!A65
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: лин.армат 6-10к
+  cell: A66
+  label: лин.армат 6-10к!A66
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: лин.армат 6-10к
+  cell: A67
+  label: лин.армат 6-10к!A67
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: лин.армат 6-10к
+  cell: A68
+  label: лин.армат 6-10к!A68
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: лин.армат 6-10к
+  cell: A69
+  label: лин.армат 6-10к!A69
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: лин.армат 6-10к
+  cell: A70
+  label: '4. В результате проведенного входного контроля представленной продукции установлено:'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: лин.армат 6-10к
+  cell: A71
+  label: '4. В результате проведенного входного контроля представленной продукции установлено: · а) Сопроводительные документы:'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: лин.армат 6-10к
+  cell: D82
+  label: 'д) Наличие ЗАК/протокола КДО: · соответствует'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: лин.армат 0,4
+  cell: K3
+  label: Приложение 1 · ГОДЕН
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: лин.армат 0,4
+  cell: A11
+  label: 'АКТ №14/ · Объект строительства:'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: лин.армат 0,4
+  cell: K39
+  label: (изготовитель, · НТД
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: лин.армат 0,4
+  cell: A41
+  label: '1.1. Наименование, номер документа, удостоверяющего качество и НТД на продукцию: · 1.2. Кол-во:'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: лин.армат 0,4
+  cell: I41
+  label: 'НТД · Кол-во партии:'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: лин.армат 0,4
+  cell: C43
+  label: '1.2. Кол-во: · ООО ТК "Норма-кабель"'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: лин.армат 0,4
+  cell: G45
+  label: Договор · ООО ТК "Норма-кабель"
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: лин.армат 0,4
+  cell: A57
+  label: лин.армат 0,4!A57
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: лин.армат 0,4
+  cell: A58
+  label: лин.армат 0,4!A58
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: лин.армат 0,4
+  cell: A59
+  label: лин.армат 0,4!A59
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: лин.армат 0,4
+  cell: A60
+  label: лин.армат 0,4!A60
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: лин.армат 0,4
+  cell: A61
+  label: лин.армат 0,4!A61
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: лин.армат 0,4
+  cell: A62
+  label: лин.армат 0,4!A62
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: лин.армат 0,4
+  cell: A63
+  label: лин.армат 0,4!A63
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: лин.армат 0,4
+  cell: A64
+  label: лин.армат 0,4!A64
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: лин.армат 0,4
+  cell: A65
+  label: лин.армат 0,4!A65
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: лин.армат 0,4
+  cell: A66
+  label: лин.армат 0,4!A66
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: лин.армат 0,4
+  cell: A67
+  label: лин.армат 0,4!A67
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: лин.армат 0,4
+  cell: A68
+  label: лин.армат 0,4!A68
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: лин.армат 0,4
+  cell: A69
+  label: лин.армат 0,4!A69
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: лин.армат 0,4
+  cell: A70
+  label: лин.армат 0,4!A70
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: лин.армат 0,4
+  cell: D84
+  label: 'д) Наличие ЗАК/протокола КДО: · соответствует'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: ВРЩ
+  cell: K3
+  label: Приложение 1 · ГОДЕН
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: ВРЩ
+  cell: A11
+  label: 'АКТ № 3/ · Объект строительства:'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: ВРЩ
+  cell: K39
+  label: (изготовитель, · НТД
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: ВРЩ
+  cell: A41
+  label: '№ документа и дата, № партии, дата изготовления) (ГОСТ, ТУ, чертеж КМД) · 1.1. Наименование, номер документа, удостоверяющего
+    качество и НТД на продукцию:'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: ВРЩ
+  cell: I41
+  label: 'НТД · Кол-во партии:'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ВРЩ
+  cell: C43
+  label: '1.2. Кол-во: · (штуки, объем, вес в ед. изм.) (штуки, объем, вес в ед. изм.)'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ВРЩ
+  cell: C45
+  label: '1.3. Поставщик: · (наименование организации) (реквизиты договора на поставку)'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: изоляторы
+  cell: K3
+  label: Приложение 1 · ГОДЕН
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: изоляторы
+  cell: A11
+  label: 'АКТ № 0/ · Объект строительства:'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: изоляторы
+  cell: K41
+  label: (изготовитель, · ГОСТ 1232-2017
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: изоляторы
+  cell: A43
+  label: '№ документа и дата, № партии, дата изготовления) (ГОСТ, ТУ, чертеж КМД) · 1.1. Наименование, номер документа, удостоверяющего
+    качество и НТД на продукцию:'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: изоляторы
+  cell: C45
+  label: '1.2. Кол-во: · ООО ТК "Норма-кабель"'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: изоляторы
+  cell: G47
+  label: Договор · ООО ТК "Норма-кабель"
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: изоляторы
+  cell: D70
+  label: 'д) Наличие ЗАК/протокола КДО: · соответствует'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: ' муфты '
+  cell: K3
+  label: Приложение 1 · ГОДЕН
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: ' муфты '
+  cell: A11
+  label: 'АКТ № 8/ · Объект строительства:'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: ' муфты '
+  cell: K39
+  label: (изготовитель, · ГОСТ 34839-2022
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: ' муфты '
+  cell: A41
+  label: '№ документа и дата, № партии, дата изготовления) (ГОСТ, ТУ, чертеж КМД) · 1.1. Наименование, номер документа, удостоверяющего
+    качество и НТД на продукцию:'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: ' муфты '
+  cell: C43
+  label: '1.2. Кол-во: · (штуки, объем, вес в ед. изм.) (штуки, объем, вес в ед. изм.)'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' муфты '
+  cell: C45
+  label: '1.3. Поставщик: · (наименование организации) (реквизиты договора на поставку)'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: ' муфты '
+  cell: G45
+  label: Договор · выполнена
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: ПКТ
+  cell: K3
+  label: Приложение 1 · ГОДЕН
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: ПКТ
+  cell: A11
+  label: 'АКТ № 0/ · Объект строительства:'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: ПКТ
+  cell: K39
+  label: (изготовитель, · НТД
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: ПКТ
+  cell: A41
+  label: '№ документа и дата, № партии, дата изготовления) (ГОСТ, ТУ, чертеж КМД) · 1.1. Наименование, номер документа, удостоверяющего
+    качество и НТД на продукцию:'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: ПКТ
+  cell: I41
+  label: 'НТД · Кол-во партии:'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ПКТ
+  cell: C43
+  label: '1.2. Кол-во: · ООО ТК "Норма-кабель"'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: ПКТ
+  cell: G45
+  label: Договор · ООО ТК "Норма-кабель"
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: ТТ Т-0,66
+  cell: K3
+  label: Приложение 1 · ГОДЕН
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: ТТ Т-0,66
+  cell: A11
+  label: 'АКТ № 0/ · Объект строительства:'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: ТТ Т-0,66
+  cell: A41
+  label: '№ документа и дата, № партии, дата изготовления) (ГОСТ, ТУ, чертеж КМД) · 1.1. Наименование, номер документа, удостоверяющего
+    качество и НТД на продукцию:'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: ТТ Т-0,66
+  cell: I41
+  label: 'НТД · Кол-во партии:'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: ТТ Т-0,66
+  cell: C43
+  label: '1.2. Кол-во: · ООО ТК "Норма-кабель"'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: ТТ Т-0,66
+  cell: G45
+  label: Договор · ООО ТК "Норма-кабель"
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: ТТ Т-0,66
+  cell: D68
+  label: 'д) Наличие ЗАК/протокола КДО: · соответствует'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: РМК
+  cell: K3
+  label: Приложение 1 · ГОДЕН
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: РМК
+  cell: A11
+  label: 'АКТ № 0/ · Объект строительства:'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: РМК
+  cell: K39
+  label: (изготовитель, · НТД
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: РМК
+  cell: A41
+  label: '№ документа и дата, № партии, дата изготовления) (ГОСТ, ТУ, чертеж КМД) · 1.1. Наименование, номер документа, удостоверяющего
+    качество и НТД на продукцию:'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: РМК
+  cell: I41
+  label: 'НТД · Кол-во партии:'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: РМК
+  cell: C43
+  label: '1.2. Кол-во: · ООО ТК "Норма-кабель"'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: РМК
+  cell: G45
+  label: Договор · ООО ТК "Норма-кабель"
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: РМК
+  cell: D68
+  label: 'д) Наличие ЗАК/протокола КДО: · соответствует'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: КРН
+  cell: K3
+  label: Приложение 1 · ГОДЕН
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: КРН
+  cell: A11
+  label: 'АКТ № 0/ · Объект строительства:'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: КРН
+  cell: A41
+  label: '№ документа и дата, № партии, дата изготовления) (ГОСТ, ТУ, чертеж КМД) · 1.1. Наименование, номер документа, удостоверяющего
+    качество и НТД на продукцию:'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: КРН
+  cell: C43
+  label: '1.2. Кол-во: · (штуки, объем, вес в ед. изм.) (штуки, объем, вес в ед. изм.)'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: КРН
+  cell: C45
+  label: '1.3. Поставщик: · (наименование организации) (реквизиты договора на поставку)'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: КРН
+  cell: G45
+  label: Договор · выполнена
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: КРН
+  cell: D68
+  label: 'д) Наличие ЗАК/протокола КДО: · соответствует'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: КСО
+  cell: K3
+  label: Приложение 1 · ГОДЕН
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: КСО
+  cell: A11
+  label: 'АКТ №4/ · Объект строительства:'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: КСО
+  cell: A41
+  label: '№ документа и дата, № партии, дата изготовления) (ГОСТ, ТУ, чертеж КМД) · 1.1. Наименование, номер документа, удостоверяющего
+    качество и НТД на продукцию:'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: КСО
+  cell: I41
+  label: 'НТД · Кол-во партии:'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: КСО
+  cell: C43
+  label: '1.2. Кол-во: · (штуки, объем, вес в ед. изм.) (штуки, объем, вес в ед. изм.)'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: КСО
+  cell: C45
+  label: '1.3. Поставщик: · (наименование организации) (реквизиты договора на поставку)'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: КСО
+  cell: G45
+  label: Договор · выполнена
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: КСО
+  cell: D68
+  label: 'д) Наличие ЗАК/протокола КДО: · соответствует'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: ТОЛ
+  cell: K3
+  label: Приложение 1 · ГОДЕН
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: ТОЛ
+  cell: A11
+  label: 'АКТ № 5/ · Объект строительства:'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: ТОЛ
+  cell: K39
+  label: (изготовитель, · ГОСТ 7746-2015
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: ТОЛ
+  cell: A41
+  label: '№ документа и дата, № партии, дата изготовления) (ГОСТ, ТУ, чертеж КМД) · 1.1. Наименование, номер документа, удостоверяющего
+    качество и НТД на продукцию:'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: ТОЛ
+  cell: C45
+  label: '1.3. Поставщик: · 6шт'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: ТОЛ
+  cell: G45
+  label: Договор · выполнена
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: ТОЛ
+  cell: D68
+  label: 'д) Наличие ЗАК/протокола КДО: · соответствует'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: Провод СИП 3
+  cell: K3
+  label: Приложение 1 · ГОДЕН
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: Провод СИП 3
+  cell: A11
+  label: 'АКТ №9/ · Объект строительства:'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Провод СИП 3
+  cell: K39
+  label: (изготовитель, · ГОСТ 31946-2012
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Провод СИП 3
+  cell: A41
+  label: '№ документа и дата, № партии, дата изготовления) (ГОСТ, ТУ, чертеж КМД) · 1.1. Наименование, номер документа, удостоверяющего
+    качество и НТД на продукцию:'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: Провод СИП 3
+  cell: C43
+  label: '1.2. Кол-во: · ООО ТК "Норма-кабель"'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Провод СИП 3
+  cell: G43
+  label: 'Кол-во партии: · Договор'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: Провод СИП 3
+  cell: G45
+  label: Договор · ООО ТК "Норма-кабель"
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Провод СИП 3
+  cell: D70
+  label: 'д) Наличие ЗАК/протокола КДО: · соответствует'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: Провод СИП 2
+  cell: K3
+  label: Приложение 1 · ГОДЕН
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: Провод СИП 2
+  cell: A11
+  label: 'АКТ №1/ · Объект строительства:'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Провод СИП 2
+  cell: K41
+  label: (изготовитель, · ГОСТ 31946-2012
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Провод СИП 2
+  cell: A43
+  label: '№ документа и дата, № партии, дата изготовления) (ГОСТ, ТУ, чертеж КМД) · 1.1. Наименование, номер документа, удостоверяющего
+    качество и НТД на продукцию:'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: Провод СИП 2
+  cell: C45
+  label: '1.2. Кол-во: · ООО ТК "Норма-кабель"'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Провод СИП 2
+  cell: G45
+  label: 'Кол-во партии: · Договор'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: Провод СИП 2
+  cell: G47
+  label: Договор · ООО ТК "Норма-кабель"
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Провод СИП 2
+  cell: D72
+  label: 'д) Наличие ЗАК/протокола КДО: · соответствует'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: провод Пувг
+  cell: K3
+  label: Приложение 1 · ГОДЕН
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: провод Пувг
+  cell: A11
+  label: 'АКТ № 6/ · Объект строительства:'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: провод Пувг
+  cell: K39
+  label: (изготовитель, · ГОСТ 31947-2012
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: провод Пувг
+  cell: A41
+  label: '№ документа и дата, № партии, дата изготовления) (ГОСТ, ТУ, чертеж КМД) · 1.1. Наименование, номер документа, удостоверяющего
+    качество и НТД на продукцию:'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: провод Пувг
+  cell: C43
+  label: '1.2. Кол-во: · (штуки, объем, вес в ед. изм.) (штуки, объем, вес в ед. изм.)'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: провод Пувг
+  cell: C45
+  label: '1.3. Поставщик: · (наименование организации) (реквизиты договора на поставку)'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: провод Пувг
+  cell: G45
+  label: Договор · выполнена
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: провод ПВС
+  cell: K3
+  label: Приложение 1 · ГОДЕН
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: провод ПВС
+  cell: A11
+  label: 'АКТ № 0/ · Объект строительства:'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: провод ПВС
+  cell: K39
+  label: (изготовитель, · ГОСТ 7399-97
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: провод ПВС
+  cell: A41
+  label: '№ документа и дата, № партии, дата изготовления) (ГОСТ, ТУ, чертеж КМД) · 1.1. Наименование, номер документа, удостоверяющего
+    качество и НТД на продукцию:'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: провод ПВС
+  cell: C43
+  label: '1.2. Кол-во: · (штуки, объем, вес в ед. изм.) (штуки, объем, вес в ед. изм.)'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: провод ПВС
+  cell: C45
+  label: '1.3. Поставщик: · (наименование организации) (реквизиты договора на поставку)'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: провод ПВС
+  cell: G45
+  label: Договор · выполнена
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: каб.АСБ
+  cell: K3
+  label: Приложение 1 · ГОДЕН
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: каб.АСБ
+  cell: A11
+  label: 'АКТ № 10/ · Объект строительства:'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: каб.АСБ
+  cell: K39
+  label: (изготовитель, · ГОСТ 18410-73
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: каб.АСБ
+  cell: A41
+  label: '№ документа и дата, № партии, дата изготовления) (ГОСТ, ТУ, чертеж КМД) · 1.1. Наименование, номер документа, удостоверяющего
+    качество и НТД на продукцию:'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: каб.АСБ
+  cell: C43
+  label: '1.2. Кол-во: · (штуки, объем, вес в ед. изм.) (штуки, объем, вес в ед. изм.)'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: каб.АСБ
+  cell: G43
+  label: 'Кол-во партии: · Договор'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: каб.АСБ
+  cell: C45
+  label: '1.3. Поставщик: · (наименование организации) (реквизиты договора на поставку)'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: каб.АСБ
+  cell: G45
+  label: Договор · выполнена
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: АВБшв
+  cell: K3
+  label: Приложение 1 · ГОДЕН
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: АВБшв
+  cell: A11
+  label: 'АКТ № 7/ · Объект строительства:'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: АВБшв
+  cell: K39
+  label: (изготовитель, · ГОСТ 31996-2012
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: АВБшв
+  cell: A41
+  label: '№ документа и дата, № партии, дата изготовления) (ГОСТ, ТУ, чертеж КМД) · 1.1. Наименование, номер документа, удостоверяющего
+    качество и НТД на продукцию:'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: АВБшв
+  cell: C43
+  label: '1.2. Кол-во: · (штуки, объем, вес в ед. изм.) (штуки, объем, вес в ед. изм.)'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: АВБшв
+  cell: G43
+  label: 'Кол-во партии: · Договор'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: АВБшв
+  cell: C45
+  label: '1.3. Поставщик: · (наименование организации) (реквизиты договора на поставку)'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: АВБшв
+  cell: G45
+  label: Договор · выполнена
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: АВБшв
+  cell: D68
+  label: 'д) Наличие ЗАК/протокола КДО: · соответствует'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: КВВГ
+  cell: K3
+  label: Приложение 1 · ГОДЕН
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: КВВГ
+  cell: A11
+  label: 'АКТ № 0/ · Объект строительства:'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: КВВГ
+  cell: K39
+  label: (изготовитель, · ТУ 16.К71-310-2001
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: КВВГ
+  cell: A41
+  label: '№ документа и дата, № партии, дата изготовления) (ГОСТ, ТУ, чертеж КМД) · 1.1. Наименование, номер документа, удостоверяющего
+    качество и НТД на продукцию:'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: КВВГ
+  cell: C43
+  label: '1.2. Кол-во: · (штуки, объем, вес в ед. изм.) (штуки, объем, вес в ед. изм.)'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: КВВГ
+  cell: C45
+  label: '1.3. Поставщик: · (наименование организации) (реквизиты договора на поставку)'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: КВВГ
+  cell: G45
+  label: Договор · выполнена
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: КВВГ
+  cell: D68
+  label: 'д) Наличие ЗАК/протокола КДО: · соответствует'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: ' фунд.КТП'
+  cell: K3
+  label: Приложение 1 · ГОДЕН
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: ' фунд.КТП'
+  cell: A11
+  label: 'АКТ № 11/ · Объект строительства:'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: ' фунд.КТП'
+  cell: K39
+  label: (изготовитель, · ГОСТ 13579-78
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: ' фунд.КТП'
+  cell: A41
+  label: '№ документа и дата, № партии, дата изготовления) (ГОСТ, ТУ, чертеж КМД) · 1.1. Наименование, номер документа, удостоверяющего
+    качество и НТД на продукцию:'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: ' фунд.КТП'
+  cell: C43
+  label: '1.2. Кол-во: · (штуки, объем, вес в ед. изм.) (штуки, объем, вес в ед. изм.)'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ' фунд.КТП'
+  cell: C45
+  label: '1.3. Поставщик: · (наименование организации) (реквизиты договора на поставку)'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: ' фунд.КТП'
+  cell: G45
+  label: Договор · выполнена
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: труба
+  cell: K3
+  label: Приложение 1 · ГОДЕН
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: труба
+  cell: A11
+  label: 'АКТ № 8/ · Объект строительства:'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: труба
+  cell: K41
+  label: (изготовитель, · ГОСТ 8639-82
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: труба
+  cell: A43
+  label: '№ документа и дата, № партии, дата изготовления) (ГОСТ, ТУ, чертеж КМД) · 1.1. Наименование, номер документа, удостоверяющего
+    качество и НТД на продукцию:'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: труба
+  cell: C45
+  label: '1.2. Кол-во: · (штуки, объем, вес в ед. изм.) (штуки, объем, вес в ед. изм.)'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: труба
+  cell: C47
+  label: '1.3. Поставщик: · (наименование организации) (реквизиты договора на поставку)'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: труба
+  cell: G47
+  label: Договор · выполнена
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: песок
+  cell: K3
+  label: Приложение 1 · ГОДЕН
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: песок
+  cell: A11
+  label: 'АКТ № 8/ · Объект строительства:'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: песок
+  cell: K41
+  label: (изготовитель, · ГОСТ 8639-82
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: песок
+  cell: C45
+  label: '1.2. Кол-во: · (штуки, объем, вес в ед. изм.) (штуки, объем, вес в ед. изм.)'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: песок
+  cell: C47
+  label: '1.3. Поставщик: · (наименование организации) (реквизиты договора на поставку)'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: песок
+  cell: G47
+  label: Договор · -
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: краска
+  cell: A6
+  label: 'АКТ № 6/ · Объект строительства:'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: краска
+  cell: C25
+  label: (должность, организация, фамилия, имя, отчество)
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: краска
+  cell: K36
+  label: (изготовитель, · ГОСТ 6465-2023
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: краска
+  cell: A38
+  label: '№ документа и дата, № партии, дата изготовления) (ГОСТ, ТУ, чертеж КМД) · 1.1. Наименование, номер документа, удостоверяющего
+    качество и НТД на продукцию:'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: краска
+  cell: C40
+  label: '1.2. Кол-во: · (штуки, объем, вес в ед. изм.) (штуки, объем, вес в ед. изм.)'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: краска
+  cell: C42
+  label: '1.3. Поставщик: · (наименование организации) (реквизиты договора на поставку)'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: краска
+  cell: A87
+  label: (должность, организация, подпись, фамилия, имя, отчество) · (должность, организация, подпись фамилия, имя, отчество)
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: уголок 50
+  cell: K3
+  label: Приложение 1 · ГОДЕН
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: уголок 50
+  cell: A11
+  label: 'АКТ №12/ · Объект строительства:'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: уголок 50
+  cell: K39
+  label: (изготовитель, · ГОСТ 8509-93
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: уголок 50
+  cell: A41
+  label: '№ документа и дата, № партии, дата изготовления) (ГОСТ, ТУ, чертеж КМД) · 1.1. Наименование, номер документа, удостоверяющего
+    качество и НТД на продукцию:'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: уголок 50
+  cell: C43
+  label: '1.2. Кол-во: · (штуки, объем, вес в ед. изм.) (штуки, объем, вес в ед. изм.)'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: уголок 50
+  cell: C45
+  label: '1.3. Поставщик: · (наименование организации) (реквизиты договора на поставку)'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: уголок  63
+  cell: K3
+  label: Приложение 1 · ГОДЕН
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: уголок  63
+  cell: A11
+  label: 'АКТ №13/ · Объект строительства:'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: уголок  63
+  cell: C30
+  label: (должность, организация, фамилия, имя, отчество)
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: уголок  63
+  cell: K41
+  label: (изготовитель, · ГОСТ 8509-93
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: уголок  63
+  cell: A43
+  label: '№ документа и дата, № партии, дата изготовления) (ГОСТ, ТУ, чертеж КМД) · 1.1. Наименование, номер документа, удостоверяющего
+    качество и НТД на продукцию:'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: уголок  63
+  cell: C45
+  label: '1.2. Кол-во: · (штуки, объем, вес в ед. изм.) (штуки, объем, вес в ед. изм.)'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: уголок  63
+  cell: C47
+  label: '1.3. Поставщик: · (наименование организации) (реквизиты договора на поставку)'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: пол.40х4
+  cell: K3
+  label: Приложение 1 · ГОДЕН
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: пол.40х4
+  cell: A11
+  label: 'АКТ № 14/ · Объект строительства:'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: пол.40х4
+  cell: A41
+  label: '№ документа и дата, № партии, дата изготовления) (ГОСТ, ТУ, чертеж КМД) · 1.1. Наименование, номер документа, удостоверяющего
+    качество и НТД на продукцию:'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: пол.40х4
+  cell: C43
+  label: '1.2. Кол-во: · (штуки, объем, вес в ед. изм.) (штуки, объем, вес в ед. изм.)'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: пол.40х4
+  cell: C45
+  label: '1.3. Поставщик: · (наименование организации) (реквизиты договора на поставку)'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: пол.50х4
+  cell: K3
+  label: Приложение 1 · ГОДЕН
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: пол.50х4
+  cell: A11
+  label: 'АКТ № 15/ · Объект строительства:'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: пол.50х4
+  cell: K39
+  label: (изготовитель, · ГОСТ 380-2005/ ГОСТ 535-2005/ ГОСТ 103-2006
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: пол.50х4
+  cell: A41
+  label: '№ документа и дата, № партии, дата изготовления) (ГОСТ, ТУ, чертеж КМД) · 1.1. Наименование, номер документа, удостоверяющего
+    качество и НТД на продукцию:'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: пол.50х4
+  cell: C43
+  label: '1.2. Кол-во: · (штуки, объем, вес в ед. изм.) (штуки, объем, вес в ед. изм.)'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: пол.50х4
+  cell: C45
+  label: '1.3. Поставщик: · (наименование организации) (реквизиты договора на поставку)'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: арм. 10
+  cell: K3
+  label: Приложение 1 · ГОДЕН
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: арм. 10
+  cell: A11
+  label: 'АКТ № 16/ · Объект строительства:'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: арм. 10
+  cell: K39
+  label: (изготовитель, · ГОСТ 2590-88
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: арм. 10
+  cell: A41
+  label: '№ документа и дата, № партии, дата изготовления) (ГОСТ, ТУ, чертеж КМД) · 1.1. Наименование, номер документа, удостоверяющего
+    качество и НТД на продукцию:'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: арм. 10
+  cell: C43
+  label: '1.2. Кол-во: · (штуки, объем, вес в ед. изм.) (штуки, объем, вес в ед. изм.)'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: арм. 10
+  cell: C45
+  label: '1.3. Поставщик: · (наименование организации) (реквизиты договора на поставку)'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: арм. 12
+  cell: K3
+  label: Приложение 1 · ГОДЕН
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: арм. 12
+  cell: A11
+  label: 'АКТ № 17/ · Объект строительства:'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: арм. 12
+  cell: K39
+  label: (изготовитель, · ГОСТ 5781-82
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: арм. 12
+  cell: A41
+  label: '№ документа и дата, № партии, дата изготовления) (ГОСТ, ТУ, чертеж КМД) · 1.1. Наименование, номер документа, удостоверяющего
+    качество и НТД на продукцию:'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: арм. 12
+  cell: C43
+  label: '1.2. Кол-во: · (штуки, объем, вес в ед. изм.) (штуки, объем, вес в ед. изм.)'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: арм. 12
+  cell: C45
+  label: '1.3. Поставщик: · (наименование организации) (реквизиты договора на поставку)'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: арм. 8
+  cell: K3
+  label: Приложение 1 · ГОДЕН
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: арм. 8
+  cell: A11
+  label: 'АКТ № 11/ · Объект строительства:'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: арм. 8
+  cell: A41
+  label: '№ документа и дата, № партии, дата изготовления) (ГОСТ, ТУ, чертеж КМД) · 1.1. Наименование, номер документа, удостоверяющего
+    качество и НТД на продукцию:'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: арм. 8
+  cell: C43
+  label: '1.2. Кол-во: · (штуки, объем, вес в ед. изм.) (штуки, объем, вес в ед. изм.)'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: арм. 8
+  cell: C45
+  label: '1.3. Поставщик: · (наименование организации) (реквизиты договора на поставку)'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: швеллер
+  cell: K3
+  label: Приложение 1 · ГОДЕН
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: швеллер
+  cell: A11
+  label: 'АКТ № 14/ · Объект строительства:'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: швеллер
+  cell: K39
+  label: (изготовитель, · ­
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: швеллер
+  cell: A41
+  label: '№ документа и дата, № партии, дата изготовления) (ГОСТ, ТУ, чертеж КМД) · 1.1. Наименование, номер документа, удостоверяющего
+    качество и НТД на продукцию:'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: швеллер
+  cell: C43
+  label: '1.2. Кол-во: · (штуки, объем, вес в ед. изм.) (штуки, объем, вес в ед. изм.)'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: швеллер
+  cell: C45
+  label: '1.3. Поставщик: · (наименование организации) (реквизиты договора на поставку)'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: швеллер
+  cell: G45
+  label: Договор · выполнена
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: Профлист
+  cell: K3
+  label: Приложение 1 · ГОДЕН
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: Профлист
+  cell: A11
+  label: 'АКТ № 18/ · Объект строительства:'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Профлист
+  cell: K39
+  label: (изготовитель, · НТД
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Профлист
+  cell: A41
+  label: '№ документа и дата, № партии, дата изготовления) (ГОСТ, ТУ, чертеж КМД) · 1.1. Наименование, номер документа, удостоверяющего
+    качество и НТД на продукцию:'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: Профлист
+  cell: I41
+  label: 'НТД · Кол-во партии:'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: Профлист
+  cell: C43
+  label: '1.2. Кол-во: · (штуки, объем, вес в ед. изм.) (штуки, объем, вес в ед. изм.)'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: Профлист
+  cell: C45
+  label: '1.3. Поставщик: · (наименование организации) (реквизиты договора на поставку)'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: Профлист
+  cell: G45
+  label: Договор · выполнена
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: упл.каб.прох.
+  cell: K3
+  label: Приложение 1 · ГОДЕН
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: упл.каб.прох.
+  cell: A11
+  label: 'АКТ № 0/ · Объект строительства:'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: упл.каб.прох.
+  cell: A43
+  label: '№ документа и дата, № партии, дата изготовления) (ГОСТ, ТУ, чертеж КМД) · 1.1. Наименование, номер документа, удостоверяющего
+    качество и НТД на продукцию:'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: упл.каб.прох.
+  cell: C45
+  label: '1.2. Кол-во: · (штуки, объем, вес в ед. изм.) (штуки, объем, вес в ед. изм.)'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: упл.каб.прох.
+  cell: C47
+  label: '1.3. Поставщик: · (наименование организации) (реквизиты договора на поставку)'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: упл.каб.прох.
+  cell: G47
+  label: Договор · выполнена
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: сиг.лента
+  cell: K3
+  label: Приложение 1 · ГОДЕН
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: сиг.лента
+  cell: A11
+  label: 'АКТ № 0/ · Объект строительства:'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: сиг.лента
+  cell: K39
+  label: (изготовитель, · НТД
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: сиг.лента
+  cell: A41
+  label: '№ документа и дата, № партии, дата изготовления) (ГОСТ, ТУ, чертеж КМД) · 1.1. Наименование, номер документа, удостоверяющего
+    качество и НТД на продукцию:'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: сиг.лента
+  cell: I41
+  label: 'НТД · Кол-во партии:'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: сиг.лента
+  cell: C43
+  label: '1.2. Кол-во: · (штуки, объем, вес в ед. изм.) (штуки, объем, вес в ед. изм.)'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: сиг.лента
+  cell: C45
+  label: '1.3. Поставщик: · (наименование организации) (реквизиты договора на поставку)'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: сиг.лента
+  cell: G45
+  label: Договор · выполнена
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: ПЗК
+  cell: K3
+  label: Приложение 1 · ГОДЕН
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: ПЗК
+  cell: A11
+  label: 'АКТ № 19/ · Объект строительства:'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: ПЗК
+  cell: K39
+  label: (изготовитель, · НТД
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: ПЗК
+  cell: A41
+  label: '№ документа и дата, № партии, дата изготовления) (ГОСТ, ТУ, чертеж КМД) · 1.1. Наименование, номер документа, удостоверяющего
+    качество и НТД на продукцию:'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: ПЗК
+  cell: I41
+  label: 'НТД · Кол-во партии:'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ПЗК
+  cell: C43
+  label: '1.2. Кол-во: · (штуки, объем, вес в ед. изм.) (штуки, объем, вес в ед. изм.)'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ПЗК
+  cell: C45
+  label: '1.3. Поставщик: · (наименование организации) (реквизиты договора на поставку)'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: ПЗК
+  cell: G45
+  label: Договор · выполнена
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: ПНД
+  cell: K3
+  label: Приложение 1 · ГОДЕН
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: ПНД
+  cell: A11
+  label: 'АКТ № 20/ · Объект строительства:'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: ПНД
+  cell: K39
+  label: (изготовитель, · НТД
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: ПНД
+  cell: A41
+  label: '№ документа и дата, № партии, дата изготовления) (ГОСТ, ТУ, чертеж КМД) · 1.1. Наименование, номер документа, удостоверяющего
+    качество и НТД на продукцию:'
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+- sheet: ПНД
+  cell: I41
+  label: 'НТД · Кол-во партии:'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ПНД
+  cell: C43
+  label: '1.2. Кол-во: · (штуки, объем, вес в ед. изм.) (штуки, объем, вес в ед. изм.)'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ПНД
+  cell: G43
+  label: 'Кол-во партии: · Договор'
+  value_kind: text
+  required: true
+  manual_reason: Фактическое значение входного контроля требует отдельного подтверждения
+- sheet: ПНД
+  cell: C45
+  label: '1.3. Поставщик: · (наименование организации) (реквизиты договора на поставку)'
+  value_kind: text
+  required: true
+  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+- sheet: ПНД
+  cell: G45
+  label: Договор · выполнена
+  value_kind: text
+  required: true
+  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Новый комплект · ИД</title>
+  <title>Новая книга · ИД</title>
   <meta name="theme-color" content="#f8f9f3">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,10 +17,10 @@
       <span class="brand-mark" aria-hidden="true">М</span>
       <span>
         <strong>Пошаговый помощник</strong>
-        <small>исполнительная документация · АОСР</small>
+        <small>исполнительная документация · Excel</small>
       </span>
     </a>
-    <div class="topbar-context">Подготовка исполнительной документации (АОСР)</div>
+    <div class="topbar-context">Заполнение выбранного шаблона по рабочему проекту</div>
     <div class="topbar-actions">
       <button class="quiet-action" id="help-toggle" type="button">Справка</button>
       <span class="topbar-divider" aria-hidden="true"></span>
@@ -32,28 +32,28 @@
   </header>
 
   <div class="wizard-shell">
-    <aside class="wizard-rail" aria-label="Этапы создания комплекта">
+    <aside class="wizard-rail" aria-label="Этапы заполнения книги">
       <nav class="step-nav">
         <button class="step-link is-active" type="button" data-step-target="object" aria-current="step">
           <span class="step-number">1</span>
-          <span><strong>Объект</strong><small>Информация об объекте и составе работ</small></span>
+          <span><strong>Шаблон</strong><small>Книга и параметры обработки</small></span>
         </button>
         <button class="step-link" type="button" data-step-target="files">
           <span class="step-number">2</span>
-          <span><strong>Файлы</strong><small>Исходные данные</small></span>
+          <span><strong>Проект PDF</strong><small>Единственный источник данных</small></span>
         </button>
         <button class="step-link" type="button" data-step-target="check">
           <span class="step-number">3</span>
-          <span><strong>Проверка</strong><small>Состав комплекта</small></span>
+          <span><strong>Проверка</strong><small>Шаблон и исходный файл</small></span>
         </button>
         <div class="step-link is-disabled" aria-disabled="true">
           <span class="step-number">4</span>
-          <span><strong>Запуск</strong><small>Сформируем пакет документации</small></span>
+          <span><strong>Запуск</strong><small>Заполним одну выбранную книгу</small></span>
         </div>
       </nav>
 
       <button class="recent-toggle" id="recent-toggle" type="button">
-        <span>Последние комплекты</span>
+        <span>Последние книги</span>
         <strong>{{ jobs|length }}</strong>
       </button>
 
@@ -67,29 +67,30 @@
       <form id="job-form" action="/api/jobs" method="post" enctype="multipart/form-data" novalidate>
         <section class="wizard-panel is-active" data-step-panel="object">
           <div class="panel-heading">
-            <p class="kicker">Новый комплект</p>
-            <h1>Настройте объект</h1>
-            <p>Три коротких поля задают профиль заказчика, нумерацию актов и автора подтверждений.</p>
+            <p class="kicker">Новая книга</p>
+            <h1>Выберите шаблон</h1>
+            <p>Специалист заранее определяет нужную Excel-книгу. Агент извлечёт из PDF только подтверждённые сведения и перенесёт их в выбранный шаблон.</p>
           </div>
 
           <div class="object-grid">
-            <label class="field">
-              <span>Подразделение Россетей</span>
-              <select name="branch_id" id="branch-id">
-                <option value="khimki">Химки</option>
-                <option value="solnechnogorsk">Солнечногорск</option>
+            <label class="field field-wide">
+              <span>Шаблон Excel</span>
+              <select name="template_id" id="template-id" required>
+                <option value="">Выберите один шаблон</option>
+                {% for option in template_options|default([]) %}
+                  <option
+                    value="{{ option.id }}"
+                    data-status="{{ option.status }}"
+                    data-target-count="{{ option.target_count }}"
+                  >{{ option.display_name }}</option>
+                {% endfor %}
               </select>
-              <small>Профиль определяет реквизиты и подписантов.</small>
-            </label>
-            <label class="field">
-              <span>Первый номер АОСР</span>
-              <input name="first_aosr_number" id="first-number" type="number" min="1" value="1" required inputmode="numeric">
-              <small>Остальные номера агент продолжит по порядку.</small>
+              <small id="template-meta">За один запуск формируется только выбранная книга.</small>
             </label>
             <label class="field field-wide">
               <span>Специалист</span>
               <input name="operator_name" id="operator-name" autocomplete="name" required placeholder="Фамилия Имя Отчество">
-              <small>Это имя будет указано у ответов, подтверждённых человеком.</small>
+              <small>Имя фиксирует автора запуска и подтверждений.</small>
             </label>
             <fieldset class="profile-choice field-wide">
               <legend>Режим обработки</legend>
@@ -110,15 +111,15 @@
 
           <div class="panel-actions">
             <span class="autosave-note" id="draft-status">Черновик будет сохранён на этом компьютере</span>
-            <button class="primary-button" type="button" data-next-step="files">Продолжить к файлам</button>
+            <button class="primary-button" type="button" data-next-step="files">Продолжить к PDF</button>
           </div>
         </section>
 
         <section class="wizard-panel" data-step-panel="files" hidden>
           <div class="panel-heading">
             <p class="kicker">Шаг 2 из 4</p>
-            <h1>Добавьте исходные данные</h1>
-            <p>Для запуска достаточно рабочего проекта. Таблицу фактических данных и подтверждающие документы можно приложить при наличии.</p>
+            <h1>Добавьте рабочий проект</h1>
+            <p>Загрузите один PDF. Таблицы с датами, паспортами и другими ручными сведениями не требуются.</p>
           </div>
 
           <div class="upload-stack">
@@ -126,51 +127,24 @@
               <i class="bi bi-filetype-pdf file-mark is-pdf" aria-hidden="true"></i>
               <span class="upload-copy">
                 <strong>Рабочий проект PDF <em>*</em></strong>
-                <span data-file-name>Выберите один рабочий проект</span>
-                <small data-file-meta>PDF · до 500 МБ</small>
+                <span data-file-name>Выберите один PDF-файл</span>
+                <small data-file-meta>Только PDF</small>
               </span>
               <span class="upload-state" data-file-state>Выбрать файл</span>
             </label>
             <input class="visually-hidden file-input" id="project-file" name="files" type="file" required accept=".pdf,application/pdf" data-file-kind="project">
-
-            <label class="upload-row" for="facts-file" data-upload-row="facts">
-              <i class="bi bi-filetype-xlsx file-mark is-xlsx" aria-hidden="true"></i>
-              <span class="upload-copy">
-                <strong>Фактические данные.xlsx</strong>
-                <span data-file-name>Необязательно: даты, объёмы, материалы и порядок АОСР</span>
-                <small data-file-meta>При отсутствии агент запросит только недостающие сведения</small>
-              </span>
-              <span class="upload-state" data-file-state>Выбрать файл</span>
-            </label>
-            <input class="visually-hidden file-input" id="facts-file" name="files" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" data-file-kind="facts">
-
-            <div class="optional-upload">
-              <button class="optional-upload-toggle" id="attachments-toggle" type="button" aria-expanded="false">
-                <i class="bi bi-paperclip paperclip-mark" aria-hidden="true"></i>
-                <span><strong>Дополнительные документы</strong><small>Необязательно. PDF, XLSX, DOCX, PNG или JPEG.</small></span>
-                <span class="attachment-count" id="attachment-count">0 файлов</span>
-              </button>
-              <div class="optional-upload-body" id="attachments-body" hidden>
-                <label class="secondary-drop" for="attachment-files">
-                  <strong>Добавить приложения</strong>
-                  <span>Паспорта, сертификаты и другие подтверждающие документы</span>
-                </label>
-                <input class="visually-hidden file-input" id="attachment-files" name="files" type="file" multiple accept=".pdf,.xlsx,.docx,.png,.jpg,.jpeg" data-file-kind="attachments">
-                <div class="attachment-list" id="attachment-list"></div>
-              </div>
-            </div>
           </div>
 
           <div class="insight-strip" id="file-insight">
             <i class="bi bi-check-circle insight-check" aria-hidden="true"></i>
-            <span id="insight-copy">После загрузки агент сопоставит объект, работы и доступные шаблоны.</span>
+            <span id="insight-copy">Агент заполнит только выбранный шаблон. Недоступные сведения останутся пустыми и будут выделены в Excel.</span>
             <button type="button" id="requirements-toggle">Что будет проверено</button>
           </div>
 
           <div class="panel-actions">
             <button class="secondary-button" type="button" data-next-step="object">Назад</button>
             <div class="action-side">
-              <span class="autosave-note">Файлы сохраняются только в локальном задании</span>
+              <span class="autosave-note">PDF прикрепляется только к этому заданию</span>
               <button class="primary-button is-coral" type="button" data-next-step="check">Продолжить к проверке</button>
             </div>
           </div>
@@ -180,33 +154,31 @@
           <div class="panel-heading">
             <p class="kicker">Шаг 3 из 4</p>
             <h1>Проверьте перед запуском</h1>
-            <p>Агент начнёт с инвентаризации, затем извлечёт факты и остановится только при критичной нехватке данных.</p>
+            <p>За этот запуск агент обработает один PDF и сформирует одну выбранную Excel-книгу.</p>
           </div>
 
           <div class="review-list">
-            <div><span>Объект</span><strong id="review-branch">Химки</strong></div>
-            <div><span>Нумерация</span><strong id="review-number">с АОСР №1</strong></div>
+            <div><span>Шаблон</span><strong id="review-template">Не выбран</strong></div>
             <div><span>Специалист</span><strong id="review-operator">Не указан</strong></div>
             <div><span>Рабочий проект</span><strong id="review-project">Не выбран</strong></div>
-            <div><span>Фактические данные</span><strong id="review-facts">Не выбраны (необязательно)</strong></div>
-            <div><span>Дополнительные файлы</span><strong id="review-attachments">0</strong></div>
+            <div><span>Режим обработки</span><strong id="review-profile">Баланс</strong></div>
           </div>
 
           <div class="run-summary">
             <div>
-              <span class="run-summary-label">Режим</span>
-              <strong id="review-profile">Баланс</strong>
+              <span class="run-summary-label">Результат</span>
+              <strong>Один заполненный XLSX</strong>
             </div>
             <div>
               <span class="run-summary-label">Ожидаемый сценарий</span>
-              <strong>Анализ → проверка → готовый комплект</strong>
+              <strong>Анализ PDF → заполнение шаблона → проверка</strong>
             </div>
-            <p>Если в доступных источниках нет обязательного факта, задание перейдёт в <b>«Нужны сведения»</b>, не придумывая значение.</p>
+            <p>Агент не придумывает отсутствующие даты, номера, паспорта и другие факты. Такие ячейки останутся пустыми и будут заметно выделены.</p>
           </div>
 
           <div class="form-error" id="form-error" role="alert" hidden></div>
           <div class="panel-actions">
-            <button class="secondary-button" type="button" data-next-step="files">Назад к файлам</button>
+            <button class="secondary-button" type="button" data-next-step="files">Назад к PDF</button>
             <button class="primary-button is-coral" id="submit-job" type="submit">Запустить агента</button>
           </div>
         </section>
@@ -214,22 +186,22 @@
     </main>
   </div>
 
-  <aside class="side-drawer" id="help-drawer" aria-hidden="true" aria-label="Подготовка файлов">
+  <aside class="side-drawer" id="help-drawer" aria-hidden="true" aria-label="Подготовка запуска">
     <button class="drawer-close" type="button" data-close-drawer>Закрыть</button>
     <p class="kicker">Короткая памятка</p>
-    <h2>Что загрузить</h2>
+    <h2>Как запустить</h2>
     <ol>
-      <li><strong>Рабочий проект PDF</strong><span>Основной утверждённый проект с шифром и проектными решениями.</span></li>
-      <li><strong>Фактические данные.xlsx</strong><span>Подтверждённые даты, объёмы, материалы, отклонения и порядок работ.</span></li>
-      <li><strong>Приложения</strong><span>Паспорта, сертификаты и другие подтверждающие документы, если они относятся к работам.</span></li>
+      <li><strong>Выберите шаблон</strong><span>Специалист определяет конкретную Excel-книгу для этого запуска.</span></li>
+      <li><strong>Добавьте один PDF</strong><span>Используйте рабочий проект, из которого агент сможет извлечь подтверждённые сведения.</span></li>
+      <li><strong>Проверьте результат</strong><span>Найденные данные будут перенесены, а недоступные ручные поля останутся пустыми и выделенными.</span></li>
     </ol>
-    <p class="drawer-footnote">Имена файлов помогают менеджеру, но агент определяет тип документа по содержимому.</p>
+    <p class="drawer-footnote">Excel, Word и изображения загружать не нужно. Один запуск всегда относится к одному выбранному шаблону.</p>
   </aside>
 
-  <aside class="side-drawer" id="recent-drawer" aria-hidden="true" aria-label="Последние комплекты">
+  <aside class="side-drawer" id="recent-drawer" aria-hidden="true" aria-label="Последние книги">
     <button class="drawer-close" type="button" data-close-drawer>Закрыть</button>
     <p class="kicker">История</p>
-    <h2>Последние комплекты</h2>
+    <h2>Последние книги</h2>
     {% if jobs %}
       <div class="recent-jobs">
         {% for job in jobs %}
@@ -241,7 +213,7 @@
         {% endfor %}
       </div>
     {% else %}
-      <div class="empty-state"><strong>Комплектов пока нет</strong><span>Первое задание появится здесь после запуска.</span></div>
+      <div class="empty-state"><strong>Запусков пока нет</strong><span>Первая заполненная книга появится здесь после запуска.</span></div>
     {% endif %}
   </aside>
   <div class="drawer-backdrop" id="drawer-backdrop" hidden></div>

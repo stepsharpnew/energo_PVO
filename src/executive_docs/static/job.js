@@ -22,6 +22,26 @@ const statusLabels = {
   FAILED_VALIDATION: ["Есть замечания", "Комплект не прошёл одну или несколько проверок"],
   CANCELLED: ["Задание отменено", "Обработка остановлена"],
 };
+
+const unresolvedCategoryLabels = {
+  missing_from_pdf: "нет подтверждения в PDF",
+  manual_confirmation: "требуется ручное подтверждение",
+  conflict: "в PDF найдены противоречащие значения",
+  ambiguous: "значение в PDF неоднозначно",
+  rejected: "значение отклонено проверкой",
+  unapproved_rule: "правило переноса ещё не утверждено",
+};
+
+function unresolvedDetails(cell) {
+  const category =
+    unresolvedCategoryLabels[cell.category] || "требуется проверка";
+  const locators = Array.isArray(cell.source_locators)
+    ? cell.source_locators.filter(Boolean)
+    : [];
+  return locators.length
+    ? `${category} · источники: ${locators.join(", ")}`
+    : category;
+}
 const profileLabels = {
   economy: "Экономно",
   balanced: "Баланс",
@@ -63,12 +83,32 @@ async function api(url, options = {}) {
 }
 
 function updateStatus(job) {
-  const draftWithWarnings = job.status === "NEEDS_INPUT" && job.draft_report_ready;
+  const selectedTemplateFlow = job.flow_version === "selected-template-v2";
+  const selectedStatusLabels = {
+    FILES_UPLOADED: ["Книга в очереди", "PDF принят и ожидает обработки"],
+    ANALYZING: ["Агент изучает PDF", "Извлекаем только подтверждённые сведения"],
+    GENERATING: ["Заполняем выбранную книгу", "Формируем один черновой XLSX"],
+    VALIDATING: ["Проверяем книгу", "Проверяем структуру и предупреждающую заливку"],
+    NEEDS_INPUT: ["Черновик с пометками готов", "Неподтверждённые ячейки оставлены пустыми"],
+    FAILED_GENERATION: ["Формирование остановлено", "Не удалось создать выбранную книгу"],
+    FAILED_VALIDATION: ["Книга требует проверки", "Техническая проверка обнаружила замечания"],
+  };
+  const draftWithWarnings =
+    job.draft_report_ready &&
+    (job.status === "NEEDS_INPUT" ||
+      (selectedTemplateFlow && job.status === "FAILED_VALIDATION"));
   const [title, fallbackSummary] = draftWithWarnings
     ? job.draft_excel_files.length
-      ? ["Excel-файлы готовы", "Книги сформированы с предупреждениями"]
-      : ["Нужен Excel", "Повторите формирование Excel-файлов"]
-    : statusLabels[job.status] || [job.status, "Состояние обновлено"];
+      ? [
+          selectedTemplateFlow ? "Черновой Excel готов" : "Excel-файлы готовы",
+          selectedTemplateFlow
+            ? "Книга сформирована с выделенными пропусками"
+            : "Книги сформированы с предупреждениями",
+        ]
+      : ["Нужен Excel", "Повторите формирование Excel-файла"]
+    : (selectedTemplateFlow ? selectedStatusLabels[job.status] : null) ||
+      statusLabels[job.status] ||
+      [job.status, "Состояние обновлено"];
   document.getElementById("status").textContent = title;
   document.getElementById("summary").textContent = publicText(job.summary || job.error || fallbackSummary);
   document.getElementById("status-pill").textContent = title;
@@ -131,20 +171,32 @@ async function refresh() {
   document.getElementById("revision").textContent = job.revision;
   updateStatus(job);
   updateUsage(job);
-  const draftWithWarnings = job.status === "NEEDS_INPUT" && job.draft_report_ready;
+  const selectedTemplateFlow = job.flow_version === "selected-template-v2";
+  const draftWithWarnings =
+    job.draft_report_ready &&
+    (job.status === "NEEDS_INPUT" ||
+      (selectedTemplateFlow && job.status === "FAILED_VALIDATION"));
 
   show(
     "progress",
     !terminal.has(job.status) && !["NEEDS_INPUT", "READY_FOR_REVIEW", "APPROVED_FINAL"].includes(job.status)
   );
 
-  show("questions", job.status === "NEEDS_INPUT" && !draftWithWarnings);
+  show("questions", !selectedTemplateFlow && job.status === "NEEDS_INPUT" && !draftWithWarnings);
   show("draft-excel", draftWithWarnings);
-  show("retry-analysis", job.status === "FAILED_ANALYSIS");
-  if (job.status === "NEEDS_INPUT") {
-    const unresolved = job.questions.filter((question) => !question.answer);
+  show(
+    "retry-analysis",
+    job.status === "FAILED_ANALYSIS" ||
+      (selectedTemplateFlow && job.status === "FAILED_GENERATION")
+  );
+  if (job.status === "NEEDS_INPUT" || (selectedTemplateFlow && job.draft_report_ready)) {
+    const unresolved = selectedTemplateFlow
+      ? job.unresolved_template_cells || []
+      : job.questions.filter((question) => !question.answer);
     document.getElementById("draft-warning-title").textContent =
-      `Предупреждений в Excel: ${unresolved.length}`;
+      selectedTemplateFlow
+        ? `Пустых выделенных ячеек: ${unresolved.length}`
+        : `Предупреждений в Excel: ${unresolved.length}`;
     const draftFiles = job.draft_excel_files || [];
     document.getElementById("draft-excel-list").innerHTML = draftFiles
       .map(
@@ -152,20 +204,36 @@ async function refresh() {
           `<a href="/api/kits/${jobRef}/draft-excel/${index}">${esc(file)}</a>`
       )
       .join("");
-    show("generate-draft-excel", draftFiles.length === 0);
+    show("generate-draft-excel", !selectedTemplateFlow && draftFiles.length === 0);
+    show("edit-draft-answers", !selectedTemplateFlow);
     const draftError = document.getElementById("draft-excel-error");
     draftError.textContent = publicText(job.draft_excel_error || "");
     draftError.hidden = !job.draft_excel_error;
-    document.getElementById("draft-warning-list").innerHTML = unresolved
-      .map(
-        (question) => `
+    document.getElementById("draft-warning-list").innerHTML = selectedTemplateFlow
+      ? unresolved
+          .slice(0, 100)
+          .map(
+            (cell) => `
+          <article class="draft-warning-item">
+            <strong>${esc(cell.label || `${cell.sheet}!${cell.cell}`)}</strong>
+            <p>${esc(cell.reason)}</p>
+            <span>${esc(cell.sheet)} · ${esc(cell.cell)} · ${esc(unresolvedDetails(cell))} · оставлено пустым и выделено</span>
+          </article>`
+          )
+          .join("") +
+        (unresolved.length > 100
+          ? `<article class="draft-warning-item"><strong>И ещё ${unresolved.length - 100}</strong><p>Остальные ячейки также оставлены пустыми и выделены внутри Excel.</p></article>`
+          : "")
+      : unresolved
+          .map(
+            (question) => `
           <article class="draft-warning-item">
             <strong>${esc(publicText(question.prompt))}</strong>
             <p>${esc(publicText(question.reason))}</p>
             <span>Не заполнено — требуется исправить перед финальным выпуском</span>
           </article>`
-      )
-      .join("");
+          )
+          .join("");
     document.getElementById("missing-warning-title").textContent =
       unresolved.length > 0
         ? `Нужно проверить полей: ${unresolved.length}`
@@ -174,7 +242,9 @@ async function refresh() {
       unresolved.length > 0
         ? "Их можно оставить пустыми и сохранить форму. Пока предупреждения не устранены, финальный выпуск останется недоступен."
         : "После сохранения агент продолжит обработку комплекта.";
-    document.getElementById("question-list").innerHTML = job.questions
+    document.getElementById("question-list").innerHTML = selectedTemplateFlow
+      ? ""
+      : job.questions
       .map(
         (question) => {
           const isYesNo = yesNoQuestion(question);
@@ -223,7 +293,10 @@ async function refresh() {
     )
     .join("");
 
-  show("review", ["READY_FOR_REVIEW", "FAILED_VALIDATION"].includes(job.status));
+  show(
+    "review",
+    !selectedTemplateFlow && ["READY_FOR_REVIEW", "FAILED_VALIDATION"].includes(job.status)
+  );
   document.getElementById("approve").disabled = job.status !== "READY_FOR_REVIEW";
   show("download", job.status === "APPROVED_FINAL");
 

@@ -1,6 +1,13 @@
 import pytest
 
-from executive_docs.domain import Artifact, JobStatus, NeedInputQuestion, ProjectState
+from executive_docs.domain import (
+    Artifact,
+    Claim,
+    ClaimStatus,
+    JobStatus,
+    NeedInputQuestion,
+    ProjectState,
+)
 from executive_docs.presentation import public_payload, public_state, public_text
 from executive_docs.questions import is_delegated_value, normalized_answer
 
@@ -53,6 +60,18 @@ def test_public_state_hides_internal_template_questions() -> None:
                 sha256="0" * 64,
             )
         ],
+        claims=[
+            Claim(
+                key="template.ojr.Данные.B2",
+                raw_value="P-42",
+                normalized_value="P-42",
+                source_kind="project_pdf",
+                source_file_id="deadbeef",
+                locator="page:1",
+                evidence_fragment="Шифр P-42",
+                status=ClaimStatus.OBSERVED,
+            )
+        ],
     )
     presented = public_state(state)
     assert [question.id for question in presented.questions] == ["q-fact"]
@@ -61,6 +80,7 @@ def test_public_state_hides_internal_template_questions() -> None:
     assert "sha256" not in public_payload(state)["artifacts"][0]
     assert "stored_name" not in public_payload(state)["artifacts"][0]
     assert "id" not in public_payload(state)["artifacts"][0]
+    assert "source_file_id" not in public_payload(state)["claims"][0]
 
 
 def test_optional_answers_accept_text_or_yes_no_and_reject_delegation() -> None:

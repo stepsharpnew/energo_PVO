@@ -13,11 +13,13 @@ from fastapi.templating import Jinja2Templates
 
 from .config import settings
 from .domain import AnswersRequest, CorrectionReviewRequest, JobStatus, ProjectState, ReviewRequest
+from .ingestion import validate_signature
 from .packaging import build_result_zip, write_report
 from .pipeline import JobQueue, Pipeline
 from .presentation import public_payload, public_state
 from .questions import is_internal_question, normalized_answer
 from .repository import Repository
+from .selected_templates import TemplateCatalog
 from .storage import Storage, is_selected_filename
 
 
@@ -26,6 +28,11 @@ repository = Repository(settings.db_path)
 storage = Storage(settings)
 pipeline = Pipeline(settings, repository, storage)
 queue = JobQueue(pipeline)
+template_catalog = TemplateCatalog(
+    settings.root,
+    settings.fill_contracts_dir,
+    settings.approved_templates_dir,
+)
 templates = Jinja2Templates(directory=str(Path(__file__).parent / "templates"))
 
 
@@ -64,6 +71,7 @@ async def index(request: Request):
             "model": default_policy.analysis_model,
             "processing_profile": default_policy.name,
             "today_iso": date.today().isoformat(),
+            "template_options": template_catalog.public_list(),
         },
     )
 
@@ -89,36 +97,52 @@ async def public_job_page(request: Request, public_ref: str):
 @app.post("/api/jobs")
 async def create_job(
     request: Request,
-    branch_id: str = Form(...),
-    first_aosr_number: int = Form(...),
+    template_id: str = Form(...),
     operator_name: str = Form(...),
     processing_profile: str = Form(settings.processing_profile),
     files: list[UploadFile] = File(...),
 ):
-    if branch_id not in {"khimki", "solnechnogorsk"}:
-        raise HTTPException(status_code=422, detail="Неизвестный филиал")
-    if first_aosr_number < 1:
-        raise HTTPException(status_code=422, detail="Первый номер должен быть положительным")
+    try:
+        selected_template = template_catalog.get(template_id)
+    except (KeyError, ValueError) as exc:
+        raise HTTPException(
+            status_code=422,
+            detail=f"Шаблон недоступен: {exc}",
+        ) from exc
     if not operator_name.strip():
         raise HTTPException(status_code=422, detail="Укажите специалиста")
     if processing_profile not in {"economy", "balanced", "quality"}:
         raise HTTPException(status_code=422, detail="Неизвестный профиль расхода")
     selected_files = [upload for upload in files if is_selected_filename(upload.filename)]
-    if not selected_files:
-        raise HTTPException(status_code=422, detail="Добавьте исходные файлы")
+    if len(files) != 1 or len(selected_files) != 1:
+        raise HTTPException(status_code=422, detail="Добавьте ровно один PDF-файл")
+    if Path(selected_files[0].filename or "").suffix.lower() != ".pdf":
+        raise HTTPException(status_code=422, detail="В этом режиме принимается только PDF")
     job_id = str(uuid.uuid4())
     storage.initialize_job(job_id)
     artifacts = []
     try:
         for upload in selected_files:
-            artifacts.append(storage.save_upload(job_id, upload.filename, upload.file, upload.content_type or ""))
+            artifact = storage.save_upload(
+                job_id,
+                upload.filename,
+                upload.file,
+                upload.content_type or "",
+            )
+            validate_signature(storage.job_dir(job_id) / "input" / artifact.stored_name)
+            artifacts.append(artifact)
         if sum(item.size for item in artifacts) > settings.max_job_bytes:
             raise ValueError("Общий объём задания превышает лимит")
         state = ProjectState(
             job_id=job_id,
-            branch_id=branch_id,
-            first_aosr_number=first_aosr_number,
             operator_name=operator_name.strip(),
+            flow_version="selected-template-v2",
+            selected_template_id=selected_template.template_id,
+            selected_template_name=selected_template.display_name,
+            selected_template_status=selected_template.status,
+            selected_template_version=selected_template.version,
+            selected_template_sha256=selected_template.candidate_sha256,
+            selected_template_contract_sha256=selected_template.contract_sha256,
             processing_profile=processing_profile,
             status=JobStatus.FILES_UPLOADED,
             artifacts=artifacts,
@@ -131,6 +155,11 @@ async def create_job(
     if "application/json" in request.headers.get("accept", ""):
         return JSONResponse(public_payload(state), status_code=202)
     return RedirectResponse(url=f"/kits/{state.public_ref}", status_code=303)
+
+
+@app.get("/api/templates")
+async def list_templates():
+    return template_catalog.public_list()
 
 
 @app.get("/api/jobs")
@@ -175,8 +204,14 @@ async def get_job(job_id: str):
 @app.post("/api/jobs/{job_id}/retry")
 async def retry_analysis(job_id: str):
     state = get_job_or_404(job_id)
-    if state.status != JobStatus.FAILED_ANALYSIS:
-        raise HTTPException(status_code=409, detail="Повторный анализ доступен только после ошибки анализа")
+    retryable = {JobStatus.FAILED_ANALYSIS}
+    if state.flow_version == "selected-template-v2":
+        retryable.add(JobStatus.FAILED_GENERATION)
+    if state.status not in retryable:
+        raise HTTPException(
+            status_code=409,
+            detail="Повтор доступен только после ошибки анализа или формирования",
+        )
     state.status = JobStatus.FILES_UPLOADED
     state.error = None
     state.summary = "Повторный анализ поставлен в очередь"
@@ -189,6 +224,11 @@ async def retry_analysis(job_id: str):
 @app.post("/api/jobs/{job_id}/answers")
 async def answer_questions(job_id: str, payload: AnswersRequest):
     state = get_job_or_404(job_id)
+    if state.flow_version == "selected-template-v2":
+        raise HTTPException(
+            status_code=409,
+            detail="В этом режиме пропуски отмечаются непосредственно в единственном черновом Excel-файле",
+        )
     if state.status != JobStatus.NEEDS_INPUT:
         raise HTTPException(status_code=409, detail="Задание не ожидает ответов")
     by_id = {item.id: item for item in state.questions}
@@ -251,6 +291,11 @@ async def preview(job_id: str):
 @app.post("/api/jobs/{job_id}/draft-excel")
 async def request_draft_excel(job_id: str):
     state = get_job_or_404(job_id)
+    if state.flow_version == "selected-template-v2":
+        raise HTTPException(
+            status_code=409,
+            detail="Черновой Excel формируется автоматически за один проход",
+        )
     if state.status != JobStatus.NEEDS_INPUT:
         raise HTTPException(status_code=409, detail="Черновой Excel доступен после анализа предупреждений")
     if state.draft_excel_error:
@@ -292,10 +337,16 @@ async def download_draft_excel(job_id: str, file_index: int):
 async def job_file(job_id: str, relative_path: str):
     state = get_job_or_404(job_id)
     root = storage.job_dir(state.job_id).resolve()
+    preview_root = (root / "preview" / f"r{state.revision}").resolve()
+    allowed = {
+        path.resolve()
+        for path in preview_root.glob("*.pdf")
+        if path.is_file() and preview_root in path.resolve().parents
+    }
     path = (root / relative_path).resolve()
-    if root not in path.parents or not path.is_file():
+    if path not in allowed:
         raise HTTPException(status_code=404, detail="Файл не найден")
-    return FileResponse(path)
+    return FileResponse(path, media_type="application/pdf")
 
 
 @app.post("/api/kits/{job_id}/review")
@@ -303,6 +354,14 @@ async def job_file(job_id: str, relative_path: str):
 async def review(job_id: str, payload: ReviewRequest):
     state = get_job_or_404(job_id)
     if payload.action == "approve":
+        if state.flow_version == "selected-template-v2":
+            raise HTTPException(
+                status_code=409,
+                detail=(
+                    "Проверочный черновик выбранного шаблона нельзя утвердить "
+                    "через MVP до отдельного утверждения контракта и полного review-контура"
+                ),
+            )
         if state.status != JobStatus.READY_FOR_REVIEW or any(i.severity == "error" for i in state.validation_issues):
             raise HTTPException(status_code=409, detail="Комплект не готов к утверждению")
         state.status = JobStatus.APPROVED_FINAL
@@ -314,6 +373,11 @@ async def review(job_id: str, payload: ReviewRequest):
         )
         repository.save(state)
     elif payload.action == "request_revision":
+        if state.flow_version == "selected-template-v2":
+            raise HTTPException(
+                status_code=409,
+                detail="Для другого прохода или шаблона создайте новое задание",
+            )
         if not payload.corrections:
             raise HTTPException(status_code=422, detail="Опишите хотя бы одно исправление")
         if any(not item.expected_value.strip() or not item.reason.strip() for item in payload.corrections):
@@ -348,6 +412,10 @@ async def download(job_id: str):
 @app.delete("/api/jobs/{job_id}")
 async def delete_job(job_id: str):
     state = get_job_or_404(job_id)
+    state.status = JobStatus.CANCELLED
+    state.summary = "Задание отменено и удаляется"
+    repository.save(state)
+    await queue.cancel_and_wait(state.job_id)
     repository.delete(state.job_id)
     storage.remove_job(state.job_id)
     return JSONResponse({"deleted": state.public_ref})

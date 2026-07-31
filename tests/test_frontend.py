@@ -24,17 +24,27 @@ def test_index_wizard_renders_required_inputs_and_steps() -> None:
         model="test-model",
         processing_profile="balanced",
         today_iso="2026-07-27",
+        template_options=[
+            {
+                "id": "ojr",
+                "display_name": "Общий журнал работ (ОЖР)",
+                "status": "DISCOVERY_REVIEW_REQUIRED",
+                "target_count": 42,
+            }
+        ],
     )
     assert 'data-step-panel="object"' in html
     assert 'data-step-panel="files"' in html
     assert 'data-step-panel="check"' in html
-    assert html.count('name="files"') == 3
-    assert 'id="project-file"' in html and 'id="facts-file"' in html
+    assert html.count('name="files"') == 1
+    assert 'id="project-file"' in html and 'id="facts-file"' not in html
+    assert 'name="template_id"' in html
+    assert 'value="ojr"' in html
     assert 'name="processing_profile"' in html
     document = html_parser.fromstring(html)
     assert "required" in document.get_element_by_id("project-file").attrib
-    assert document.get_element_by_id("facts-file").get("required") is None
-    assert "Необязательно" in document.get_element_by_id("facts-file").getprevious().text_content()
+    assert "required" in document.get_element_by_id("template-id").attrib
+    assert ".xlsx" not in document.get_element_by_id("project-file").get("accept", "")
 
 
 def test_job_page_renders_manager_review_surfaces() -> None:

@@ -1,6 +1,9 @@
 import asyncio
 from pathlib import Path
 
+import pytest
+from fastapi import HTTPException
+
 from executive_docs.domain import (
     AnswerPayload,
     AnswersRequest,
@@ -8,8 +11,14 @@ from executive_docs.domain import (
     JobStatus,
     NeedInputQuestion,
     ProjectState,
+    ReviewRequest,
 )
-from executive_docs.main import answer_questions, download_draft_excel, request_draft_excel
+from executive_docs.main import (
+    answer_questions,
+    download_draft_excel,
+    request_draft_excel,
+    review,
+)
 
 
 class RecordingRepository:
@@ -190,3 +199,34 @@ def test_draft_excel_file_can_be_downloaded(tmp_path: Path, monkeypatch) -> None
     assert response.status_code == 200
     assert Path(response.path) == path
     assert response.media_type == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+
+
+def test_selected_template_flow_rejects_legacy_answers_and_approval(monkeypatch) -> None:
+    state = ProjectState(
+        job_id="88888888-8888-8888-8888-888888888888",
+        operator_name="Специалист",
+        flow_version="selected-template-v2",
+        selected_template_id="ojr",
+        status=JobStatus.NEEDS_INPUT,
+        draft_report_ready=True,
+    )
+    repository = RecordingRepository(state)
+    monkeypatch.setattr("executive_docs.main.repository", repository)
+
+    with pytest.raises(HTTPException) as answers_error:
+        asyncio.run(answer_questions(state.job_id, AnswersRequest(answers=[])))
+    assert answers_error.value.status_code == 409
+
+    with pytest.raises(HTTPException) as draft_error:
+        asyncio.run(request_draft_excel(state.job_id))
+    assert draft_error.value.status_code == 409
+
+    state.status = JobStatus.READY_FOR_REVIEW
+    with pytest.raises(HTTPException) as approval_error:
+        asyncio.run(
+            review(
+                state.job_id,
+                ReviewRequest(action="approve"),
+            )
+        )
+    assert approval_error.value.status_code == 409
