@@ -15,6 +15,21 @@ UUID_VALUE = re.compile(
 )
 FILE_ID_REFERENCE = re.compile(r"\b(?:файл|file)\s+[0-9a-f]{8}\b", re.IGNORECASE)
 
+PUBLIC_FAILURE_MESSAGES = {
+    "FAILED_ANALYSIS": (
+        "Не удалось завершить анализ PDF. Повторите анализ; если ошибка "
+        "повторится, обратитесь к администратору."
+    ),
+    "FAILED_GENERATION": (
+        "Не удалось сформировать черновой Excel. Повторите формирование; "
+        "если ошибка повторится, обратитесь к администратору."
+    ),
+    "FAILED_VALIDATION": (
+        "Черновой Excel не прошёл техническую проверку. Подробности доступны "
+        "администратору."
+    ),
+}
+
 
 def public_text(value: str | None) -> str:
     """Remove storage identifiers from text intended for an operator."""
@@ -52,10 +67,26 @@ def public_question(question: NeedInputQuestion) -> NeedInputQuestion:
 
 
 def public_state(state: ProjectState) -> ProjectState:
+    failure_message = (
+        PUBLIC_FAILURE_MESSAGES.get(state.status.value)
+        if state.error
+        else None
+    )
+    draft_failure_message = (
+        "Не удалось сформировать черновой Excel. Повторите формирование; "
+        "если ошибка повторится, обратитесь к администратору."
+        if state.draft_excel_error
+        else None
+    )
     return state.model_copy(
         update={
-            "summary": public_text(state.summary),
-            "error": public_text(state.error) or None,
+            "summary": (
+                failure_message
+                or draft_failure_message
+                or public_text(state.summary)
+            ),
+            "error": failure_message or public_text(state.error) or None,
+            "draft_excel_error": draft_failure_message,
             "questions": [
                 public_question(question)
                 for question in state.questions

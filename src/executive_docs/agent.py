@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Callable
 
 from openai import OpenAI
+from pydantic import ValidationError
 
 from .config import Settings
 from .domain import (
@@ -1010,6 +1011,41 @@ class OpenAIAgent:
             )
         return None
 
+    @staticmethod
+    def _validate_template_fill_call(
+        args: dict[str, Any],
+    ) -> tuple[TemplateFillAnalysis | None, str | None]:
+        """Return compact correction feedback instead of leaking Pydantic output."""
+
+        try:
+            return TemplateFillAnalysis.model_validate(args), None
+        except ValidationError as exc:
+            details = []
+            for error in exc.errors(
+                include_url=False,
+                include_context=False,
+                include_input=False,
+            )[:10]:
+                location = ".".join(str(part) for part in error.get("loc", ()))
+                message = str(error.get("msg", "invalid value"))
+                if message.startswith("Value error, "):
+                    message = message.removeprefix("Value error, ")
+                details.append(f"{location or 'result'}: {message}")
+            suffix = (
+                f"; ещё ошибок: {exc.error_count() - len(details)}"
+                if exc.error_count() > len(details)
+                else ""
+            )
+            return None, (
+                "The submitted template result is inconsistent. Correct it and "
+                "call submit_template_fill again. For missing_from_pdf, "
+                "source_locators, source_values, and evidence_fragments MUST all "
+                "be empty. If PDF evidence exists but is unusable, use ambiguous "
+                "or rejected and preserve one aligned evidence triple. Details: "
+                + "; ".join(details)
+                + suffix
+            )
+
     def fill_template(
         self,
         state: ProjectState,
@@ -1073,11 +1109,13 @@ class OpenAIAgent:
                 "Return values only for coordinates present in selected_template.writable_cells.",
                 "Never select, replace, rename, or add a template, worksheet, output file, or formula.",
                 "Every assignment must cite the uploaded PDF file_id, page:N, and a short evidence fragment.",
-                "Omit a cell if its meaning is unclear or the PDF evidence is missing, conflicting, or ambiguous.",
+                "Do not assign a value when its meaning is unclear or the PDF evidence is missing, conflicting, or ambiguous; report that cell as unresolved.",
                 (
                     "For each omitted writable cell, add one unresolved record. "
                     "Use missing_from_pdf, conflict, ambiguous, rejected, or "
-                    "unapproved_rule. For conflict preserve at least two distinct "
+                    "unapproved_rule. missing_from_pdf means there is no source "
+                    "evidence: source_locators, source_values, and evidence_fragments "
+                    "MUST all be empty. For conflict preserve at least two distinct "
                     "source_values, page:N source_locators, and matching "
                     "evidence_fragments in the same order. For ambiguous and "
                     "rejected preserve at least one such evidence triple."
@@ -1203,9 +1241,40 @@ class OpenAIAgent:
                     )
                     continue
                 for call in calls:
-                    args = json.loads(call.arguments or "{}")
+                    try:
+                        args = json.loads(call.arguments or "{}")
+                    except json.JSONDecodeError:
+                        history.append(
+                            {
+                                "type": "function_call_output",
+                                "call_id": call.call_id,
+                                "output": json.dumps(
+                                    {
+                                        "error": (
+                                            "Tool arguments must be valid JSON. "
+                                            "Correct them and call the tool again."
+                                        )
+                                    }
+                                ),
+                            }
+                        )
+                        continue
                     if call.name == "submit_template_fill":
-                        candidate = TemplateFillAnalysis.model_validate(args)
+                        candidate, validation_error = (
+                            self._validate_template_fill_call(args)
+                        )
+                        if validation_error:
+                            history.append(
+                                {
+                                    "type": "function_call_output",
+                                    "call_id": call.call_id,
+                                    "output": json.dumps(
+                                        {"error": validation_error}
+                                    ),
+                                }
+                            )
+                            continue
+                        assert candidate is not None
                         rejection = self._template_fill_rejection(
                             state,
                             contract,

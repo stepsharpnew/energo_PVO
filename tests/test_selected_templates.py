@@ -482,6 +482,34 @@ def test_template_assignment_must_match_text_on_the_cited_pdf_page(tmp_path: Pat
     )
 
 
+def test_invalid_missing_finding_returns_model_correction_without_pydantic_leak() -> None:
+    candidate, error = OpenAIAgent._validate_template_fill_call(
+        {
+            "summary": "Нужна проверка",
+            "assignments": [],
+            "unresolved": [
+                {
+                    "sheet": "Акт опрессовки",
+                    "cell": "B9",
+                    "category": "missing_from_pdf",
+                    "reason": "Не подтверждено",
+                    "source_locators": ["page:3"],
+                    "source_values": ["12.07.2026"],
+                    "evidence_fragments": ["Дата установки 12.07.2026"],
+                }
+            ],
+        }
+    )
+
+    assert candidate is None
+    assert error is not None
+    assert "call submit_template_fill again" in error
+    assert "MUST all be empty" in error
+    assert "unresolved.0" in error
+    assert "errors.pydantic.dev" not in error
+    assert "input_value" not in error
+
+
 def test_selected_template_pipeline_creates_one_draft_in_one_pass(tmp_path: Path) -> None:
     catalog = build_catalog(tmp_path)
     contract = catalog.get("sample")

@@ -124,3 +124,43 @@ def test_public_payload_exposes_only_draft_excel_filenames() -> None:
 
     assert payload["draft_excel_files"] == ["ЧЕРНОВИК - АОСР КЛ-6кВ.xlsx"]
     assert "output/drafts" not in str(payload["draft_excel_files"])
+
+
+def test_public_payload_replaces_internal_validation_failure() -> None:
+    internal_error = (
+        "2 validation errors for TemplateFillAnalysis unresolved.9 "
+        "Value error, missing_from_pdf cannot contain source evidence "
+        "https://errors.pydantic.dev/2.13/v/value_error"
+    )
+    state = ProjectState(
+        job_id="55555555-5555-5555-5555-555555555555",
+        operator_name="Специалист",
+        flow_version="selected-template-v2",
+        status=JobStatus.FAILED_ANALYSIS,
+        summary=internal_error,
+        error=internal_error,
+    )
+
+    payload = public_payload(state)
+
+    assert payload["summary"].startswith("Не удалось завершить анализ PDF")
+    assert payload["error"] == payload["summary"]
+    assert "TemplateFillAnalysis" not in str(payload)
+    assert "pydantic" not in str(payload).lower()
+
+
+def test_public_payload_replaces_internal_draft_failure() -> None:
+    state = ProjectState(
+        job_id="66666666-6666-6666-6666-666666666666",
+        operator_name="Специалист",
+        status=JobStatus.NEEDS_INPUT,
+        summary="Не удалось: Traceback from openpyxl internals",
+        draft_excel_error="Traceback from openpyxl internals",
+    )
+
+    payload = public_payload(state)
+
+    assert payload["summary"].startswith("Не удалось сформировать черновой Excel")
+    assert payload["draft_excel_error"] == payload["summary"]
+    assert "Traceback" not in str(payload)
+    assert "openpyxl" not in str(payload)
