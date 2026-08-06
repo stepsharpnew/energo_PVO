@@ -23,6 +23,7 @@ from .excel import MAIN_NS, OOXMLWorkbook, sha256
 
 TEMPLATE_ID = re.compile(r"[a-z][a-z0-9_-]{1,63}")
 CELL_ADDRESS = re.compile(r"[A-Z]{1,3}[1-9][0-9]*")
+SEMANTIC_ID = re.compile(r"[a-z][a-z0-9_.-]{2,127}")
 WARNING_FILL_RGB = "FFFFE699"
 
 
@@ -31,9 +32,13 @@ class TemplateField:
     sheet: str
     cell: str
     label: str
+    semantic_id: str | None
+    description: str
+    evidence_rule: str
     value_kind: str
     required: bool
     manual_reason: str | None
+    value_pattern: str | None
 
     @property
     def coordinate(self) -> tuple[str, str]:
@@ -45,14 +50,40 @@ class TemplateField:
         cell = str(data["cell"]).upper()
         if not sheet or not CELL_ADDRESS.fullmatch(cell):
             raise ValueError(f"Некорректная цель шаблона: {sheet}!{cell}")
+        semantic_id = str(data["semantic_id"]) if data.get("semantic_id") else None
+        if semantic_id and not SEMANTIC_ID.fullmatch(semantic_id):
+            raise ValueError(f"Некорректный semantic_id: {semantic_id}")
+        value_pattern = str(data["value_pattern"]) if data.get("value_pattern") else None
+        if value_pattern:
+            try:
+                re.compile(value_pattern)
+            except re.error as exc:
+                raise ValueError(
+                    f"Некорректный value_pattern: {sheet}!{cell}: {exc}"
+                ) from exc
+        label = str(data.get("label") or f"{sheet}!{cell}")
         return cls(
             sheet=sheet,
             cell=cell,
-            label=str(data.get("label") or f"{sheet}!{cell}"),
+            label=label,
+            semantic_id=semantic_id,
+            description=str(data.get("description") or label),
+            evidence_rule=str(data.get("evidence_rule") or "direct_pdf"),
             value_kind=str(data.get("value_kind") or "text"),
             required=bool(data.get("required", True)),
             manual_reason=str(data["manual_reason"]) if data.get("manual_reason") else None,
+            value_pattern=value_pattern,
         )
+
+    def validate_raw_value(self, raw_value: str) -> None:
+        if self.value_pattern and not re.fullmatch(
+            self.value_pattern,
+            raw_value.strip(),
+        ):
+            raise ValueError(
+                f"Значение не соответствует смыслу поля {self.label}: "
+                f"{self.sheet}!{self.cell}"
+            )
 
 
 @dataclass(frozen=True)
@@ -147,6 +178,9 @@ class SelectedTemplateContract:
                 "sheet": field.sheet,
                 "cell": field.cell,
                 "label": field.label,
+                "semantic_id": field.semantic_id,
+                "description": field.description,
+                "evidence_rule": field.evidence_rule,
                 "value_kind": field.value_kind,
             }
             for field in self.fields
@@ -357,6 +391,7 @@ class SelectedTemplateGenerator:
 
     @staticmethod
     def _typed_value(field: TemplateField, raw_value: str) -> str | int | float:
+        field.validate_raw_value(raw_value)
         if field.value_kind == "text":
             return raw_value
         if field.value_kind == "date":
@@ -693,6 +728,21 @@ def validate_selected_template_output(
                 artifact=output.name,
             )
         )
+    unsafe_blank_formulas = int(
+        contract.structural_findings.get("unsafe_blank_formula_count", 0)
+    )
+    if unsafe_blank_formulas:
+        issues.append(
+            ValidationIssue(
+                code="TEMPLATE_FALSE_BLANK_FORMULAS",
+                severity="error",
+                message=(
+                    "В кандидате остались формулы, которые превращают пустые "
+                    f"исходные ячейки в ложный ноль или текст: {unsafe_blank_formulas}"
+                ),
+                artifact=output.name,
+            )
+        )
     remaining_sensitive = int(
         contract.structural_findings.get("remaining_sensitive_value_count", 0)
     )
@@ -725,10 +775,13 @@ def validate_selected_template_output(
         )
     formula_differences = int(
         contract.structural_findings.get(
-            "candidate_vs_etalon_formula_differences",
+            "unreviewed_formula_difference_count",
             contract.structural_findings.get(
-                "source_vs_etalon_formula_differences",
-                contract.structural_findings.get("formula_differences", 0),
+                "candidate_vs_etalon_formula_differences",
+                contract.structural_findings.get(
+                    "source_vs_etalon_formula_differences",
+                    contract.structural_findings.get("formula_differences", 0),
+                ),
             ),
         )
     )

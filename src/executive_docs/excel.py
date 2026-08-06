@@ -301,6 +301,53 @@ class OOXMLWorkbook:
         etree.SubElement(cell, f"{{{MAIN_NS}}}f").text = formula.removeprefix("=")
         self._save_sheet_root(sheet_name, root)
 
+    def guard_blank_formula_results(self) -> int:
+        """Keep simple links and concatenations blank while all inputs are blank.
+
+        Excel renders a direct reference to an empty cell as numeric zero.  It
+        also renders ``CONCATENATE`` formulas made only from empty cells as
+        punctuation and spaces.  Both results are misleading in a cleaned
+        discovery template, so wrap only those two mechanically recognisable
+        formula classes without changing their non-blank result.
+        """
+
+        direct_reference = re.compile(
+            r"^\s*(?P<reference>"
+            r"(?:(?:'(?:''|[^'])+'|[A-Za-z_\u0400-\u04FF][^'!\[\]]*)!)?"
+            r"\$?[A-Z]{1,3}\$?[1-9][0-9]*"
+            r")\s*$"
+        )
+        cell_reference = re.compile(
+            r"(?:(?:'(?:''|[^'])+'|[A-Za-z_\u0400-\u04FF][^'!\[\],()]*)!)?"
+            r"\$?[A-Z]{1,3}\$?[1-9][0-9]*"
+        )
+        changed = 0
+        for sheet_name in self.sheet_parts:
+            root = self._sheet_root(sheet_name)
+            changed_sheet = False
+            for formula in root.iter(f"{{{MAIN_NS}}}f"):
+                text = formula.text or ""
+                if not text or text.lstrip().upper().startswith("IF("):
+                    continue
+                direct = direct_reference.fullmatch(text)
+                if direct:
+                    reference = direct.group("reference")
+                    formula.text = f'IF({reference}="","",{reference})'
+                elif text.lstrip().upper().startswith("CONCATENATE("):
+                    references = list(dict.fromkeys(cell_reference.findall(text)))
+                    if not references:
+                        continue
+                    formula.text = (
+                        f'IF(COUNTA({",".join(references)})=0,"",{text.strip()})'
+                    )
+                else:
+                    continue
+                changed += 1
+                changed_sheet = True
+            if changed_sheet:
+                self._save_sheet_root(sheet_name, root)
+        return changed
+
     def localize_external_sheet_references(self, sheet_names: list[str]) -> int:
         """Point formulas like '[1]Sheet'!A1 at an identically named local sheet."""
 

@@ -327,3 +327,32 @@ def test_ooxml_clear_fill_colors_preserves_formula_and_print_structure(tmp_path:
         (item["name"], item["print_area"], item["page_orientation"], item["paper_size"], item["merged"])
         for item in after["sheets"]
     ]
+
+
+def test_ooxml_guard_blank_formula_results_wraps_only_safe_formula_classes(
+    tmp_path: Path,
+) -> None:
+    source = tmp_path / "source.xlsx"
+    destination = tmp_path / "guarded.xlsx"
+    workbook = openpyxl.Workbook()
+    sheet = workbook.active
+    sheet.title = "Данные"
+    sheet["C1"] = "=B1"
+    sheet["C2"] = '=CONCATENATE(B1," - ",B2)'
+    sheet["C3"] = "=B1+1"
+    workbook.save(source)
+    workbook.close()
+
+    package = OOXMLWorkbook(source)
+    assert package.guard_blank_formula_results() == 2
+    package.save(destination)
+
+    guarded = openpyxl.load_workbook(destination, data_only=False)
+    try:
+        assert guarded["Данные"]["C1"].value == '=IF(B1="","",B1)'
+        assert guarded["Данные"]["C2"].value == (
+            '=IF(COUNTA(B1,B2)=0,"",CONCATENATE(B1," - ",B2))'
+        )
+        assert guarded["Данные"]["C3"].value == "=B1+1"
+    finally:
+        guarded.close()

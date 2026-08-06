@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import io
+import re
 import zipfile
 from pathlib import Path
 
@@ -651,7 +652,12 @@ def test_real_candidates_are_discovery_only_and_do_not_retain_known_project_valu
     for contract in catalog.list():
         assert contract.status == "DISCOVERY_REVIEW_REQUIRED"
         assert contract.approved is False
-        assert contract.structural_findings["target_derivation"] == "source_only_discovery"
+        expected_derivation = (
+            "source_structure_plus_reviewed_aosr_overrides"
+            if contract.template_id == "aosr_vl"
+            else "source_only_discovery"
+        )
+        assert contract.structural_findings["target_derivation"] == expected_derivation
         assert contract.structural_findings["remaining_sensitive_value_count"] == 0
         assert contract.structural_findings["candidate_external_links"] == 0
         assert contract.structural_findings["package_forbidden_token_count"] == 0
@@ -776,8 +782,55 @@ def test_real_candidates_are_discovery_only_and_do_not_retain_known_project_valu
             == "Самонесущий изолированный повод"
         )
         assert ("данные строй", "B2") not in aosr.field_map
+        assert not [
+            field
+            for field in aosr.fields
+            if field.sheet == "Данные организации"
+        ]
+        assert len(aosr.model_fields()) >= 20
+        assert aosr.field_map[("Данные объект", "B2")].semantic_id == (
+            "project.sap_number"
+        )
+        assert aosr.field_map[("Данные объект", "B43")].semantic_id == (
+            "project.design_document_code"
+        )
+        assert aosr_workbook["АОСР-2"]["P63"].value is None
+        assert aosr_workbook["АОСР-3"]["X62"].value is None
+        assert aosr_workbook["АОСР-4"]["H69"].value is None
+        assert aosr_workbook["АОСР-6"]["H69"].value is None
+        assert aosr_workbook["АОСР-7"]["H69"].value is None
+        for coordinate in (
+            ("АОСР-2", "P63"),
+            ("АОСР-3", "T62"),
+            ("АОСР-3", "X62"),
+            ("АОСР-4", "H69"),
+            ("АОСР-6", "H69"),
+            ("АОСР-7", "H69"),
+        ):
+            assert coordinate in aosr.field_map
+            assert not aosr.field_map[coordinate].manual_reason
+        assert aosr_workbook["АОСР-1"]["O63"].value.startswith("=IF(")
+        formulas = [
+            str(cell.value)
+            for worksheet in aosr_workbook.worksheets
+            for row in worksheet.iter_rows()
+            for cell in row
+            if cell.data_type == "f"
+        ]
+        assert not any("#REF!" in formula.upper() for formula in formulas)
+        assert not any(re.search(r"\[[1-9][0-9]*\]", formula) for formula in formulas)
     finally:
         aosr_workbook.close()
+
+    assert aosr.structural_findings["formula_errors_observed"] == 0
+    assert aosr.structural_findings["raw_ref_error_count"] == 0
+    assert aosr.structural_findings["remaining_external_formula_reference_count"] == 0
+    assert aosr.structural_findings["unsafe_blank_formula_count"] == 0
+    with pytest.raises(ValueError, match="смыслу поля"):
+        SelectedTemplateGenerator._typed_value(
+            aosr.field_map[("Данные объект", "B2")],
+            "5557-354783-68-03/26",
+        )
 
 
 def test_real_ojr_draft_changes_only_warning_fills(tmp_path: Path) -> None:
@@ -813,6 +866,31 @@ def test_real_ojr_draft_changes_only_warning_fills(tmp_path: Path) -> None:
         }
     ]
     assert not [issue for issue in issues if issue.severity == "error"]
+
+
+def test_real_aosr_vl_candidate_is_technically_clean(tmp_path: Path) -> None:
+    catalog = TemplateCatalog(
+        ROOT,
+        ROOT / "templates" / "fill-contracts",
+        ROOT / "templates" / "approved",
+    )
+    contract = catalog.get("aosr_vl")
+    output, unresolved = SelectedTemplateGenerator(catalog).generate(
+        contract,
+        [],
+        tmp_path,
+    )
+
+    issues = validate_selected_template_output(
+        output,
+        catalog.candidate_path(contract),
+        contract,
+        [],
+        unresolved,
+    )
+
+    assert not [issue for issue in issues if issue.severity == "error"]
+    assert {issue.code for issue in issues} == {"TEMPLATE_NOT_APPROVED"}
 
 
 def test_selected_validator_rejects_visibility_and_row_structure_changes(

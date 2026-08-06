@@ -173,6 +173,7 @@ uv run python scripts/run_project1_blind.py --mode heuristic --profile balanced 
 ```bash
 uv run python scripts/register_selected_templates.py
 uv run python scripts/register_selected_templates.py --check
+uv run python scripts/register_selected_templates.py --template-id aosr_vl
 ```
 
 Первая команда заново создаёт очищенные discovery-кандидаты в
@@ -195,12 +196,14 @@ Whitelist, подписи, типы и признак ручного поля в
 проверить специалист, поэтому они создают только помеченный черновик и не могут
 перейти в финальный выпуск.
 
-Текущий discovery-контракт фиксирует координату, подпись, тип значения,
-обязательность и признак ручного подтверждения. До статуса `APPROVED` специалист
-должен дополнить его стабильными смысловыми ID, правилами повторяемых диапазонов
-и ожидаемыми параметрами видимости/рендера. Отсутствие этих сведений не мешает
-получить проверочный черновик, но является отдельной причиной не считать
-кандидат production-шаблоном.
+Discovery-контракт фиксирует координату, подпись, тип значения, обязательность,
+правило доказательства и признак ручного подтверждения. Кандидат `aosr_vl`
+версии `2026-08-05-discovery-3` дополнительно содержит стабильные смысловые ID
+для всех 28 модельных полей, отделяет 73 cleanup-only ячейки от 65 целей и
+использует формулы, сохраняющие пустое значение вместо ложного нуля. Остальные
+кандидаты ещё должны получить смысловые ID, правила повторяемых диапазонов и
+ожидаемые параметры видимости/рендера. Техническая чистота не делает кандидата
+автоматически утверждённым production-шаблоном.
 
 `ETALON/` используется только отдельным регрессионным контуром. Текущий
 регистрационный скрипт сравнивает уже подготовленный кандидат с соответствующей
@@ -283,6 +286,13 @@ uv run pytest
 uv run python scripts/smoke_render.py
 uv run python /Users/step/.codex/skills/.system/skill-creator/scripts/quick_validate.py agent-skill/prepare-executive-docs
 uv run python scripts/register_selected_templates.py --check
+```
+
+Один синхронный selected-template прогон для локальной регрессии запускается
+отдельно (режим `openai` платный и отправляет указанный PDF в OpenAI):
+
+```bash
+uv run python scripts/run_selected_template.py input.pdf --template-id aosr_vl --profile quality
 ```
 
 Последняя команда должна завершаться успешно и подтверждать, что кандидаты и

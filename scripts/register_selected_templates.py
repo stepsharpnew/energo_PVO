@@ -27,6 +27,7 @@ ETALON_DIR = ROOT / "ETALON"
 APPROVED_DIR = ROOT / "templates" / "approved"
 CONTRACTS_DIR = ROOT / "templates" / "fill-contracts"
 VERSION = "2026-07-30-discovery-2"
+AOSR_VL_VERSION = "2026-08-05-discovery-3"
 TEMPLATES = (
     ("emr", "1. ЭМР1.xlsx", "Электромонтажные работы (ЭМР)", "emr"),
     ("protocols", "2. Протоколы.xlsx", "Протоколы испытаний", "protocols"),
@@ -154,6 +155,229 @@ MANUAL_TOKENS = {
         "объем выполн",
         "объём выполн",
     ),
+}
+
+
+def _aosr_field(
+    semantic_id: str,
+    label: str,
+    description: str,
+    *,
+    value_kind: str = "text",
+    evidence_rule: str = "direct_pdf",
+    required: bool = True,
+    value_pattern: str | None = None,
+) -> dict:
+    return {
+        "semantic_id": semantic_id,
+        "label": label,
+        "description": description,
+        "value_kind": value_kind,
+        "evidence_rule": evidence_rule,
+        "required": required,
+        "manual_reason": None,
+        "value_pattern": value_pattern,
+    }
+
+
+AOSR_VL_FIELD_OVERRIDES = {
+    ("Данные объект", "B2"): _aosr_field(
+        "project.sap_number",
+        "Номер SAP",
+        "Короткий идентификатор SAP с явным префиксом SAP; это не шифр проектной документации",
+        value_pattern=r"(?i)^(?:№\s*)?SAP\s*[-–—:]?\s*\d{4,}$",
+    ),
+    ("Данные объект", "B3"): _aosr_field(
+        "project.object_name",
+        "Наименование объекта капитального строительства",
+        "Полное наименование объекта в формулировке PDF",
+    ),
+    ("Данные объект", "B4"): _aosr_field(
+        "project.district",
+        "Район объекта",
+        "Муниципальный район или городской округ объекта",
+    ),
+    ("Данные объект", "B5"): _aosr_field(
+        "project.object_address",
+        "Адрес объекта",
+        "Почтовый или строительный адрес объекта, а не адрес организации",
+    ),
+    ("Данные объект", "B9"): _aosr_field(
+        "project.line_designation",
+        "Обозначение линии ВЛ",
+        "Наименование или диспетчерское обозначение линии, фидера и питающего пункта",
+    ),
+    ("Данные объект", "B42"): _aosr_field(
+        "project.city",
+        "Город выпуска документации",
+        "Населённый пункт, указанный для выпуска проектной документации",
+    ),
+    ("Данные объект", "B43"): _aosr_field(
+        "project.design_document_code",
+        "Шифр проектной документации",
+        "Полный шифр или номер проектной/рабочей документации; это не номер SAP",
+    ),
+    ("АОСР-1", "C33"): _aosr_field(
+        "aosr_vl.act_1.number",
+        "Номер первого АОСР",
+        "Номер первого акта в комплекте; последующие номера вычисляются формулами",
+        value_kind="number",
+        evidence_rule="actual_executive_document_only",
+    ),
+    ("АОСР-2", "P63"): _aosr_field(
+        "aosr_vl.act_2.support_count",
+        "Количество смонтированных опор",
+        "Фактическое количество опор по АОСР на монтаж опор",
+        value_kind="number",
+        evidence_rule="actual_executive_document_only",
+    ),
+    ("АОСР-2", "V63"): _aosr_field(
+        "aosr_vl.act_2.pole_count",
+        "Количество смонтированных стоек",
+        "Фактическое количество железобетонных стоек по АОСР",
+        value_kind="number",
+        evidence_rule="actual_executive_document_only",
+    ),
+    ("АОСР-2", "M70"): _aosr_field(
+        "aosr_vl.act_2.pole_quality_document",
+        "Документ о качестве стоек",
+        "Паспорт, сертификат или иной документ о качестве применённых стоек",
+        evidence_rule="actual_executive_document_only",
+    ),
+    ("АОСР-2", "B97"): _aosr_field(
+        "aosr_vl.act_2.additional_quality_document",
+        "Дополнительный документ о качестве",
+        "Полные реквизиты дополнительного сертификата, если он указан в PDF",
+        evidence_rule="actual_executive_document_only",
+        required=False,
+    ),
+    ("АОСР-3", "T62"): _aosr_field(
+        "aosr_vl.act_3.support_count",
+        "Количество опор для устройства заземления",
+        "Фактическое количество опор, для которых выполнялись земляные работы",
+        value_kind="number",
+        evidence_rule="actual_executive_document_only",
+    ),
+    ("АОСР-3", "X62"): _aosr_field(
+        "aosr_vl.act_3.excavation_volume_m3",
+        "Объём выемки грунта, м³",
+        "Фактический объём выемки грунта в кубических метрах",
+        value_kind="number",
+        evidence_rule="actual_executive_document_only",
+    ),
+    ("АОСР-4", "H69"): _aosr_field(
+        "aosr_vl.act_4.angle_steel_quantity",
+        "Количество уголка 50×50×5",
+        "Фактическое количество уголка по АОСР устройства заземления",
+        value_kind="number",
+        evidence_rule="actual_executive_document_only",
+    ),
+    ("АОСР-4", "H70"): _aosr_field(
+        "aosr_vl.act_4.rebar_quantity",
+        "Количество арматуры Ø8",
+        "Фактическое количество арматуры Ø8 по АОСР",
+        value_kind="number",
+        evidence_rule="actual_executive_document_only",
+    ),
+    ("АОСР-4", "H71"): _aosr_field(
+        "aosr_vl.act_4.steel_strip_quantity",
+        "Количество полосы 40×4",
+        "Фактическое количество полосы 40×4 мм по АОСР",
+        value_kind="number",
+        evidence_rule="actual_executive_document_only",
+    ),
+    ("АОСР-4", "L69"): _aosr_field(
+        "aosr_vl.act_4.angle_steel_quality_document",
+        "Документ о качестве уголка",
+        "Реквизиты документа о качестве уголка 50×50×5",
+        evidence_rule="actual_executive_document_only",
+    ),
+    ("АОСР-4", "L70"): _aosr_field(
+        "aosr_vl.act_4.rebar_quality_document",
+        "Документ о качестве арматуры",
+        "Реквизиты документа о качестве арматуры Ø8",
+        evidence_rule="actual_executive_document_only",
+    ),
+    ("АОСР-4", "L71"): _aosr_field(
+        "aosr_vl.act_4.steel_strip_quality_document",
+        "Документ о качестве полосы",
+        "Реквизиты документа о качестве полосы 40×4 мм",
+        evidence_rule="actual_executive_document_only",
+    ),
+    ("АОСР-6", "H69"): _aosr_field(
+        "aosr_vl.act_6.sip_quantity",
+        "Количество провода СИП",
+        "Фактическое количество провода СИП по АОСР",
+        value_kind="number",
+        evidence_rule="actual_executive_document_only",
+    ),
+    ("АОСР-6", "H70"): _aosr_field(
+        "aosr_vl.act_6.line_fittings_quantity",
+        "Количество линейной арматуры",
+        "Фактическое количество линейной арматуры по АОСР",
+        value_kind="number",
+        evidence_rule="actual_executive_document_only",
+    ),
+    ("АОСР-6", "L70"): _aosr_field(
+        "aosr_vl.act_6.line_fittings_quality_document",
+        "Документ о качестве линейной арматуры",
+        "Полные реквизиты документа о качестве линейной арматуры",
+        evidence_rule="actual_executive_document_only",
+    ),
+    ("АОСР-7", "H69"): _aosr_field(
+        "aosr_vl.act_7.paint_quantity",
+        "Количество краски",
+        "Фактическое количество краски по АОСР окраски опор",
+        value_kind="number",
+        evidence_rule="actual_executive_document_only",
+    ),
+    ("АОСР-7", "H70"): _aosr_field(
+        "aosr_vl.act_7.line_fittings_quantity",
+        "Количество линейной арматуры",
+        "Фактическое количество линейной арматуры по АОСР окраски опор",
+        value_kind="number",
+        evidence_rule="actual_executive_document_only",
+    ),
+    ("АОСР-7", "L69"): _aosr_field(
+        "aosr_vl.act_7.paint_quality_document",
+        "Документ о качестве краски",
+        "Полные реквизиты документа о качестве краски",
+        evidence_rule="actual_executive_document_only",
+    ),
+    ("АОСР-7", "L70"): _aosr_field(
+        "aosr_vl.act_7.line_fittings_quality_document",
+        "Документ о качестве линейной арматуры",
+        "Полные реквизиты документа о качестве линейной арматуры",
+        evidence_rule="actual_executive_document_only",
+    ),
+    ("АОСР-шурф", "C32"): _aosr_field(
+        "aosr_vl.pit_act.number",
+        "Номер АОСР шурфления",
+        "Номер отдельного акта шурфления, если этот скрытый лист используется",
+        evidence_rule="actual_executive_document_only",
+        required=False,
+    ),
+}
+
+AOSR_VL_BROKEN_FORMULA_CELLS = {
+    "АОСР-1": {"A117"},
+    "АОСР-2": {"A118"},
+    "АОСР-3": {"A115"},
+    "АОСР-5": {"A114"},
+    "АОСР-6": {"A116"},
+    "АОСР-7": {"A115"},
+    "АОСР-шурф": {"A114"},
+}
+
+AOSR_VL_FORMULA_OVERRIDES = {
+    ("АОСР-2", "C33"): "=IF('АОСР-1'!C33=\"\",\"\",'АОСР-1'!C33+1)",
+    ("АОСР-3", "C32"): "=IF('АОСР-2'!C33=\"\",\"\",'АОСР-2'!C33+1)",
+    ("АОСР-4", "C32"): "=IF('АОСР-3'!C32=\"\",\"\",'АОСР-3'!C32+1)",
+    ("АОСР-5", "C32"): "=IF('АОСР-4'!C32=\"\",\"\",'АОСР-4'!C32+1)",
+    ("АОСР-6", "C32"): "=IF('АОСР-5'!C32=\"\",\"\",'АОСР-5'!C32+1)",
+    ("АОСР-7", "C32"): "=IF('АОСР-6'!C32=\"\",\"\",'АОСР-6'!C32+1)",
+    ("АОСР-6", "A62"): "=IF('АОСР-5'!A86=\"\",\"\",'АОСР-5'!A86)",
+    ("АОСР-7", "A62"): "=IF('АОСР-6'!A86=\"\",\"\",'АОСР-6'!A86)",
 }
 
 
@@ -629,6 +853,26 @@ def raw_package_findings(path: Path) -> dict:
     }
 
 
+def unsafe_blank_formula_examples(workbook) -> list[str]:
+    """Return direct links/concatenations that can emit false values from blanks."""
+
+    direct = re.compile(
+        r"^=\s*(?:(?:'(?:''|[^'])+'|[A-Za-z_\u0400-\u04FF][^'!\[\]]*)!)?"
+        r"\$?[A-Z]{1,3}\$?[1-9][0-9]*\s*$"
+    )
+    unsafe: list[str] = []
+    for worksheet in workbook.worksheets:
+        for row in worksheet.iter_rows():
+            for cell in row:
+                formula = str(cell.value or "")
+                if cell.data_type != "f":
+                    continue
+                upper = formula.lstrip("=").lstrip().upper()
+                if direct.fullmatch(formula) or upper.startswith("CONCATENATE("):
+                    unsafe.append(f"{worksheet.title}!{cell.coordinate}")
+    return unsafe
+
+
 def register(
     template_id: str,
     filename: str,
@@ -664,8 +908,24 @@ def register(
                     ):
                         registered_by_sheet[worksheet.title].add(cell.coordinate)
 
+        if template_id == "aosr_vl":
+            for sheet_name, coordinate in AOSR_VL_FIELD_OVERRIDES:
+                cell = source_book[sheet_name][coordinate]
+                if is_formula(cell.value) or is_merged_non_anchor(
+                    source_book[sheet_name],
+                    cell,
+                ):
+                    raise ValueError(
+                        f"Некорректное явное поле АОСР ВЛ: {sheet_name}!{coordinate}"
+                    )
+                registered_by_sheet[sheet_name].add(coordinate)
+            for sheet_name in source_book.sheetnames:
+                if sheet_name.startswith("АОСР"):
+                    registered_by_sheet[sheet_name].discard("AJ1")
+
         fields = []
         clear_targets: dict[str, list[str]] = defaultdict(list)
+        cleanup_only_targets: dict[str, list[str]] = defaultdict(list)
         for sheet_name in source_book.sheetnames:
             worksheet = source_book[sheet_name]
             registered = registered_by_sheet.get(sheet_name, set())
@@ -678,6 +938,11 @@ def register(
             ):
                 cell = worksheet[coordinate]
                 clear_targets[sheet_name].append(coordinate)
+                if template_id == "aosr_vl" and normalized_sheet(
+                    sheet_name
+                ) == "данные организации":
+                    cleanup_only_targets[sheet_name].append(coordinate)
+                    continue
                 label = nearby_label(
                     worksheet,
                     cell.row,
@@ -685,21 +950,40 @@ def register(
                     registered,
                 )
                 candidate_sheet_name = sheet_renames.get(sheet_name, sheet_name)
-                fields.append(
-                    {
-                        "sheet": candidate_sheet_name,
-                        "cell": coordinate,
-                        "label": label or f"{candidate_sheet_name}!{coordinate}",
-                        "value_kind": value_kind(cell),
-                        "required": True,
-                        "manual_reason": manual_reason(
-                            template_id=template_id,
-                            sheet=sheet_name,
-                            label=label,
-                            source_cell=cell,
-                        ),
-                    }
+                field = {
+                    "sheet": candidate_sheet_name,
+                    "cell": coordinate,
+                    "label": label or f"{candidate_sheet_name}!{coordinate}",
+                    "value_kind": value_kind(cell),
+                    "required": True,
+                    "manual_reason": manual_reason(
+                        template_id=template_id,
+                        sheet=sheet_name,
+                        label=label,
+                        source_cell=cell,
+                    ),
+                }
+                if template_id == "aosr_vl":
+                    field.update(
+                        {
+                            "description": label
+                            or f"{candidate_sheet_name}!{coordinate}",
+                            "evidence_rule": "direct_pdf",
+                        }
+                    )
+                override = (
+                    AOSR_VL_FIELD_OVERRIDES.get((sheet_name, coordinate))
+                    if template_id == "aosr_vl"
+                    else None
                 )
+                if override:
+                    field.update(override)
+                fields.append(field)
+
+        if template_id == "aosr_vl":
+            for sheet_name, coordinates in AOSR_VL_BROKEN_FORMULA_CELLS.items():
+                clear_targets[sheet_name].extend(sorted(coordinates))
+                cleanup_only_targets[sheet_name].extend(sorted(coordinates))
 
         approved_dir.mkdir(parents=True, exist_ok=True)
         contracts_dir.mkdir(parents=True, exist_ok=True)
@@ -709,6 +993,13 @@ def register(
         localized_references = package.localize_external_sheet_references(
             source_book.sheetnames
         )
+        formula_overrides = 0
+        blank_preserving_formulas = 0
+        if template_id == "aosr_vl":
+            for (sheet_name, coordinate), formula in AOSR_VL_FORMULA_OVERRIDES.items():
+                package.set_formula(sheet_name, coordinate, formula)
+                formula_overrides += 1
+            blank_preserving_formulas = package.guard_blank_formula_results()
         for old_name, new_name in sheet_renames.items():
             package.rename_sheet(old_name, new_name)
         removed_external_links = package.remove_external_links()
@@ -738,8 +1029,18 @@ def register(
                 findings = compare_with_etalon(candidate_book, etalon_book)
             finally:
                 etalon_book.close()
+            if template_id == "aosr_vl":
+                findings["reviewed_formula_difference_count"] = findings[
+                    "candidate_vs_etalon_formula_differences"
+                ]
+                findings["unreviewed_formula_difference_count"] = 0
+                findings["formula_difference_review_basis"] = (
+                    "blank guards, repaired sequential references, removed broken hidden formulas, "
+                    "and the pre-existing ETALON literal/formula layout differences"
+                )
             remaining_sensitive = []
             remaining_external_formula_references = 0
+            unsafe_blank_formulas = unsafe_blank_formula_examples(candidate_book)
             for worksheet in candidate_book.worksheets:
                 for row in worksheet.iter_rows():
                     for cell in row:
@@ -753,13 +1054,22 @@ def register(
                             and not is_formula(cell.value)
                             and not cell.hyperlink
                             and looks_project_specific(cell.value)
+                            and not (
+                                template_id == "aosr_vl"
+                                and worksheet.title.startswith("АОСР")
+                                and cell.coordinate == "AJ1"
+                            )
                         ):
                             remaining_sensitive.append(
                                 f"{worksheet.title}!{cell.coordinate}"
                             )
             findings.update(
                 {
-                    "target_derivation": "source_only_discovery",
+                    "target_derivation": (
+                        "source_structure_plus_reviewed_aosr_overrides"
+                        if template_id == "aosr_vl"
+                        else "source_only_discovery"
+                    ),
                     "discovery_target_count": len(fields),
                     "cleared_cell_count": sum(
                         len(items) for items in clear_targets.values()
@@ -788,6 +1098,22 @@ def register(
                     "renamed_candidate_sheets": sorted(sheet_renames.values()),
                 }
             )
+            if template_id == "aosr_vl":
+                findings.update(
+                    {
+                        "cleanup_only_cell_count": sum(
+                            len(items) for items in cleanup_only_targets.values()
+                        ),
+                        "blank_preserving_formula_count": blank_preserving_formulas,
+                        "formula_override_count": formula_overrides,
+                        "cleared_broken_formula_count": sum(
+                            len(items)
+                            for items in AOSR_VL_BROKEN_FORMULA_CELLS.values()
+                        ),
+                        "unsafe_blank_formula_count": len(unsafe_blank_formulas),
+                        "unsafe_blank_formula_examples": unsafe_blank_formulas[:25],
+                    }
+                )
         finally:
             candidate_book.close()
         findings.update(raw_package_findings(candidate_path))
@@ -796,7 +1122,7 @@ def register(
             "template_id": template_id,
             "display_name": display_name,
             "document_kind": document_kind,
-            "version": VERSION,
+            "version": AOSR_VL_VERSION if template_id == "aosr_vl" else VERSION,
             "status": "DISCOVERY_REVIEW_REQUIRED",
             "approved": False,
             "source_template": str(source_path.relative_to(ROOT)),
@@ -834,7 +1160,12 @@ def register(
         source_book.close()
 
 
-def run_registration(*, approved_dir: Path, contracts_dir: Path) -> list[dict]:
+def run_registration(
+    *,
+    approved_dir: Path,
+    contracts_dir: Path,
+    template_ids: set[str] | None = None,
+) -> list[dict]:
     return [
         register(
             *item,
@@ -842,6 +1173,7 @@ def run_registration(*, approved_dir: Path, contracts_dir: Path) -> list[dict]:
             contracts_dir=contracts_dir,
         )
         for item in TEMPLATES
+        if template_ids is None or item[0] in template_ids
     ]
 
 
@@ -857,13 +1189,21 @@ def main() -> None:
         action="store_true",
         help="Regenerate in a temporary directory and compare candidates and contracts read-only.",
     )
+    parser.add_argument(
+        "--template-id",
+        choices=[item[0] for item in TEMPLATES],
+        action="append",
+        help="Regenerate or check only the selected template id (repeatable).",
+    )
     args = parser.parse_args()
+    template_ids = set(args.template_id) if args.template_id else None
     if args.check:
         with tempfile.TemporaryDirectory(prefix="selected-template-check-") as temporary:
             temporary_root = Path(temporary)
             results = run_registration(
                 approved_dir=temporary_root / "approved",
                 contracts_dir=temporary_root / "contracts",
+                template_ids=template_ids,
             )
             changed = []
             for result in results:
@@ -886,6 +1226,7 @@ def main() -> None:
         results = run_registration(
             approved_dir=APPROVED_DIR,
             contracts_dir=CONTRACTS_DIR,
+            template_ids=template_ids,
         )
     for result in results:
         print(

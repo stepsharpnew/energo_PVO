@@ -72,6 +72,36 @@ Confirmed discovery snapshot, 2026-07-30:
 - `aosr_vl` remains blocked by six raw/formula `#REF!` findings and one formula
   that still refers to another workbook.
 
+Additional visual regression finding, 2026-08-01:
+
+- the `ojr` candidate has no formula-error token, but valid direct-reference
+  formulas render false zero values while their unresolved source cells are
+  blank. LibreOffice and artifact-tool both confirmed `№ 0` from
+  `Обложка!F23` / `Титульный лист!Q4` referencing blank
+  `Данные объект!B2`; LibreOffice also confirmed zero dates in
+  `Раздел1!D5:E7` referencing blank `Данные объект!B7:B8`;
+- treat this as a visual and semantic release blocker until the candidate uses
+  blank-preserving formulas and its contract/version/hashes are regenerated.
+  A formula-error scan alone cannot detect this class of defect.
+
+Confirmed `aosr_vl` remediation snapshot, 2026-08-05:
+
+- the old candidate exposed 126 targets but only two model-writable fields;
+  66 cleared cells belonged to the visible organization lookup sheet rather
+  than the project-facing fill contract, while hard-coded numeric quantities
+  on the AOSR sheets were not discovered at all;
+- `2026-08-05-discovery-3` separates cleanup-only cells from 65 true targets,
+  exposes 28 explicitly described and semantically identified PDF-backed
+  fields, and retains 37 profile/date/signatory fields for manual confirmation;
+- the rebuilt candidate has zero formula-error tokens, zero raw `#REF!`, zero
+  external formula references, and zero unguarded direct/concatenation formulas.
+  Its 304 formula differences against the dirty ETALON are reviewed remediation
+  changes, not values learned from ETALON;
+- a paid quality regression against a synthetic, non-sensitive PDF filled all
+  28 model-writable fields, kept all 37 server-controlled fields unresolved,
+  and produced zero technical validation errors. This is regression evidence,
+  not specialist approval of the template.
+
 These counts are reproducible corpus observations, not approval decisions or
 new semantic rules.
 
