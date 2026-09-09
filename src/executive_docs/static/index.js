@@ -35,6 +35,19 @@ const statusNames = {
 
 let activeStep = "object";
 let draftTimer = null;
+let submitting = false;
+
+function draftStorage(action, value) {
+  try {
+    if (action === "get") return localStorage.getItem(draftKey);
+    if (action === "set") localStorage.setItem(draftKey, value);
+    if (action === "remove") localStorage.removeItem(draftKey);
+    return true;
+  } catch {
+    // Private browsing and browser storage settings must not prevent a run.
+    return null;
+  }
+}
 
 function formatBytes(bytes) {
   if (!Number.isFinite(bytes) || bytes <= 0) return "0 Б";
@@ -57,7 +70,7 @@ function selectedTemplateOption() {
 function setupIsValid(showMessage = false) {
   const template = document.getElementById("template-id");
   const operator = document.getElementById("operator-name");
-  const valid = Boolean(template.value) && operator.value.trim().length > 1;
+  const valid = Boolean(template.value) && Boolean(operator.value.trim());
   if (showMessage && !valid) {
     if (!template.value) template.setCustomValidity("Выберите шаблон Excel");
     else template.setCustomValidity("");
@@ -71,13 +84,17 @@ function setupIsValid(showMessage = false) {
 function filesAreValid(showMessage = false) {
   const project = document.getElementById("project-file");
   const file = project.files[0];
-  const valid = Boolean(
-    file &&
-      /\.pdf$/i.test(file.name) &&
-      (!file.type || file.type.toLowerCase() === "application/pdf")
-  );
+  const maxBytes = window.mvpConfig?.maxFileBytes || 50 * 1024 * 1024;
+  // The server validates the signature; browsers may label a PDF as octet-stream.
+  const valid = Boolean(file && /\.pdf$/i.test(file.name) && file.size <= maxBytes);
   if (showMessage && !valid) {
-    project.setCustomValidity("Добавьте один рабочий проект в формате PDF");
+    const message = file && file.size > maxBytes
+      ? `Размер PDF превышает ${formatBytes(maxBytes)}. Выберите файл меньшего размера.`
+      : "Добавьте один рабочий проект в формате PDF";
+    const error = document.getElementById("form-error");
+    error.hidden = false;
+    error.textContent = message;
+    project.setCustomValidity(message);
     project.reportValidity();
     window.setTimeout(() => project.setCustomValidity(""), 0);
   }
@@ -137,7 +154,10 @@ function updateTemplateMeta() {
   const normalizedStatus = String(option.dataset.status || "").toUpperCase();
   const status = templateStatusNames[normalizedStatus] || option.dataset.status || "Доступен";
   const targetCount = Number(option.dataset.targetCount || 0);
-  const targets = targetCount > 0 ? ` · полей для заполнения: ${targetCount}` : "";
+  const manualCount = Number(option.dataset.manualCount || 0);
+  const targets = targetCount > 0
+    ? ` · из PDF: до ${Math.max(0, targetCount - manualCount)} полей · требуют уточнения шаблона: ${manualCount}`
+    : "";
   meta.textContent = `${status}${targets}`;
 }
 
@@ -146,10 +166,10 @@ function updateInsight() {
   const copy = document.getElementById("insight-copy");
   if (project) {
     copy.textContent =
-      "PDF выбран. Агент перенесёт подтверждённые сведения только в выбранную Excel-книгу.";
+      "PDF выбран. Расширенный черновик: синие ячейки — по проекту, не факт выполнения; жёлтые — осталось уточнить.";
   } else {
     copy.textContent =
-      "Недоступные в PDF сведения останутся пустыми и будут выделены в готовой книге.";
+      "Данные из PDF будут перенесены во все подходящие ячейки. Проектные материалы и объёмы выделяются синим, пропуски — жёлтым.";
   }
 }
 
@@ -177,8 +197,12 @@ function saveDraft() {
     operator: document.getElementById("operator-name").value,
     profile,
   };
-  localStorage.setItem(draftKey, JSON.stringify(draft));
+  const saved = draftStorage("set", JSON.stringify(draft));
   const status = document.getElementById("draft-status");
+  if (!saved) {
+    status.textContent = "Локальное сохранение отключено в браузере. Запуск доступен.";
+    return;
+  }
   status.textContent = `Черновик сохранён · ${new Date().toLocaleTimeString("ru-RU", {
     hour: "2-digit",
     minute: "2-digit",
@@ -192,7 +216,7 @@ function scheduleDraft() {
 
 function loadDraft() {
   try {
-    const draft = JSON.parse(localStorage.getItem(draftKey) || "null");
+    const draft = JSON.parse(draftStorage("get") || "null");
     if (!draft) return;
     document.getElementById("template-id").value = draft.template || "";
     document.getElementById("operator-name").value = draft.operator || "";
@@ -201,7 +225,7 @@ function loadDraft() {
     document.getElementById("draft-status").textContent =
       "Восстановлен локальный черновик. PDF нужно выбрать заново.";
   } catch {
-    localStorage.removeItem(draftKey);
+    draftStorage("remove");
   }
 }
 
@@ -292,21 +316,54 @@ form.addEventListener("change", (event) => {
   scheduleDraft();
 });
 
-form.addEventListener("submit", (event) => {
+form.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  if (submitting) return;
   const error = document.getElementById("form-error");
   if (!setupIsValid() || !filesAreValid()) {
-    event.preventDefault();
     error.hidden = false;
     error.textContent =
       "Выберите шаблон, укажите специалиста и добавьте один рабочий проект PDF.";
     showStep(setupIsValid() ? "files" : "object", { validate: false });
+    if (setupIsValid()) filesAreValid(true);
     return;
   }
   error.hidden = true;
   const submit = document.getElementById("submit-job");
+  submitting = true;
   submit.disabled = true;
   submit.textContent = "Создаём задание…";
-  localStorage.removeItem(draftKey);
+  try {
+    const response = await fetch(form.action, {
+      method: "POST",
+      headers: { Accept: "application/json" },
+      body: new FormData(form),
+    });
+    const payload = await response.json().catch(() => null);
+    if (!response.ok) {
+      const detail = typeof payload?.detail === "string" ? payload.detail : "";
+      const message = response.status === 413
+        ? "PDF превышает лимит загрузки сервера. Выберите файл меньшего размера."
+        : response.status === 422
+          ? "Не удалось принять задание. Проверьте шаблон, имя специалиста и PDF."
+          : "Не удалось загрузить PDF. Данные формы сохранены — попробуйте ещё раз.";
+      // Never place server traceback/Pydantic diagnostics into the product UI.
+      throw new Error(response.status < 500 && detail && detail.length < 300 && !/validation error|Traceback|input_value|https?:|[<>]/i.test(detail)
+        ? detail
+        : message);
+    }
+    if (!payload?.job_id) throw new Error("Сервер принял запрос, но не вернул номер задания. Проверьте последние книги перед повторным запуском.");
+    draftStorage("remove");
+    window.location.assign(`/kits/${encodeURIComponent(payload.job_id)}`);
+  } catch (failure) {
+    error.textContent = failure instanceof TypeError
+      ? "Связь с сервером прервалась. Проверьте последние книги перед повторным запуском: задание могло быть принято."
+      : failure.message;
+    error.hidden = false;
+    submit.disabled = false;
+    submit.textContent = "Запустить агента";
+    submitting = false;
+  }
 });
 
 document.querySelectorAll("[data-job-status]").forEach((item) => {

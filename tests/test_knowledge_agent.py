@@ -62,7 +62,6 @@ def test_heuristic_agent_requires_human_facts_then_builds_stable_plan(tmp_path: 
         "actual.end",
         "materials.quality_documents",
         "changes.state",
-        "customer.profile_confirmation",
     }
     assert len(first.work_items) == 7
     assert first.document_plans[0].selected_sheets == [f"АОСР-{number}" for number in range(1, 8)]
@@ -72,7 +71,6 @@ def test_heuristic_agent_requires_human_facts_then_builds_stable_plan(tmp_path: 
         "actual.end": "08.06.2026",
         "materials.quality_documents": "Сертификат № 42 от 01.05.2026",
         "changes.state": "НЕТ",
-        "customer.profile_confirmation": "Подтверждено специалистом",
     }
     for question in state.questions:
         question.answer = answers[question.field_key]

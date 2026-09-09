@@ -1,17 +1,20 @@
-# Customer profiles
+# Retired organization and customer profiles
 
-Supported operator selections:
+Status: superseded by the user-approved PDF-only policy of 2026-09-07.
 
-- `khimki`: Rosseti customer profile for the Khimki territory.
-- `solnechnogorsk`: Rosseti customer profile for the Solnechnogorsk territory.
+The reference aliases `customer_khimki` and `customer_solnechnogorsk` are retained
+only so historical routing and regression records can still resolve this topic.
+They must not load organization, branch, signatory, address, legal-detail or
+authority values. Existing `profiles/` files and their approval flags are
+historical compatibility material, not inputs or prerequisites for a new run.
 
-The current repository does not yet contain expert-approved legal details, signatory names, positions, or authority periods for either profile. Therefore selecting a branch establishes routing only. Before final release, require an approved profile containing:
+Extract each requested organization field from the current uploaded PDF only.
+The source must identify the matching role and legal entity; a territory or
+branch selection cannot establish those facts. A project signatory cannot be
+reused as an AOSR signer without explicit evidence of that execution role and
+its required authority. Missing or conflicting facts remain blank with visible
+fill and `NEEDS_INPUT`. See `source_priority` for the active evidence policy.
 
-- full customer legal name and branch/unit wording;
-- postal/legal address fields required by the template;
-- representative full name and position;
-- authority document and validity period;
-- contractor organization details and its signatories;
-- effective dates and profile version.
-
-Never copy these details from an old filled workbook without explicit expert approval. Never infer the branch only from the object address.
+The economy/balanced/quality processing profiles are unrelated budget settings
+and remain available. This retirement does not approve any workbook candidate
+or alter specialist template-approval requirements.

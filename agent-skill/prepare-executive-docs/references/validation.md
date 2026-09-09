@@ -12,12 +12,30 @@ model-selected or substituted template is an error.
 
 Input checks: the uploaded source is a valid, readable, unencrypted PDF and is
 the only project evidence for selected-template v2. Uploaded XLSX files,
-completed workbooks, and anything under `ETALON/` are invalid project evidence.
+completed workbooks, including those under `ETALON/`, are invalid project
+evidence. The paired project PDF is allowed when explicitly uploaded by the operator.
+Organization/customer/signatory profiles and human answers are not
+selected-template fill evidence, regardless of approval flags. A profile's
+absence or lack of approval is not itself a blocker: validate the PDF evidence
+for the requested field instead.
 
 Technical workbook checks: valid OOXML ZIP, unchanged worksheet order and names,
 no new external links, no forbidden formula errors, no structural changes
 outside the contract, contract-correct sheet visibility, no stale project
 tokens, and successful open without repair.
+
+Assignment checks:
+
+- each value and its semantic role are supported by the uploaded PDF;
+- formatting normalization preserves meaning and every digit; do not accept
+  changed identifiers, a guessed missing digit, or an altered quantity;
+- a `value_basis="project"` assignment requires explicit target
+  `allow_project_basis: true`, matching design evidence, a visible «по проекту»
+  marker, and continued `NEEDS_INPUT`; it is never verified execution;
+- actual dates, act numbers, quality-document identifiers, execution signers
+  and authority, and measured results still require their own actual evidence;
+- reusing a fact in several registered cells is valid only when each target's
+  meaning matches; unknown mappings and conflicting values remain closed.
 
 Unresolved-field checks:
 
@@ -31,15 +49,28 @@ Unresolved-field checks:
   the contract explicitly allows them;
 - every unresolved field is present in the unresolved field register with a
   reason and blocking status;
+- omitted model records are `not_returned`, failed proposed values are
+  `rejected`, and explicitly reported absence is `missing_from_pdf`; retain
+  specific reasons and available evidence instead of labeling every blank
+  missing from the PDF;
 - any unresolved critical field produces `NEEDS_INPUT` and blocks final release.
+
+Project-basis draft checks: distinguish filled project-basis targets from blank
+unresolved targets in workbook markers and reporting. Their presence continues
+to block final release even when every writable cell has a value. Project
+marking must not turn numeric values into text or overwrite formulas. Preserve
+the source template structure and limit marker changes to the declared targets.
 
 Contract-specific semantic checks apply only to the selected document kind. For
 approved AOSR contracts they include: one work per act; every planned work
 covered once; consecutive numbering; actual dates with evidence and valid order;
 actual quantities not masquerading as project values; approved schemes for
-changes; known change state; acceptable material documents; approved
-branch/profile; consistent object and organization identifiers; and no rejected
-or conflicting critical claims.
+changes; known change state; acceptable material documents; explicit matching
+customer/contractor/designer roles and signatory authority in the PDF; consistent
+object and organization identifiers; and no rejected or conflicting critical
+claims. A designer or design signer must not be silently promoted to an
+execution role, and facts belonging to conflicting legal entities must not be
+combined into one organization block.
 
 Cross-run checks: when separate selected-template runs share a project identity,
 detect incompatible object-card values, duplicate AOSR numbers where applicable,

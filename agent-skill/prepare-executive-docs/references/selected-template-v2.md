@@ -1,8 +1,10 @@
 # Selected-template v2
 
 Status: confirmed product-flow rule. This topic controls the primary interactive
-workflow. It does not approve any workbook candidate, customer profile, signatory
-profile, or document-family semantic rule.
+workflow. The PDF-only fact-source policy was approved on 2026-09-07; the
+higher-coverage, visibly project-based draft policy was approved on 2026-09-08.
+Neither policy approves a workbook candidate or treats a draft as execution
+evidence. Factual profiles remain retired.
 
 ## Run contract
 
@@ -16,7 +18,10 @@ profile, or document-family semantic rule.
    selects, substitutes, or infers the workbook template, output filename, or
    workbook structure. The registered contract supplies the complete writable
    target whitelist; the model may assign values only to those declared targets
-   and cannot create or change the mapping.
+   and cannot create or change the mapping. Inspect all these targets, not only
+   the first matches. The same evidenced fact may populate several targets when
+   their registered meanings match; reuse its source pointer rather than
+   inventing another fact or copying into a merely similar field.
 5. A restricted generator applies admissible claims through the selected
    template contract and creates exactly one draft XLSX.
 6. A `NEEDS_INPUT` result still produces that one draft when the registered
@@ -25,8 +30,29 @@ profile, or document-family semantic rule.
 
 ## Missing and unreliable values
 
-- Write a value only when it is observed in the uploaded PDF, derived by an
-  approved rule with a rule ID, or confirmed by a named specialist.
+- Write a value only when it is supported by the current uploaded PDF. Safe
+  formatting normalization may remove differences in whitespace, quotation or
+  separator formatting and recognized equivalent abbreviations without
+  changing meaning or digits. It must not repair a guessed digit, complete an
+  identifier, merge different entities, or turn a partial quote into an
+  unsupported value. A human answer, profile, ETALON value or another project is
+  not a fill source.
+- Extract organization names, addresses and legal details when the PDF
+  explicitly establishes their matching role and legal entity. Do not require
+  an approved organization/customer/signatory profile. Preserve conflicts
+  rather than choosing the most frequent organization name.
+- Actual dates, quantities, measurements, material documents and signatory
+  authority require explicit evidence of actual execution and the matching
+  work/role. Design quantities, project-development signatures, issue dates and
+  planned schedules do not establish execution facts.
+- A project quantity, material, name or type may nevertheless prefill a draft
+  target with explicit `allow_project_basis: true`. Set
+  `value_basis="project"`, retain its PDF evidence, and visibly distinguish it
+  as «по проекту». Do not label it verified execution or clear `NEEDS_INPUT`.
+  Without that target permission, leave a design-only value blank. Actual
+  dates, act numbers, passports/certificates, signatory authority and measured
+  results never gain this permission merely because a related design fact is
+  available.
 - A missing, conflicting, ambiguous, rejected, or otherwise unreliable value
   stays blank in its semantic cell.
 - Apply the contract-defined visible fill to every unresolved writable target.
@@ -34,10 +60,17 @@ profile, or document-family semantic rule.
   copied from another workbook, or an empty-looking formula.
 - The fill is a review marker, not evidence. Record the field key, target, reason,
   and source gap in the report and return `NEEDS_INPUT` for critical fields.
+  Distinguish `not_returned` (the model omitted the target), `rejected` (a
+  proposed value failed checks), and `missing_from_pdf` (explicitly reported
+  absence of source evidence). Omission and rejection must not masquerade as
+  proof of absence. Preserve available evidence and the specific rejection.
+  Filled project-basis values remain a separate review group, not empty cells.
 - If a controlled regeneration workflow is added, it must start from the clean
   registered workbook, reapply admissible facts, and remove the fill only from
   fields that have become resolved. The current MVP does not accept follow-up
   answers after `NEEDS_INPUT`.
+- New policy and contract versions do not automatically rewrite saved runs or
+  replace their pinned contracts. Preserve historical output and evidence.
 
 ## Template status
 
@@ -59,69 +92,55 @@ profile, or document-family semantic rule.
   therefore cannot promote even a technically successful selected-template run
   to final output.
 
-Confirmed discovery snapshot, 2026-07-30:
+## User-approved PDF-only policy, 2026-09-07
 
-- all five registered candidates have `candidate_external_links: 0` and
-  `package_forbidden_token_count: 0`; external-link cache parts, unreferenced
-  shared strings, custom XML, and prior document-author metadata are removed
-  during deterministic registration;
-- `ojr` and `protocols` pass the current deterministic workbook checks but
-  remain `DISCOVERY_REVIEW_REQUIRED`;
-- `emr` remains blocked by 20 raw/formula `#REF!` findings;
-- `avk` remains blocked by two formulas that still refer to other workbooks;
-- `aosr_vl` remains blocked by six raw/formula `#REF!` findings and one formula
-  that still refers to another workbook.
+The user explicitly approved abandoning organization/customer/signatory
+profiles entirely: only facts found in the current uploaded document may be
+filled. This is the approved product source policy, replacing the audit's
+earlier unapproved proposal and all previous profile prerequisites. It is not
+approval of the candidate templates or a license to invent missing data.
 
-Additional visual regression finding, 2026-08-01:
-
-- the `ojr` candidate has no formula-error token, but valid direct-reference
-  formulas render false zero values while their unresolved source cells are
-  blank. LibreOffice and artifact-tool both confirmed `№ 0` from
-  `Обложка!F23` / `Титульный лист!Q4` referencing blank
-  `Данные объект!B2`; LibreOffice also confirmed zero dates in
-  `Раздел1!D5:E7` referencing blank `Данные объект!B7:B8`;
-- treat this as a visual and semantic release blocker until the candidate uses
-  blank-preserving formulas and its contract/version/hashes are regenerated.
-  A formula-error scan alone cannot detect this class of defect.
-
-Confirmed `aosr_vl` remediation snapshot, 2026-08-05:
-
-- the old candidate exposed 126 targets but only two model-writable fields;
-  66 cleared cells belonged to the visible organization lookup sheet rather
-  than the project-facing fill contract, while hard-coded numeric quantities
-  on the AOSR sheets were not discovered at all;
-- `2026-08-05-discovery-3` separates cleanup-only cells from 65 true targets,
-  exposes 28 explicitly described and semantically identified PDF-backed
-  fields, and retains 37 profile/date/signatory fields for manual confirmation;
-- the rebuilt candidate has zero formula-error tokens, zero raw `#REF!`, zero
-  external formula references, and zero unguarded direct/concatenation formulas.
-  Its 304 formula differences against the dirty ETALON are reviewed remediation
-  changes, not values learned from ETALON;
-- a paid quality regression against a synthetic, non-sensitive PDF filled all
-  28 model-writable fields, kept all 37 server-controlled fields unresolved,
-  and produced zero technical validation errors. This is regression evidence,
-  not specialist approval of the template.
-
-These counts are reproducible corpus observations, not approval decisions or
-new semantic rules.
-
-The current discovery contracts record coordinates, labels, value kinds,
-required flags, and manual-confirmation reasons. They do not yet provide the
-stable semantic target IDs, repeat-range rules, or declared render/visibility
-expectations required by `semantic-fields.md` for an approved production
-contract. This limitation is acceptable only while status remains
-`DISCOVERY_REVIEW_REQUIRED`.
+- Do not load profile files or create profile-derived claims, and do not ask
+  for profile approval. Processing modes economy/balanced/quality remain budget
+  settings and are unrelated to this retirement.
+- Organization, address and legal-detail fields become eligible for extraction
+  from the PDF when the contract meaning, organization role and legal entity
+  are unambiguous. A present-but-blocked field must not be reported as absent.
+- A customer branch is usable only when explicitly identified in that role by
+  the current PDF. Conflicting designer identities remain unresolved: do not
+  pick the more frequent name or combine different legal entities' details.
+- A person named as a developer, design approver or director does not thereby
+  acquire authority to sign AOSR. Actual-work dates, quantities, measurements,
+  material documents and execution signatories require their own explicit
+  documentary evidence in the PDF. The 2026-09-08 draft extension permits only
+  explicitly allowed project-basis prefills, never their promotion to actuals.
+- Preserve page-based evidence and distinguish missing, conflicting, ambiguous
+  and rejected values. Leave unresolved targets visibly blank and return
+  `NEEDS_INPUT`; the marked file remains a specialist-review draft.
+- ETALON, another project's documents, saved profiles and typed follow-up
+  answers cannot supply model-filled facts. Corpus comparison remains a
+  separate post-generation check.
 
 ## ETALON boundary
 
-`ETALON/` is a regression-only corpus paired with its recorded project PDF. Its
-workbooks are never project inputs, claim evidence, profile sources, template
+The completed workbooks in `ETALON/` are a regression-only corpus paired with
+their recorded project PDF. As explicitly requested by the operator, that PDF
+may itself be uploaded as the one project source. The workbooks are never
+project inputs, claim evidence, profile sources, template
 approval evidence, or model context. Current tooling compares a cleaned
 candidate with its ETALON counterpart during registration and records technical
 findings. It does not yet execute a blind PDF-to-draft semantic parity run.
 Future post-generation comparison may report discrepancies, formula errors,
 external links, visibility differences, and stale values as findings, but must
 never learn an apparent ETALON defect as a mapping or exception.
+
+## Offline corpus findings
+
+Corpus-specific observations are routed separately through
+`selected_template_findings` and `project2_findings` in `references/index.yaml`.
+Never load those topics into a paid analysis or document-filling model context,
+even when the uploaded PDF belongs to the recorded corpus. The model must
+rediscover facts from that run's actual PDF rather than from historical notes.
 
 ## Legacy corpora
 

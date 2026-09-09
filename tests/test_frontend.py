@@ -1,4 +1,8 @@
 from pathlib import Path
+import shutil
+import subprocess
+
+import pytest
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from lxml import html as html_parser
@@ -15,6 +19,20 @@ def environment() -> Environment:
         loader=FileSystemLoader(TEMPLATES),
         autoescape=select_autoescape(("html",)),
     )
+
+
+def test_frontend_submission_and_polling_recover_from_failures() -> None:
+    node = shutil.which("node")
+    if node is None:
+        pytest.skip("Node.js is required for browser-script runtime checks")
+    result = subprocess.run(
+        [node, str(ROOT / "tests" / "frontend_runtime.cjs")],
+        capture_output=True,
+        text=True,
+        check=False,
+        timeout=20,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
 
 
 def test_index_wizard_renders_required_inputs_and_steps() -> None:

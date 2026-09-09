@@ -17,6 +17,7 @@ from .usage import PRICING_SNAPSHOT_DATE, job_estimated_cost
 
 UNRESOLVED_CATEGORY_LABELS = {
     "missing_from_pdf": "Нет подтверждения в PDF",
+    "not_returned": "Модель не вернула значение; отсутствие не установлено",
     "manual_confirmation": "Требуется ручное подтверждение",
     "conflict": "В PDF найдены противоречащие значения",
     "ambiguous": "Значение в PDF неоднозначно",
@@ -140,6 +141,9 @@ def write_report(state: ProjectState, job_root: Path) -> tuple[Path, Path, Path]
                 "estimated_cost_usd": job_estimated_cost(state),
                 "pricing_snapshot_date": PRICING_SNAPSHOT_DATE,
                 "claims": [item.model_dump(mode="json") for item in state.claims],
+                "template_assignments": [
+                    item.model_dump(mode="json") for item in state.template_assignments
+                ],
                 "unresolved_template_cells": [
                     item.model_dump(mode="json")
                     for item in state.unresolved_template_cells
@@ -162,6 +166,13 @@ def write_report(state: ProjectState, job_root: Path) -> tuple[Path, Path, Path]
         f"<tr><td>{html.escape(item.key)}</td><td>{html.escape(item.normalized_value)}</td><td>{html.escape(item.locator)}</td></tr>"
         for item in state.claims
     )
+    if state.selected_template_id:
+        claim_rows = "".join(
+            f"<tr><td>{html.escape(item.sheet)}!{html.escape(item.cell)}</td>"
+            f"<td>{html.escape(item.value)}{' — по проекту, не факт выполнения' if item.value_basis == 'project' else ''}</td>"
+            f"<td>{html.escape(item.locator)}: {html.escape(item.evidence_fragment)}</td></tr>"
+            for item in state.template_assignments
+        )
     usage_rows = "".join(
         f"<tr><td>{html.escape(item.stage)}</td><td>{html.escape(item.model)}</td><td>{item.input_tokens}</td><td>{item.cached_tokens}</td><td>{item.output_tokens}</td><td>{item.estimated_cost_usd if item.estimated_cost_usd is not None else 'нет тарифа'}</td></tr>"
         for item in state.model_usage

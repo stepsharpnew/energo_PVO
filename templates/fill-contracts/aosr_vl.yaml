@@ -1,7 +1,7 @@
 template_id: aosr_vl
 display_name: АОСР воздушной линии
 document_kind: aosr_vl
-version: 2026-08-05-discovery-3
+version: 2026-09-08-discovery-6
 status: DISCOVERY_REVIEW_REQUIRED
 approved: false
 source_template: NEW_TEMPLATES/Attachments_vku@e-systems-4/8. АОСР ВЛ1.xlsx
@@ -26,7 +26,10 @@ structural_findings:
   unreviewed_formula_difference_count: 0
   formula_difference_review_basis: blank guards, repaired sequential references, removed broken hidden formulas, and the pre-existing
     ETALON literal/formula layout differences
-  target_derivation: source_structure_plus_reviewed_aosr_overrides
+  target_derivation: source_structure_plus_reviewed_aosr_and_pdf_role_overrides
+  value_source_policy: uploaded_pdf_only
+  project_basis_target_count: 11
+  reviewed_material_target_count: 0
   discovery_target_count: 65
   cleared_cell_count: 138
   localized_external_formula_references: 0
@@ -63,6 +66,7 @@ fields:
   evidence_rule: direct_pdf
   semantic_id: project.sap_number
   value_pattern: (?i)^(?:№\s*)?SAP\s*[-–—:]?\s*\d{4,}$
+  allow_project_basis: false
 - sheet: Данные объект
   cell: B3
   label: Наименование объекта капитального строительства
@@ -73,6 +77,7 @@ fields:
   evidence_rule: direct_pdf
   semantic_id: project.object_name
   value_pattern: null
+  allow_project_basis: false
 - sheet: Данные объект
   cell: B4
   label: Район объекта
@@ -83,6 +88,7 @@ fields:
   evidence_rule: direct_pdf
   semantic_id: project.district
   value_pattern: null
+  allow_project_basis: false
 - sheet: Данные объект
   cell: B5
   label: Адрес объекта
@@ -93,22 +99,31 @@ fields:
   evidence_rule: direct_pdf
   semantic_id: project.object_address
   value_pattern: null
+  allow_project_basis: false
 - sheet: Данные объект
   cell: B6
-  label: Дата старт · Адрес
+  label: Фактическая дата начала работ
   value_kind: date
   required: true
-  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
-  description: Дата старт · Адрес
-  evidence_rule: direct_pdf
+  manual_reason: null
+  description: Фактическая дата начала работ по записи о выполненных работах в загруженном PDF. Не использовать проектный
+    график, дату договора, выпуска проекта или электронной подписи.
+  evidence_rule: actual_executive_document_only
+  semantic_id: actual.start
+  value_pattern: null
+  allow_project_basis: false
 - sheet: Данные объект
   cell: B7
-  label: Дата финиш · Дата старт
+  label: Фактическая дата окончания работ
   value_kind: date
   required: true
-  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
-  description: Дата финиш · Дата старт
-  evidence_rule: direct_pdf
+  manual_reason: null
+  description: Фактическая дата окончания работ по записи о выполненных работах в загруженном PDF. Не использовать проектный
+    график, дату договора, выпуска проекта или электронной подписи.
+  evidence_rule: actual_executive_document_only
+  semantic_id: actual.end
+  value_pattern: null
+  allow_project_basis: false
 - sheet: Данные объект
   cell: B9
   label: Обозначение линии ВЛ
@@ -119,36 +134,55 @@ fields:
   evidence_rule: direct_pdf
   semantic_id: project.line_designation
   value_pattern: null
+  allow_project_basis: false
 - sheet: Данные объект
   cell: B11
-  label: Организация · Монтажная организация
+  label: 'Монтажная организация (лицо, осуществляющее строительство): организация'
   value_kind: text
   required: true
-  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
-  description: Организация · Монтажная организация
-  evidence_rule: direct_pdf
+  manual_reason: null
+  description: 'Монтажная организация (лицо, осуществляющее строительство): организация. Только из текущего PDF, с явной связью
+    юридического лица с этой ролью в данном проекте. Для реквизитов/адреса подтвердить принадлежность той же организации;
+    при необходимости сослаться также на страницу с её ролью. Логотип, общая фамилия директора или адрес объекта не подтверждают
+    роль. При противоречащих организациях для одной роли оставить пустым и показать обе версии.'
+  evidence_rule: organization_role_pdf
+  semantic_id: contractor.name
+  value_pattern: null
+  allow_project_basis: false
 - sheet: Данные объект
   cell: B12
-  label: Реквизиты · Организация
+  label: 'Монтажная организация (лицо, осуществляющее строительство): реквизиты'
   value_kind: text
   required: true
-  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
-  description: Реквизиты · Организация
-  evidence_rule: direct_pdf
+  manual_reason: null
+  description: 'Монтажная организация (лицо, осуществляющее строительство): реквизиты. Только из текущего PDF, с явной связью
+    юридического лица с этой ролью в данном проекте. Для реквизитов/адреса подтвердить принадлежность той же организации;
+    при необходимости сослаться также на страницу с её ролью. Логотип, общая фамилия директора или адрес объекта не подтверждают
+    роль. При противоречащих организациях для одной роли оставить пустым и показать обе версии.'
+  evidence_rule: organization_role_pdf
+  semantic_id: contractor.registration
+  value_pattern: null
+  allow_project_basis: false
 - sheet: Данные объект
   cell: B13
-  label: адрес · Должность
+  label: 'Монтажная организация (лицо, осуществляющее строительство): адрес'
   value_kind: text
   required: true
-  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
-  description: адрес · Должность
-  evidence_rule: direct_pdf
+  manual_reason: null
+  description: 'Монтажная организация (лицо, осуществляющее строительство): адрес. Только из текущего PDF, с явной связью
+    юридического лица с этой ролью в данном проекте. Для реквизитов/адреса подтвердить принадлежность той же организации;
+    при необходимости сослаться также на страницу с её ролью. Логотип, общая фамилия директора или адрес объекта не подтверждают
+    роль. При противоречащих организациях для одной роли оставить пустым и показать обе версии.'
+  evidence_rule: organization_role_pdf
+  semantic_id: contractor.address
+  value_pattern: null
+  allow_project_basis: false
 - sheet: Данные объект
   cell: B14
   label: Должность · ФИО
   value_kind: text
   required: true
-  manual_reason: Подписант или основание полномочий требует утверждённого профиля
+  manual_reason: Роль или назначение этого поля карточки не определены однозначно по подписям и формулам исходного шаблона
   description: Должность · ФИО
   evidence_rule: direct_pdf
 - sheet: Данные объект
@@ -156,87 +190,141 @@ fields:
   label: ФИО · Должность
   value_kind: text
   required: true
-  manual_reason: ФИО и полномочия подписанта требуют утверждённого профиля
+  manual_reason: Роль или назначение этого поля карточки не определены однозначно по подписям и формулам исходного шаблона
   description: ФИО · Должность
   evidence_rule: direct_pdf
 - sheet: Данные объект
   cell: B16
-  label: Должность · Ф.И.О.
+  label: 'Представитель монтажной организации по строительному контролю: Должность'
   value_kind: text
   required: true
-  manual_reason: Подписант или основание полномочий требует утверждённого профиля
-  description: Должность · Ф.И.О.
-  evidence_rule: direct_pdf
+  manual_reason: null
+  description: 'Представитель монтажной организации по строительному контролю: Должность. PDF должен прямо связывать человека,
+    организацию и указанную роль на этом объекте. Разработчик чертежа, директор или автор электронной подписи не становится
+    подписантом этого документа автоматически. Для основания полномочий нужны реквизиты распорядительного документа и его
+    связь с тем же человеком/ролью; не переносить приказ другого назначения.'
+  evidence_rule: signatory_role_pdf
+  semantic_id: contractor.construction_control.position
+  value_pattern: null
+  allow_project_basis: false
 - sheet: Данные объект
   cell: B17
-  label: Ф.И.О. · Должность
+  label: 'Представитель монтажной организации по строительному контролю: Ф.И.О.'
   value_kind: text
   required: true
-  manual_reason: ФИО и полномочия подписанта требуют утверждённого профиля
-  description: Ф.И.О. · Должность
-  evidence_rule: direct_pdf
+  manual_reason: null
+  description: 'Представитель монтажной организации по строительному контролю: Ф.И.О.. PDF должен прямо связывать человека,
+    организацию и указанную роль на этом объекте. Разработчик чертежа, директор или автор электронной подписи не становится
+    подписантом этого документа автоматически. Для основания полномочий нужны реквизиты распорядительного документа и его
+    связь с тем же человеком/ролью; не переносить приказ другого назначения.'
+  evidence_rule: signatory_role_pdf
+  semantic_id: contractor.construction_control.name
+  value_pattern: null
+  allow_project_basis: false
 - sheet: Данные объект
   cell: B18
-  label: Приказ · Должность
+  label: 'Представитель монтажной организации по строительному контролю: Приказ'
   value_kind: text
   required: true
-  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
-  description: Приказ · Должность
-  evidence_rule: direct_pdf
+  manual_reason: null
+  description: 'Представитель монтажной организации по строительному контролю: Приказ. PDF должен прямо связывать человека,
+    организацию и указанную роль на этом объекте. Разработчик чертежа, директор или автор электронной подписи не становится
+    подписантом этого документа автоматически. Для основания полномочий нужны реквизиты распорядительного документа и его
+    связь с тем же человеком/ролью; не переносить приказ другого назначения.'
+  evidence_rule: authority_document_pdf
+  semantic_id: contractor.construction_control.authority
+  value_pattern: null
+  allow_project_basis: false
 - sheet: Данные объект
   cell: B19
-  label: Должность · Приказ
+  label: 'Представитель лица, осуществляющего строительство: Должность'
   value_kind: text
   required: true
-  manual_reason: Подписант или основание полномочий требует утверждённого профиля
-  description: Должность · Приказ
-  evidence_rule: direct_pdf
+  manual_reason: null
+  description: 'Представитель лица, осуществляющего строительство: Должность. PDF должен прямо связывать человека, организацию
+    и указанную роль на этом объекте. Разработчик чертежа, директор или автор электронной подписи не становится подписантом
+    этого документа автоматически. Для основания полномочий нужны реквизиты распорядительного документа и его связь с тем
+    же человеком/ролью; не переносить приказ другого назначения.'
+  evidence_rule: signatory_role_pdf
+  semantic_id: contractor.site_representative.position
+  value_pattern: null
+  allow_project_basis: false
 - sheet: Данные объект
   cell: B20
-  label: Ф.И.О. · Должность
+  label: 'Представитель лица, осуществляющего строительство: Ф.И.О.'
   value_kind: text
   required: true
-  manual_reason: ФИО и полномочия подписанта требуют утверждённого профиля
-  description: Ф.И.О. · Должность
-  evidence_rule: direct_pdf
+  manual_reason: null
+  description: 'Представитель лица, осуществляющего строительство: Ф.И.О.. PDF должен прямо связывать человека, организацию
+    и указанную роль на этом объекте. Разработчик чертежа, директор или автор электронной подписи не становится подписантом
+    этого документа автоматически. Для основания полномочий нужны реквизиты распорядительного документа и его связь с тем
+    же человеком/ролью; не переносить приказ другого назначения.'
+  evidence_rule: signatory_role_pdf
+  semantic_id: contractor.site_representative.name
+  value_pattern: null
+  allow_project_basis: false
 - sheet: Данные объект
   cell: B21
-  label: Приказ · Заказчик
+  label: 'Представитель лица, осуществляющего строительство: Приказ'
   value_kind: text
   required: true
-  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
-  description: Приказ · Заказчик
-  evidence_rule: direct_pdf
+  manual_reason: null
+  description: 'Представитель лица, осуществляющего строительство: Приказ. PDF должен прямо связывать человека, организацию
+    и указанную роль на этом объекте. Разработчик чертежа, директор или автор электронной подписи не становится подписантом
+    этого документа автоматически. Для основания полномочий нужны реквизиты распорядительного документа и его связь с тем
+    же человеком/ролью; не переносить приказ другого назначения.'
+  evidence_rule: authority_document_pdf
+  semantic_id: contractor.site_representative.authority
+  value_pattern: null
+  allow_project_basis: false
 - sheet: Данные объект
   cell: B23
-  label: Организация · Заказчик
+  label: 'Заказчик / технический заказчик: организация'
   value_kind: text
   required: true
-  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
-  description: Организация · Заказчик
-  evidence_rule: direct_pdf
+  manual_reason: null
+  description: 'Заказчик / технический заказчик: организация. Только из текущего PDF, с явной связью юридического лица с этой
+    ролью в данном проекте. Для реквизитов/адреса подтвердить принадлежность той же организации; при необходимости сослаться
+    также на страницу с её ролью. Логотип, общая фамилия директора или адрес объекта не подтверждают роль. При противоречащих
+    организациях для одной роли оставить пустым и показать обе версии.'
+  evidence_rule: organization_role_pdf
+  semantic_id: customer.name
+  value_pattern: null
+  allow_project_basis: false
 - sheet: Данные объект
   cell: B24
-  label: Реквизиты · Организация
+  label: 'Заказчик / технический заказчик: реквизиты'
   value_kind: text
   required: true
-  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
-  description: Реквизиты · Организация
-  evidence_rule: direct_pdf
+  manual_reason: null
+  description: 'Заказчик / технический заказчик: реквизиты. Только из текущего PDF, с явной связью юридического лица с этой
+    ролью в данном проекте. Для реквизитов/адреса подтвердить принадлежность той же организации; при необходимости сослаться
+    также на страницу с её ролью. Логотип, общая фамилия директора или адрес объекта не подтверждают роль. При противоречащих
+    организациях для одной роли оставить пустым и показать обе версии.'
+  evidence_rule: organization_role_pdf
+  semantic_id: customer.registration
+  value_pattern: null
+  allow_project_basis: false
 - sheet: Данные объект
   cell: B25
-  label: адрес · Должность
+  label: 'Заказчик / технический заказчик: адрес'
   value_kind: text
   required: true
-  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
-  description: адрес · Должность
-  evidence_rule: direct_pdf
+  manual_reason: null
+  description: 'Заказчик / технический заказчик: адрес. Только из текущего PDF, с явной связью юридического лица с этой ролью
+    в данном проекте. Для реквизитов/адреса подтвердить принадлежность той же организации; при необходимости сослаться также
+    на страницу с её ролью. Логотип, общая фамилия директора или адрес объекта не подтверждают роль. При противоречащих организациях
+    для одной роли оставить пустым и показать обе версии.'
+  evidence_rule: organization_role_pdf
+  semantic_id: customer.address
+  value_pattern: null
+  allow_project_basis: false
 - sheet: Данные объект
   cell: B26
   label: Должность · Ф.И.О.
   value_kind: text
   required: true
-  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
+  manual_reason: Роль или назначение этого поля карточки не определены однозначно по подписям и формулам исходного шаблона
   description: Должность · Ф.И.О.
   evidence_rule: direct_pdf
 - sheet: Данные объект
@@ -244,7 +332,7 @@ fields:
   label: Ф.И.О. · Должность
   value_kind: text
   required: true
-  manual_reason: ФИО и полномочия подписанта требуют утверждённого профиля
+  manual_reason: Роль или назначение этого поля карточки не определены однозначно по подписям и формулам исходного шаблона
   description: Ф.И.О. · Должность
   evidence_rule: direct_pdf
 - sheet: Данные объект
@@ -252,7 +340,7 @@ fields:
   label: Должность · Ф.И.О.
   value_kind: text
   required: true
-  manual_reason: Подписант или основание полномочий требует утверждённого профиля
+  manual_reason: Роль или назначение этого поля карточки не определены однозначно по подписям и формулам исходного шаблона
   description: Должность · Ф.И.О.
   evidence_rule: direct_pdf
 - sheet: Данные объект
@@ -260,7 +348,7 @@ fields:
   label: Ф.И.О. · Должность
   value_kind: text
   required: true
-  manual_reason: ФИО и полномочия подписанта требуют утверждённого профиля
+  manual_reason: Роль или назначение этого поля карточки не определены однозначно по подписям и формулам исходного шаблона
   description: Ф.И.О. · Должность
   evidence_rule: direct_pdf
 - sheet: Данные объект
@@ -268,7 +356,7 @@ fields:
   label: Должность · Ф.И.О.
   value_kind: text
   required: true
-  manual_reason: Подписант или основание полномочий требует утверждённого профиля
+  manual_reason: Роль или назначение этого поля карточки не определены однозначно по подписям и формулам исходного шаблона
   description: Должность · Ф.И.О.
   evidence_rule: direct_pdf
 - sheet: Данные объект
@@ -276,91 +364,148 @@ fields:
   label: Ф.И.О. · Должность
   value_kind: text
   required: true
-  manual_reason: ФИО и полномочия подписанта требуют утверждённого профиля
+  manual_reason: Роль или назначение этого поля карточки не определены однозначно по подписям и формулам исходного шаблона
   description: Ф.И.О. · Должность
   evidence_rule: direct_pdf
 - sheet: Данные объект
   cell: B32
-  label: Должность · Ф.И.О.
-  value_kind: text
-  required: true
-  manual_reason: Подписант или основание полномочий требует утверждённого профиля
-  description: Должность · Ф.И.О.
-  evidence_rule: direct_pdf
-- sheet: Данные объект
-  cell: B33
-  label: Ф.И.О. · Должность
-  value_kind: text
-  required: true
-  manual_reason: ФИО и полномочия подписанта требуют утверждённого профиля
-  description: Ф.И.О. · Должность
-  evidence_rule: direct_pdf
-- sheet: Данные объект
-  cell: B34
-  label: Приказ · Должность
-  value_kind: text
-  required: true
-  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
-  description: Приказ · Должность
-  evidence_rule: direct_pdf
-- sheet: Данные объект
-  cell: B35
-  label: Должность · Приказ
-  value_kind: text
-  required: true
-  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
-  description: Должность · Приказ
-  evidence_rule: direct_pdf
-- sheet: Данные объект
-  cell: B36
-  label: Ф.И.О. · Должность
-  value_kind: text
-  required: true
-  manual_reason: ФИО и полномочия подписанта требуют утверждённого профиля
-  description: Ф.И.О. · Должность
-  evidence_rule: direct_pdf
-- sheet: Данные объект
-  cell: B37
-  label: Приказ · Проект
-  value_kind: text
-  required: true
-  manual_reason: Подписант или основание полномочий требует утверждённого профиля
-  description: Приказ · Проект
-  evidence_rule: direct_pdf
-- sheet: Данные объект
-  cell: B39
-  label: Организация · Проект
-  value_kind: text
-  required: true
-  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
-  description: Организация · Проект
-  evidence_rule: direct_pdf
-- sheet: Данные объект
-  cell: B40
-  label: Реквизиты · Организация
-  value_kind: text
-  required: true
-  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
-  description: Реквизиты · Организация
-  evidence_rule: direct_pdf
-- sheet: Данные объект
-  cell: B41
-  label: адрес · Город
-  value_kind: text
-  required: true
-  manual_reason: Реквизиты, организация или ответственный специалист требуют утверждённого профиля
-  description: адрес · Город
-  evidence_rule: direct_pdf
-- sheet: Данные объект
-  cell: B42
-  label: Город выпуска документации
+  label: 'Представитель заказчика по строительному контролю: Должность'
   value_kind: text
   required: true
   manual_reason: null
-  description: Населённый пункт, указанный для выпуска проектной документации
+  description: 'Представитель заказчика по строительному контролю: Должность. PDF должен прямо связывать человека, организацию
+    и указанную роль на этом объекте. Разработчик чертежа, директор или автор электронной подписи не становится подписантом
+    этого документа автоматически. Для основания полномочий нужны реквизиты распорядительного документа и его связь с тем
+    же человеком/ролью; не переносить приказ другого назначения.'
+  evidence_rule: signatory_role_pdf
+  semantic_id: customer.construction_control.position
+  value_pattern: null
+  allow_project_basis: false
+- sheet: Данные объект
+  cell: B33
+  label: 'Представитель заказчика по строительному контролю: Ф.И.О.'
+  value_kind: text
+  required: true
+  manual_reason: null
+  description: 'Представитель заказчика по строительному контролю: Ф.И.О.. PDF должен прямо связывать человека, организацию
+    и указанную роль на этом объекте. Разработчик чертежа, директор или автор электронной подписи не становится подписантом
+    этого документа автоматически. Для основания полномочий нужны реквизиты распорядительного документа и его связь с тем
+    же человеком/ролью; не переносить приказ другого назначения.'
+  evidence_rule: signatory_role_pdf
+  semantic_id: customer.construction_control.name
+  value_pattern: null
+  allow_project_basis: false
+- sheet: Данные объект
+  cell: B34
+  label: 'Представитель заказчика по строительному контролю: Приказ'
+  value_kind: text
+  required: true
+  manual_reason: null
+  description: 'Представитель заказчика по строительному контролю: Приказ. PDF должен прямо связывать человека, организацию
+    и указанную роль на этом объекте. Разработчик чертежа, директор или автор электронной подписи не становится подписантом
+    этого документа автоматически. Для основания полномочий нужны реквизиты распорядительного документа и его связь с тем
+    же человеком/ролью; не переносить приказ другого назначения.'
+  evidence_rule: authority_document_pdf
+  semantic_id: customer.construction_control.authority
+  value_pattern: null
+  allow_project_basis: false
+- sheet: Данные объект
+  cell: B35
+  label: 'Иной представитель заказчика, участвующий в освидетельствовании: Должность'
+  value_kind: text
+  required: true
+  manual_reason: null
+  description: 'Иной представитель заказчика, участвующий в освидетельствовании: Должность. PDF должен прямо связывать человека,
+    организацию и указанную роль на этом объекте. Разработчик чертежа, директор или автор электронной подписи не становится
+    подписантом этого документа автоматически. Для основания полномочий нужны реквизиты распорядительного документа и его
+    связь с тем же человеком/ролью; не переносить приказ другого назначения.'
+  evidence_rule: signatory_role_pdf
+  semantic_id: customer.other_representative.position
+  value_pattern: null
+  allow_project_basis: false
+- sheet: Данные объект
+  cell: B36
+  label: 'Иной представитель заказчика, участвующий в освидетельствовании: Ф.И.О.'
+  value_kind: text
+  required: true
+  manual_reason: null
+  description: 'Иной представитель заказчика, участвующий в освидетельствовании: Ф.И.О.. PDF должен прямо связывать человека,
+    организацию и указанную роль на этом объекте. Разработчик чертежа, директор или автор электронной подписи не становится
+    подписантом этого документа автоматически. Для основания полномочий нужны реквизиты распорядительного документа и его
+    связь с тем же человеком/ролью; не переносить приказ другого назначения.'
+  evidence_rule: signatory_role_pdf
+  semantic_id: customer.other_representative.name
+  value_pattern: null
+  allow_project_basis: false
+- sheet: Данные объект
+  cell: B37
+  label: 'Иной представитель заказчика, участвующий в освидетельствовании: Приказ'
+  value_kind: text
+  required: true
+  manual_reason: null
+  description: 'Иной представитель заказчика, участвующий в освидетельствовании: Приказ. PDF должен прямо связывать человека,
+    организацию и указанную роль на этом объекте. Разработчик чертежа, директор или автор электронной подписи не становится
+    подписантом этого документа автоматически. Для основания полномочий нужны реквизиты распорядительного документа и его
+    связь с тем же человеком/ролью; не переносить приказ другого назначения.'
+  evidence_rule: authority_document_pdf
+  semantic_id: customer.other_representative.authority
+  value_pattern: null
+  allow_project_basis: false
+- sheet: Данные объект
+  cell: B39
+  label: 'Проектная организация (разработчик проектной документации): организация'
+  value_kind: text
+  required: true
+  manual_reason: null
+  description: 'Проектная организация (разработчик проектной документации): организация. Только из текущего PDF, с явной связью
+    юридического лица с этой ролью в данном проекте. Для реквизитов/адреса подтвердить принадлежность той же организации;
+    при необходимости сослаться также на страницу с её ролью. Логотип, общая фамилия директора или адрес объекта не подтверждают
+    роль. При противоречащих организациях для одной роли оставить пустым и показать обе версии.'
+  evidence_rule: organization_role_pdf
+  semantic_id: designer.name
+  value_pattern: null
+  allow_project_basis: false
+- sheet: Данные объект
+  cell: B40
+  label: 'Проектная организация (разработчик проектной документации): реквизиты'
+  value_kind: text
+  required: true
+  manual_reason: null
+  description: 'Проектная организация (разработчик проектной документации): реквизиты. Только из текущего PDF, с явной связью
+    юридического лица с этой ролью в данном проекте. Для реквизитов/адреса подтвердить принадлежность той же организации;
+    при необходимости сослаться также на страницу с её ролью. Логотип, общая фамилия директора или адрес объекта не подтверждают
+    роль. При противоречащих организациях для одной роли оставить пустым и показать обе версии.'
+  evidence_rule: organization_role_pdf
+  semantic_id: designer.registration
+  value_pattern: null
+  allow_project_basis: false
+- sheet: Данные объект
+  cell: B41
+  label: 'Проектная организация (разработчик проектной документации): адрес'
+  value_kind: text
+  required: true
+  manual_reason: null
+  description: 'Проектная организация (разработчик проектной документации): адрес. Только из текущего PDF, с явной связью
+    юридического лица с этой ролью в данном проекте. Для реквизитов/адреса подтвердить принадлежность той же организации;
+    при необходимости сослаться также на страницу с её ролью. Логотип, общая фамилия директора или адрес объекта не подтверждают
+    роль. При противоречащих организациях для одной роли оставить пустым и показать обе версии.'
+  evidence_rule: organization_role_pdf
+  semantic_id: designer.address
+  value_pattern: null
+  allow_project_basis: false
+- sheet: Данные объект
+  cell: B42
+  label: Город (блок «Проект»)
+  value_kind: text
+  required: true
+  manual_reason: Нужно уточнить, относится ли город к проектной организации или месту выпуска основного проекта, прежде чем
+    сопоставлять поле сведениям PDF
+  description: Подпись исходного шаблона не различает город проектной организации и место выпуска основного проекта; город
+    вложенного задания не подтверждает это поле
   evidence_rule: direct_pdf
   semantic_id: project.city
   value_pattern: null
+  allow_project_basis: false
 - sheet: Данные объект
   cell: B43
   label: Шифр проектной документации
@@ -371,12 +516,13 @@ fields:
   evidence_rule: direct_pdf
   semantic_id: project.design_document_code
   value_pattern: null
+  allow_project_basis: false
 - sheet: Данные объект
   cell: C45
   label: Название · №
   value_kind: text
   required: true
-  manual_reason: Подписант или основание полномочий требует утверждённого профиля
+  manual_reason: Роль или назначение этого поля карточки не определены однозначно по подписям и формулам исходного шаблона
   description: Название · №
   evidence_rule: direct_pdf
 - sheet: Данные объект
@@ -384,7 +530,7 @@ fields:
   label: Данные объект!C49
   value_kind: text
   required: true
-  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+  manual_reason: Роль или назначение этого поля карточки не определены однозначно по подписям и формулам исходного шаблона
   description: Данные объект!C49
   evidence_rule: direct_pdf
 - sheet: Данные объект
@@ -392,7 +538,7 @@ fields:
   label: Данные объект!C50
   value_kind: text
   required: true
-  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+  manual_reason: Роль или назначение этого поля карточки не определены однозначно по подписям и формулам исходного шаблона
   description: Данные объект!C50
   evidence_rule: direct_pdf
 - sheet: Данные объект
@@ -400,7 +546,7 @@ fields:
   label: Данные объект!C51
   value_kind: text
   required: true
-  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+  manual_reason: Роль или назначение этого поля карточки не определены однозначно по подписям и формулам исходного шаблона
   description: Данные объект!C51
   evidence_rule: direct_pdf
 - sheet: Данные объект
@@ -408,7 +554,7 @@ fields:
   label: Данные объект!C52
   value_kind: text
   required: true
-  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+  manual_reason: Роль или назначение этого поля карточки не определены однозначно по подписям и формулам исходного шаблона
   description: Данные объект!C52
   evidence_rule: direct_pdf
 - sheet: Данные объект
@@ -416,7 +562,7 @@ fields:
   label: Данные объект!C53
   value_kind: text
   required: true
-  manual_reason: Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения
+  manual_reason: Роль или назначение этого поля карточки не определены однозначно по подписям и формулам исходного шаблона
   description: Данные объект!C53
   evidence_rule: direct_pdf
 - sheet: АОСР-1
@@ -429,26 +575,35 @@ fields:
   evidence_rule: actual_executive_document_only
   semantic_id: aosr_vl.act_1.number
   value_pattern: null
+  allow_project_basis: false
 - sheet: АОСР-2
   cell: P63
   label: Количество смонтированных опор
   value_kind: number
   required: true
   manual_reason: null
-  description: Фактическое количество опор по АОСР на монтаж опор
+  description: 'Фактическое количество опор по АОСР на монтаж опор. Единица исходного шаблона: опоры (шт.). Не вписывать число
+    в другой единице и не пересчитывать неуказанный итог. Если в PDF есть только проектное количество для этой работы и того
+    же материала, разрешён черновой перенос с value_basis=project, отдельной подсветкой и проверкой специалистом. Не выдавать
+    проектное количество за выполненное. Не вычислять отсутствующие объёмы и не заменять материал похожей маркой.'
   evidence_rule: actual_executive_document_only
   semantic_id: aosr_vl.act_2.support_count
   value_pattern: null
+  allow_project_basis: true
 - sheet: АОСР-2
   cell: V63
   label: Количество смонтированных стоек
   value_kind: number
   required: true
   manual_reason: null
-  description: Фактическое количество железобетонных стоек по АОСР
+  description: 'Фактическое количество железобетонных стоек по АОСР. Единица исходного шаблона: стойки СВ 95-3 (шт.). Не вписывать
+    число в другой единице и не пересчитывать неуказанный итог. Если в PDF есть только проектное количество для этой работы
+    и того же материала, разрешён черновой перенос с value_basis=project, отдельной подсветкой и проверкой специалистом. Не
+    выдавать проектное количество за выполненное. Не вычислять отсутствующие объёмы и не заменять материал похожей маркой.'
   evidence_rule: actual_executive_document_only
   semantic_id: aosr_vl.act_2.pole_count
   value_pattern: null
+  allow_project_basis: true
 - sheet: АОСР-2
   cell: M70
   label: Документ о качестве стоек
@@ -459,6 +614,7 @@ fields:
   evidence_rule: actual_executive_document_only
   semantic_id: aosr_vl.act_2.pole_quality_document
   value_pattern: null
+  allow_project_basis: false
 - sheet: АОСР-2
   cell: B97
   label: Дополнительный документ о качестве
@@ -469,36 +625,49 @@ fields:
   evidence_rule: actual_executive_document_only
   semantic_id: aosr_vl.act_2.additional_quality_document
   value_pattern: null
+  allow_project_basis: false
 - sheet: АОСР-3
   cell: T62
   label: Количество опор для устройства заземления
   value_kind: number
   required: true
   manual_reason: null
-  description: Фактическое количество опор, для которых выполнялись земляные работы
+  description: 'Фактическое количество опор, для которых выполнялись земляные работы. Единица исходного шаблона: опоры (шт.).
+    Не вписывать число в другой единице и не пересчитывать неуказанный итог. Если в PDF есть только проектное количество для
+    этой работы и того же материала, разрешён черновой перенос с value_basis=project, отдельной подсветкой и проверкой специалистом.
+    Не выдавать проектное количество за выполненное. Не вычислять отсутствующие объёмы и не заменять материал похожей маркой.'
   evidence_rule: actual_executive_document_only
   semantic_id: aosr_vl.act_3.support_count
   value_pattern: null
+  allow_project_basis: true
 - sheet: АОСР-3
   cell: X62
   label: Объём выемки грунта, м³
   value_kind: number
   required: true
   manual_reason: null
-  description: Фактический объём выемки грунта в кубических метрах
+  description: 'Фактический объём выемки грунта в кубических метрах. Единица исходного шаблона: м³. Не вписывать число в другой
+    единице и не пересчитывать неуказанный итог. Если в PDF есть только проектное количество для этой работы и того же материала,
+    разрешён черновой перенос с value_basis=project, отдельной подсветкой и проверкой специалистом. Не выдавать проектное
+    количество за выполненное. Не вычислять отсутствующие объёмы и не заменять материал похожей маркой.'
   evidence_rule: actual_executive_document_only
   semantic_id: aosr_vl.act_3.excavation_volume_m3
   value_pattern: null
+  allow_project_basis: true
 - sheet: АОСР-4
   cell: H69
   label: Количество уголка 50×50×5
   value_kind: number
   required: true
   manual_reason: null
-  description: Фактическое количество уголка по АОСР устройства заземления
+  description: 'Фактическое количество уголка по АОСР устройства заземления. Единица исходного шаблона: м. Не вписывать число
+    в другой единице и не пересчитывать неуказанный итог. Если в PDF есть только проектное количество для этой работы и того
+    же материала, разрешён черновой перенос с value_basis=project, отдельной подсветкой и проверкой специалистом. Не выдавать
+    проектное количество за выполненное. Не вычислять отсутствующие объёмы и не заменять материал похожей маркой.'
   evidence_rule: actual_executive_document_only
   semantic_id: aosr_vl.act_4.angle_steel_quantity
   value_pattern: null
+  allow_project_basis: true
 - sheet: АОСР-4
   cell: L69
   label: Документ о качестве уголка
@@ -509,16 +678,21 @@ fields:
   evidence_rule: actual_executive_document_only
   semantic_id: aosr_vl.act_4.angle_steel_quality_document
   value_pattern: null
+  allow_project_basis: false
 - sheet: АОСР-4
   cell: H70
   label: Количество арматуры Ø8
   value_kind: number
   required: true
   manual_reason: null
-  description: Фактическое количество арматуры Ø8 по АОСР
+  description: 'Фактическое количество арматуры Ø8 по АОСР. Единица исходного шаблона: м. Не вписывать число в другой единице
+    и не пересчитывать неуказанный итог. Если в PDF есть только проектное количество для этой работы и того же материала,
+    разрешён черновой перенос с value_basis=project, отдельной подсветкой и проверкой специалистом. Не выдавать проектное
+    количество за выполненное. Не вычислять отсутствующие объёмы и не заменять материал похожей маркой.'
   evidence_rule: actual_executive_document_only
   semantic_id: aosr_vl.act_4.rebar_quantity
   value_pattern: null
+  allow_project_basis: true
 - sheet: АОСР-4
   cell: L70
   label: Документ о качестве арматуры
@@ -529,16 +703,21 @@ fields:
   evidence_rule: actual_executive_document_only
   semantic_id: aosr_vl.act_4.rebar_quality_document
   value_pattern: null
+  allow_project_basis: false
 - sheet: АОСР-4
   cell: H71
   label: Количество полосы 40×4
   value_kind: number
   required: true
   manual_reason: null
-  description: Фактическое количество полосы 40×4 мм по АОСР
+  description: 'Фактическое количество полосы 40×4 мм по АОСР. Единица исходного шаблона: м. Не вписывать число в другой единице
+    и не пересчитывать неуказанный итог. Если в PDF есть только проектное количество для этой работы и того же материала,
+    разрешён черновой перенос с value_basis=project, отдельной подсветкой и проверкой специалистом. Не выдавать проектное
+    количество за выполненное. Не вычислять отсутствующие объёмы и не заменять материал похожей маркой.'
   evidence_rule: actual_executive_document_only
   semantic_id: aosr_vl.act_4.steel_strip_quantity
   value_pattern: null
+  allow_project_basis: true
 - sheet: АОСР-4
   cell: L71
   label: Документ о качестве полосы
@@ -549,26 +728,35 @@ fields:
   evidence_rule: actual_executive_document_only
   semantic_id: aosr_vl.act_4.steel_strip_quality_document
   value_pattern: null
+  allow_project_basis: false
 - sheet: АОСР-6
   cell: H69
   label: Количество провода СИП
   value_kind: number
   required: true
   manual_reason: null
-  description: Фактическое количество провода СИП по АОСР
+  description: 'Фактическое количество провода СИП по АОСР. Единица исходного шаблона: м. Не вписывать число в другой единице
+    и не пересчитывать неуказанный итог. Если в PDF есть только проектное количество для этой работы и того же материала,
+    разрешён черновой перенос с value_basis=project, отдельной подсветкой и проверкой специалистом. Не выдавать проектное
+    количество за выполненное. Не вычислять отсутствующие объёмы и не заменять материал похожей маркой.'
   evidence_rule: actual_executive_document_only
   semantic_id: aosr_vl.act_6.sip_quantity
   value_pattern: null
+  allow_project_basis: true
 - sheet: АОСР-6
   cell: H70
   label: Количество линейной арматуры
   value_kind: number
   required: true
   manual_reason: null
-  description: Фактическое количество линейной арматуры по АОСР
+  description: 'Фактическое количество линейной арматуры по АОСР. Единица исходного шаблона: шт.. Не вписывать число в другой
+    единице и не пересчитывать неуказанный итог. Если в PDF есть только проектное количество для этой работы и того же материала,
+    разрешён черновой перенос с value_basis=project, отдельной подсветкой и проверкой специалистом. Не выдавать проектное
+    количество за выполненное. Не вычислять отсутствующие объёмы и не заменять материал похожей маркой.'
   evidence_rule: actual_executive_document_only
   semantic_id: aosr_vl.act_6.line_fittings_quantity
   value_pattern: null
+  allow_project_basis: true
 - sheet: АОСР-6
   cell: L70
   label: Документ о качестве линейной арматуры
@@ -579,16 +767,21 @@ fields:
   evidence_rule: actual_executive_document_only
   semantic_id: aosr_vl.act_6.line_fittings_quality_document
   value_pattern: null
+  allow_project_basis: false
 - sheet: АОСР-7
   cell: H69
   label: Количество краски
   value_kind: number
   required: true
   manual_reason: null
-  description: Фактическое количество краски по АОСР окраски опор
+  description: 'Фактическое количество краски по АОСР окраски опор. Единица исходного шаблона: кг. Не вписывать число в другой
+    единице и не пересчитывать неуказанный итог. Если в PDF есть только проектное количество для этой работы и того же материала,
+    разрешён черновой перенос с value_basis=project, отдельной подсветкой и проверкой специалистом. Не выдавать проектное
+    количество за выполненное. Не вычислять отсутствующие объёмы и не заменять материал похожей маркой.'
   evidence_rule: actual_executive_document_only
   semantic_id: aosr_vl.act_7.paint_quantity
   value_pattern: null
+  allow_project_basis: true
 - sheet: АОСР-7
   cell: L69
   label: Документ о качестве краски
@@ -599,16 +792,21 @@ fields:
   evidence_rule: actual_executive_document_only
   semantic_id: aosr_vl.act_7.paint_quality_document
   value_pattern: null
+  allow_project_basis: false
 - sheet: АОСР-7
   cell: H70
   label: Количество линейной арматуры
   value_kind: number
   required: true
   manual_reason: null
-  description: Фактическое количество линейной арматуры по АОСР окраски опор
+  description: 'Фактическое количество линейной арматуры по АОСР окраски опор. Единица исходного шаблона: шт.. Не вписывать
+    число в другой единице и не пересчитывать неуказанный итог. Если в PDF есть только проектное количество для этой работы
+    и того же материала, разрешён черновой перенос с value_basis=project, отдельной подсветкой и проверкой специалистом. Не
+    выдавать проектное количество за выполненное. Не вычислять отсутствующие объёмы и не заменять материал похожей маркой.'
   evidence_rule: actual_executive_document_only
   semantic_id: aosr_vl.act_7.line_fittings_quantity
   value_pattern: null
+  allow_project_basis: true
 - sheet: АОСР-7
   cell: L70
   label: Документ о качестве линейной арматуры
@@ -619,6 +817,7 @@ fields:
   evidence_rule: actual_executive_document_only
   semantic_id: aosr_vl.act_7.line_fittings_quality_document
   value_pattern: null
+  allow_project_basis: false
 - sheet: АОСР-шурф
   cell: C32
   label: Номер АОСР шурфления
@@ -629,3 +828,4 @@ fields:
   evidence_rule: actual_executive_document_only
   semantic_id: aosr_vl.pit_act.number
   value_pattern: null
+  allow_project_basis: false

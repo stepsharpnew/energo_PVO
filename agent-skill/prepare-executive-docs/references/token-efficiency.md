@@ -13,6 +13,11 @@ Optimize cost without weakening evidence requirements.
    descriptions needed for the selected run. If sheet/cell coordinates are used
    as assignment identifiers, expose only registered coordinates and reject any
    coordinate outside that whitelist.
+   Cover every relevant registered target in the final assignment set. Reuse
+   the same source-backed fact and locator across targets with matching meaning;
+   do not buy another extraction solely because the fact appears in several
+   workbook cells. Include `value_basis="project"` only where the target
+   explicitly permits a project-basis draft prefill.
 4. For the legacy KL/VRS pilot, route explicitly out-of-scope KTP, VL, GEO, GNB,
    AVK, and EMR evidence out of paid context. Do not apply that legacy filter to
    a separately registered selected-template contract whose approved scope
@@ -33,10 +38,14 @@ Optimize cost without weakening evidence requirements.
    prefixes.
 10. When replaying tool history manually, preserve all provider response items
     but restrict reusable reasoning context to the current turn when supported.
-11. Persist observed claims and extraction results immediately. If a future
-    controlled follow-up flow accepts human-confirmed answers, retry only
-    reconciliation and do not upload the unchanged PDF again. The current
-    selected-template MVP stops after the marked `NEEDS_INPUT` draft.
+11. Persist observed claims and extraction results immediately. A controlled
+    retry may reuse those PDF-backed claims only while the source SHA-256 is
+    unchanged. Human answers and saved organization profiles are not
+    selected-template fill evidence. The current selected-template MVP stops
+    after the marked `NEEDS_INPUT` draft.
+    Keep raw submissions for local validation debugging. A formatting rejection
+    alone must not trigger a paid correction loop. Such a replay must preserve
+    evidence and digits; it does not authorize silently rewriting a saved run.
 12. Count input tokens before a paid call when supported. Fail closed when exact
     counting fails unless an operator explicitly enables approximate preflight.
     Enforce per-call, whole-job, call-count, visual-page, and cost limits.
@@ -46,3 +55,7 @@ Optimize cost without weakening evidence requirements.
 14. If the budget is insufficient, stop explicitly. Never silently omit a
     required PDF page, field, validator, or final specialist review to meet a
     cost target.
+
+The economy/balanced/quality processing profiles are budget and model settings,
+not organization/customer/signatory fact profiles. Retiring factual profiles
+does not remove these processing modes.

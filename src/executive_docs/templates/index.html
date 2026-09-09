@@ -65,11 +65,12 @@
 
     <main class="wizard-main">
       <form id="job-form" action="/api/jobs" method="post" enctype="multipart/form-data" novalidate>
+        <div class="form-error" id="form-error" role="alert" hidden></div>
         <section class="wizard-panel is-active" data-step-panel="object">
           <div class="panel-heading">
             <p class="kicker">Новая книга</p>
             <h1>Выберите шаблон</h1>
-            <p>Специалист заранее определяет нужную Excel-книгу. Агент извлечёт из PDF только подтверждённые сведения и перенесёт их в выбранный шаблон.</p>
+            <p>Специалист заранее определяет нужную Excel-книгу. Агент перенесёт сведения только из загруженного PDF — без профилей организаций и данных прошлых проектов. Пропуски и противоречия останутся выделенными.</p>
           </div>
 
           <div class="object-grid">
@@ -82,6 +83,7 @@
                     value="{{ option.id }}"
                     data-status="{{ option.status }}"
                     data-target-count="{{ option.target_count }}"
+                    data-manual-count="{{ option.manual_count|default(0) }}"
                   >{{ option.display_name }}</option>
                 {% endfor %}
               </select>
@@ -137,7 +139,7 @@
 
           <div class="insight-strip" id="file-insight">
             <i class="bi bi-check-circle insight-check" aria-hidden="true"></i>
-            <span id="insight-copy">Агент заполнит только выбранный шаблон. Недоступные сведения останутся пустыми и будут выделены в Excel.</span>
+            <span id="insight-copy">Расширенный черновик: данные из PDF переносятся во все подходящие ячейки. Синие — по проекту, не факт выполнения. Жёлтые — осталось уточнить.</span>
             <button type="button" id="requirements-toggle">Что будет проверено</button>
           </div>
 
@@ -154,7 +156,7 @@
           <div class="panel-heading">
             <p class="kicker">Шаг 3 из 4</p>
             <h1>Проверьте перед запуском</h1>
-            <p>За этот запуск агент обработает один PDF и сформирует одну выбранную Excel-книгу.</p>
+            <p>За этот запуск агент обработает один PDF и сформирует одну выбранную Excel-книгу. Проектные материалы и объёмы будут выделены синим. Даты, измерения и подписи не додумываются.</p>
           </div>
 
           <div class="review-list">
@@ -176,7 +178,6 @@
             <p>Агент не придумывает отсутствующие даты, номера, паспорта и другие факты. Такие ячейки останутся пустыми и будут заметно выделены.</p>
           </div>
 
-          <div class="form-error" id="form-error" role="alert" hidden></div>
           <div class="panel-actions">
             <button class="secondary-button" type="button" data-next-step="files">Назад к PDF</button>
             <button class="primary-button is-coral" id="submit-job" type="submit">Запустить агента</button>
@@ -222,6 +223,7 @@
     window.mvpConfig = {
       model: {{ model|tojson }},
       mode: {{ agent_mode|tojson }},
+      maxFileBytes: {{ max_file_bytes|default(52428800)|tojson }},
       defaultProfile: {{ processing_profile|tojson }}
     };
   </script>

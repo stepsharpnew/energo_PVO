@@ -18,7 +18,7 @@ from .domain import Artifact
 ALLOWED_EXTENSIONS = {".pdf", ".xlsx", ".docx", ".png", ".jpg", ".jpeg", ".csv", ".txt"}
 MAX_OFFICE_UNCOMPRESSED_BYTES = 300 * 1024 * 1024
 MAX_OFFICE_COMPRESSION_RATIO = 300
-EXTRACTOR_VERSION = "2"
+EXTRACTOR_VERSION = "3"
 
 PILOT_PATTERNS = {
     "kl_04": (r"(?<![а-яa-z])кл\s*[-–—]?\s*0[,.]4", r"кабельн\w*\s+лини\w*\s+0[,.]4"),
@@ -210,6 +210,44 @@ def _segment_score(text: str, *, first: bool = False) -> int:
     return score
 
 
+def _pdf_text_reliability(text: str) -> tuple[bool, str | None]:
+    """Detect a broken or overlay-only text layer without guessing its contents."""
+    compact = re.sub(r"\s+", "", text)
+    if not compact:
+        return False, "no_text_layer"
+    invalid = sum(
+        (ord(char) < 32 and char not in "\n\r\t\f")
+        or char == "\ufffd"
+        or "\ue000" <= char <= "\uf8ff"
+        for char in text
+    )
+    if invalid >= 2 and invalid / len(compact) >= 0.005:
+        return False, "broken_font_encoding"
+    # Broken ToUnicode maps can turn Cyrillic letters into Latin Extended
+    # glyphs (e.g. "ǚтǹоитǮлȅǺтǫо") without emitting replacement characters.
+    mixed_words = sum(
+        bool(re.search(r"[А-Яа-яЁё]", word))
+        and bool(re.search(r"[\u0100-\u024f]", word))
+        for word in re.findall(r"[^\W\d_]+", text)
+    )
+    if mixed_words >= 3:
+        return False, "broken_font_encoding"
+    if len(re.findall(r"\(cid:\d+\)", text)) >= 2:
+        return False, "unmapped_font_glyphs"
+    # A scanned page can contain hundreds of perfectly readable characters
+    # belonging only to its electronic-signature overlay, not the page body.
+    without_signature = re.sub(
+        r"ДОКУМЕНТ\s+ПОДПИСАН\s+ЭЛЕКТРОННОЙ\s+ПОДПИСЬЮ"
+        r".*?Оператор\s+ЭДО[^\r\n]*(?:\r?\n|$)",
+        "",
+        text,
+        flags=re.IGNORECASE | re.DOTALL,
+    )
+    if without_signature != text and len(re.sub(r"\s+", "", without_signature)) < 80:
+        return False, "electronic_signature_overlay_only"
+    return True, None
+
+
 def _build_segments(path: Path) -> tuple[list[dict], int | None]:
     ext = path.suffix.lower()
     if ext == ".pdf":
@@ -219,6 +257,7 @@ def _build_segments(path: Path) -> tuple[list[dict], int | None]:
         segments = []
         for number, page in enumerate(reader.pages, 1):
             text = (page.extract_text() or "")[:25_000]
+            text_reliable, text_reliability_reason = _pdf_text_reliability(text)
             segments.append(
                 {
                     "locator": f"page:{number}",
@@ -226,7 +265,9 @@ def _build_segments(path: Path) -> tuple[list[dict], int | None]:
                     "sheet": None,
                     "text": text,
                     "char_count": len(text),
-                    "visual_required": len(re.sub(r"\s+", "", text)) < 80,
+                    "text_reliable": text_reliable,
+                    "text_reliability_reason": text_reliability_reason,
+                    "visual_required": not text_reliable or len(re.sub(r"\s+", "", text)) < 80,
                     "score": _segment_score(text, first=number == 1),
                 }
             )
@@ -338,7 +379,13 @@ def read_indexed_source(
             continue
         if sheet_set and segment.get("sheet") not in sheet_set:
             continue
-        selected.append(f"\n--- {segment['locator']} ---\n{segment['text']}")
+        reliability_note = (
+            "[UNRELIABLE TEXT LAYER: read the supplied page image for exact values; "
+            f"reason={segment.get('text_reliability_reason', 'unknown')}]\n"
+            if segment.get("text_reliable") is False
+            else ""
+        )
+        selected.append(f"\n--- {segment['locator']} ---\n{reliability_note}{segment['text']}")
     text = "".join(selected)
     if len(text) > max_chars:
         text = text[:max_chars] + "\n[TRUNCATED BY SOURCE BUDGET]"
@@ -369,16 +416,23 @@ def _segment_context_score(segment: dict, *, project: bool) -> int:
     return score
 
 
-def build_compact_evidence(root: Path, artifacts: list[Artifact], max_chars: int) -> list[dict]:
+def build_compact_evidence(
+    root: Path,
+    artifacts: list[Artifact],
+    max_chars: int,
+    *,
+    selected_template: bool = False,
+) -> list[dict]:
     candidates: list[tuple[int, Artifact, dict, str]] = []
     for artifact in artifacts:
-        if artifact.category == "filled_aosr":
+        selected_pdf = selected_template and Path(artifact.original_name).suffix.lower() == ".pdf"
+        if artifact.category == "filled_aosr" and not selected_pdf:
             continue
         index = source_index(root, artifact)
         scope = index.get("scope", "unknown")
-        if artifact.category == "execution_scheme" and scope in OUT_OF_SCOPE_PATTERNS:
+        if not selected_pdf and artifact.category == "execution_scheme" and scope in OUT_OF_SCOPE_PATTERNS:
             continue
-        is_project = artifact.category in {"project", "technical_conditions"}
+        is_project = selected_pdf or artifact.category in {"project", "technical_conditions"}
         per_file = 32 if is_project else 3
         ranked = sorted(
             index["segments"],
@@ -420,6 +474,14 @@ def build_compact_evidence(root: Path, artifacts: list[Artifact], max_chars: int
                 "scope_hint": scope,
                 "locator": segment["locator"],
                 "visual_required": segment["visual_required"],
+                "text_reliable": segment.get("text_reliable", True),
+                "text_reliability_reason": segment.get("text_reliability_reason"),
+                "evidence_instruction": (
+                    "Read the supplied page image for exact values. This extracted text "
+                    "is incomplete or has broken font encoding; do not quote it as reliable evidence."
+                    if segment.get("text_reliable") is False
+                    else None
+                ),
                 "text": excerpt,
             }
         )
@@ -464,24 +526,26 @@ def select_visual_sources(
     *,
     max_pages: int,
     include_project: bool,
+    selected_template: bool = False,
 ) -> list[dict]:
     page_candidates: list[tuple[int, str, int, Artifact, Path, str, bool]] = []
     for artifact in artifacts:
         path = root / "input" / artifact.stored_name
         ext = path.suffix.lower()
+        selected_pdf = selected_template and ext == ".pdf"
         index = source_index(root, artifact)
         scope = index.get("scope", "unknown")
-        if artifact.category == "filled_aosr":
+        if artifact.category == "filled_aosr" and not selected_pdf:
             continue
-        if artifact.category == "execution_scheme" and scope in OUT_OF_SCOPE_PATTERNS:
+        if not selected_pdf and artifact.category == "execution_scheme" and scope in OUT_OF_SCOPE_PATTERNS:
             continue
         if ext in {".png", ".jpg", ".jpeg"}:
             page_candidates.append((1_250, artifact.original_name.casefold(), 1, artifact, path, "image evidence", True))
             continue
         if ext != ".pdf":
             continue
-        is_project = artifact.category in {"project", "technical_conditions"}
-        if is_project and not include_project:
+        is_project = selected_pdf or artifact.category in {"project", "technical_conditions"}
+        if is_project and not include_project and not selected_pdf:
             continue
         visually_relevant = artifact.category == "execution_scheme" or is_project or any(
             item.get("visual_required") for item in index["segments"]

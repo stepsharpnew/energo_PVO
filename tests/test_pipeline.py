@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 import io
+from dataclasses import replace
 from pathlib import Path
 
 from executive_docs.approved_examples import PROJECT1_PROJECT_SHA256
 from executive_docs.config import Settings
-from executive_docs.domain import Artifact, JobStatus, NeedInputQuestion, ProjectState
+from executive_docs.domain import AnalysisResult, Artifact, Claim, ClaimStatus, JobStatus, NeedInputQuestion, ProjectState
 from executive_docs.excel import sha256
 from executive_docs.pipeline import Pipeline
 from executive_docs.repository import Repository
@@ -78,7 +79,6 @@ def test_pipeline_resumes_after_needs_input_without_overwriting_revision(tmp_pat
         "actual.end": "08.06.2026",
         "materials.quality_documents": "Сертификат № 42 от 01.05.2026",
         "changes.state": "НЕТ",
-        "customer.profile_confirmation": "Подтверждено специалистом",
     }
     for question in state.questions:
         question.answer = answers[question.field_key]
@@ -171,3 +171,74 @@ def test_exact_project1_source_generates_approved_draft_without_model_call(
     ]
     assert [plan.first_number for plan in result.document_plans] == [1, 8, 10]
     assert all((storage.job_dir(JOB_ID) / path).is_file() for path in result.draft_excel_files)
+
+
+def test_pipeline_ignores_profile_files_and_old_or_returned_profile_claims(
+    tmp_path: Path, monkeypatch,
+) -> None:
+    profiles_dir = tmp_path / "legacy-profiles"
+    profiles_dir.mkdir()
+    profile = profiles_dir / "organization.yaml"
+    profile.write_text(
+        "profile_id: organization\nversion: '1.0'\napproved: true\nvalues:\n  contractor.name: Wrong company\n",
+        encoding="utf-8",
+    )
+    before = profile.read_bytes()
+    settings = replace(local_settings(tmp_path), profiles_dir=profiles_dir)
+    settings.ensure_directories()
+    repository = Repository(settings.db_path)
+    repository.initialize()
+    storage = Storage(settings)
+    storage.initialize_job(JOB_ID)
+    stale_claim = Claim(
+        key="contractor.name",
+        raw_value="Wrong company",
+        normalized_value="Wrong company",
+        source_kind="approved_profile",
+        locator="organization.yaml:values.contractor.name",
+        evidence_fragment="Legacy approved profile",
+        status=ClaimStatus.DERIVED,
+        rule_id="profile:organization:1.0",
+    )
+    state = ProjectState(
+        job_id=JOB_ID,
+        branch_id="khimki",
+        first_aosr_number=1,
+        operator_name="Специалист",
+        status=JobStatus.FILES_UPLOADED,
+        claims=[stale_claim],
+        questions=[
+            NeedInputQuestion(
+                id="legacy-profile",
+                field_key="customer.profile_confirmation",
+                prompt="Legacy question",
+                reason="Legacy profile requirement",
+                answer="Confirmed",
+                confirmed_by="Специалист",
+            )
+        ],
+    )
+    repository.create(state)
+    pipeline = Pipeline(settings, repository, storage)
+
+    def analyze(current: ProjectState, _root: Path) -> AnalysisResult:
+        assert current.claims == []
+        assert current.questions == []
+        return AnalysisResult(
+            status="NEEDS_INPUT",
+            summary="Нужны фактические даты",
+            claims=[stale_claim],
+            questions=[NeedInputQuestion(
+                id="actual-start", field_key="actual.start",
+                prompt="Фактическая дата начала?", reason="Нет в документе",
+            )],
+        )
+
+    monkeypatch.setattr(pipeline.agent, "analyze", analyze)
+    pipeline.process(JOB_ID)
+    result = repository.get(JOB_ID)
+    assert result is not None and result.status == JobStatus.NEEDS_INPUT
+    assert result.claims == []
+    assert [question.field_key for question in result.questions] == ["actual.start"]
+    assert result.model_usage == []
+    assert profile.read_bytes() == before

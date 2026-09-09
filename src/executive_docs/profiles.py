@@ -2,69 +2,36 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import yaml
+from .domain import Claim
 
-from .domain import Claim, ClaimStatus
+
+def is_profile_metadata_key(key: str) -> bool:
+    """Recognize retired profile controls, including saved legacy answers."""
+
+    normalized = key.strip().lower()
+    return ".profile." in normalized or normalized.endswith(".profile_confirmation")
+
+
+def is_profile_claim(claim: Claim) -> bool:
+    """A legacy approval flag must never make a profile into project evidence."""
+
+    return (
+        "profile" in claim.source_kind.strip().lower()
+        or (claim.rule_id or "").strip().lower().startswith("profile:")
+        or is_profile_metadata_key(claim.key)
+    )
 
 
 class ProfileStore:
+    """Deprecated compatibility facade; saved profile files are never consulted.
+
+    Keep the import and constructor available for legacy callers without
+    deleting or migrating their profile files. All new facts must come from
+    the current project's evidence, not a reusable organization directory.
+    """
+
     def __init__(self, profiles_dir: Path):
         self.profiles_dir = profiles_dir
 
-    def _claims_from_file(self, path: Path) -> list[Claim]:
-        if not path.exists():
-            return []
-        payload = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
-        if not payload.get("approved"):
-            return []
-        version = str(payload.get("version") or "")
-        profile_id = str(payload.get("profile_id") or path.stem)
-        values = payload.get("values") or {}
-        claims = [
-            Claim(
-                key=str(key),
-                raw_value=str(value),
-                normalized_value=str(value),
-                source_kind="approved_profile",
-                locator=f"{path.name}:values.{key}",
-                evidence_fragment=f"Утверждённый профиль {profile_id}, версия {version}",
-                status=ClaimStatus.DERIVED,
-                rule_id=f"profile:{profile_id}:{version}",
-            )
-            for key, value in values.items()
-            if value not in (None, "")
-        ]
-        version_key = "customer.profile.version" if profile_id in {"khimki", "solnechnogorsk"} else "organization.profile.version"
-        claims.append(
-            Claim(
-                key=version_key,
-                raw_value=version,
-                normalized_value=version,
-                source_kind="approved_profile",
-                locator=f"{path.name}:version",
-                evidence_fragment=f"Утверждённый профиль {profile_id}",
-                status=ClaimStatus.DERIVED,
-                rule_id=f"profile:{profile_id}:{version}",
-            )
-        )
-        for key in ("effective_from", "effective_to"):
-            if payload.get(key):
-                claims.append(
-                    Claim(
-                        key=f"{profile_id}.profile.{key}",
-                        raw_value=str(payload[key]),
-                        normalized_value=str(payload[key]),
-                        source_kind="approved_profile",
-                        locator=f"{path.name}:{key}",
-                        evidence_fragment=f"Период действия профиля {profile_id}",
-                        status=ClaimStatus.DERIVED,
-                        rule_id=f"profile:{profile_id}:{version}",
-                    )
-                )
-        return claims
-
     def claims(self, branch_id: str) -> list[Claim]:
-        return [
-            *self._claims_from_file(self.profiles_dir / "organization.yaml"),
-            *self._claims_from_file(self.profiles_dir / f"{branch_id}.yaml"),
-        ]
+        return []

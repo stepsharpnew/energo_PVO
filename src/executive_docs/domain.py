@@ -130,6 +130,13 @@ class ValidationIssue(StrictModel):
     locator: str | None = None
 
 
+class TemplateEvidenceContext(StrictModel):
+    """Additional context from the same uploaded PDF, never a profile."""
+
+    locator: str
+    evidence_fragment: str
+
+
 class TemplateCellAssignment(StrictModel):
     sheet: str
     cell: str
@@ -137,6 +144,9 @@ class TemplateCellAssignment(StrictModel):
     source_file_id: str
     locator: str
     evidence_fragment: str
+    value_basis: Literal["document", "project"] = "document"
+    subject_name: str | None = None
+    context_evidence: list[TemplateEvidenceContext] = Field(default_factory=list, max_length=4)
 
 
 class UnresolvedTemplateCell(StrictModel):
@@ -147,6 +157,7 @@ class UnresolvedTemplateCell(StrictModel):
     reason: str
     category: Literal[
         "missing_from_pdf",
+        "not_returned",
         "manual_confirmation",
         "conflict",
         "ambiguous",
@@ -163,6 +174,7 @@ class TemplateUnresolvedFinding(StrictModel):
     cell: str
     category: Literal[
         "missing_from_pdf",
+        "not_returned",
         "conflict",
         "ambiguous",
         "rejected",
@@ -192,11 +204,11 @@ class TemplateUnresolvedFinding(StrictModel):
             raise ValueError(
                 "Conflict requires at least two distinct source values"
             )
-        if self.category in {"ambiguous", "rejected"} and evidence_count < 1:
+        if self.category == "ambiguous" and evidence_count < 1:
             raise ValueError(
                 f"{self.category} requires at least one source evidence item"
             )
-        if self.category == "missing_from_pdf" and evidence_count:
+        if self.category in {"missing_from_pdf", "not_returned"} and evidence_count:
             raise ValueError(
                 "missing_from_pdf cannot contain source evidence"
             )

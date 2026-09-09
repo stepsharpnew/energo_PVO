@@ -22,7 +22,7 @@ from .domain import (
 from .excel import ExcelGenerator
 from .knowledge import KnowledgeBase
 from .packaging import build_result_zip, merge_pdfs, render_selected_sheets, revision_paths, write_report
-from .profiles import ProfileStore
+from .profiles import is_profile_claim, is_profile_metadata_key
 from .questions import is_delegated_value
 from .repository import Repository
 from .review import IndependentReviewer
@@ -50,7 +50,6 @@ class Pipeline:
             settings.approved_templates_dir,
         )
         self.selected_template_generator = SelectedTemplateGenerator(self.template_catalog)
-        self.profiles = ProfileStore(settings.profiles_dir)
 
     def _set_failure(self, state: ProjectState, status: JobStatus, exc: Exception) -> None:
         state.status = status
@@ -77,6 +76,7 @@ class Pipeline:
                 locator=item.locator,
                 evidence_fragment=item.evidence_fragment,
                 status=ClaimStatus.OBSERVED,
+                rule_id="selected-template:project-draft" if item.value_basis == "project" else None,
                 affected_documents=[contract.template_id],
             )
             for item in analysis.assignments
@@ -146,7 +146,11 @@ class Pipeline:
         stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
         draft_dir = root / "output" / "drafts" / f"r{state.revision}-{stamp}" / "xlsx"
         draft_dir.mkdir(parents=True, exist_ok=False)
-        draft_claims = [*state.claims, *state.answered_claims()]
+        draft_claims = [
+            claim
+            for claim in [*state.claims, *state.answered_claims()]
+            if not is_profile_claim(claim)
+        ]
         answer_map = {
             question.field_key: question.answer
             for question in state.questions
@@ -390,9 +394,14 @@ class Pipeline:
                 )
             else:
                 state.status = JobStatus.NEEDS_INPUT
+                project_count = sum(item.value_basis == "project" for item in state.template_assignments)
+                not_returned = sum(item.category == "not_returned" for item in unresolved)
+                rejected = sum(item.category == "rejected" for item in unresolved)
                 state.summary = (
                     f"Сформирован один черновой Excel-файл. Перенесено полей: "
-                    f"{len(state.template_assignments)}; пустых выделенных полей: {len(unresolved)}. "
+                    f"{len(state.template_assignments)}, из них по проекту: {project_count} (синие ячейки). "
+                    f"Пустых выделенных полей: {len(unresolved)} (жёлтые). "
+                    f"Не возвращено моделью: {not_returned}; отклонено проверкой: {rejected}. "
                     f"Статус шаблона: {contract.status}."
                 )
             if not persist():
@@ -405,6 +414,14 @@ class Pipeline:
         state = self.repository.get(job_id)
         if not state or state.status in {JobStatus.CANCELLED, JobStatus.APPROVED_FINAL}:
             return
+        # Retire only the active run's old profile-derived inputs. Existing
+        # source/profile files and completed historical artifacts stay intact.
+        state.claims = [claim for claim in state.claims if not is_profile_claim(claim)]
+        state.questions = [
+            question
+            for question in state.questions
+            if not is_profile_metadata_key(question.field_key)
+        ]
         root = self.storage.job_dir(job_id)
         if state.flow_version == "selected-template-v2" or state.selected_template_id:
             self._process_selected_template(state, root)
@@ -465,23 +482,29 @@ class Pipeline:
             state.claims = [
                 claim
                 for claim in state.claims
-                if claim.source_kind != "approved_profile"
-                and not (claim.source_kind == "human_answer" and is_delegated_value(claim.normalized_value))
+                if not (claim.source_kind == "human_answer" and is_delegated_value(claim.normalized_value))
             ]
-            state.claims.extend(self.profiles.claims(state.branch_id))
             self.repository.save(state)
             analysis = self.agent.analyze(state, root)
             latest = self.repository.get(job_id)
             if latest is None or latest.status == JobStatus.CANCELLED:
                 return
-            state.claims = state.claims + analysis.claims + state.answered_claims()
+            state.claims = [
+                claim
+                for claim in [*state.claims, *analysis.claims, *state.answered_claims()]
+                if not is_profile_claim(claim)
+            ]
             unique_claims = {}
             for claim in state.claims:
                 unique_claims[(claim.key, claim.locator)] = claim
             state.claims = list(unique_claims.values())
             state.work_items = analysis.work_items
             state.document_plans = analysis.document_plans
-            state.questions = analysis.questions
+            state.questions = [
+                question
+                for question in analysis.questions
+                if not is_profile_metadata_key(question.field_key)
+            ]
             state.summary = analysis.summary
             if analysis.status == "NEEDS_INPUT":
                 state.status = JobStatus.NEEDS_INPUT

@@ -7,6 +7,7 @@ from pathlib import Path
 
 from .domain import Claim, DocumentPlan, ValidationIssue, WorkItem
 from .excel import TemplateContract, workbook_snapshot
+from .profiles import is_profile_claim
 
 
 REQUIRED_DOCUMENT_CLAIMS = {
@@ -46,7 +47,16 @@ def validate_workbook(
     plan: DocumentPlan,
     claims: list[Claim] | None = None,
 ) -> list[ValidationIssue]:
-    issues: list[ValidationIssue] = []
+    issues: list[ValidationIssue] = [
+        ValidationIssue(
+            code="PROFILE_SOURCE_RETIRED",
+            severity="error",
+            message=f"Профиль не является источником данных проекта: {claim.key}",
+            locator=claim.locator,
+        )
+        for claim in (claims or [])
+        if is_profile_claim(claim)
+    ]
     try:
         with zipfile.ZipFile(output) as archive:
             bad = archive.testzip()
@@ -105,7 +115,12 @@ def validate_workbook(
             for name in archive.namelist()
             if name.endswith((".xml", ".rels"))
         )
-    accepted_values = {claim.normalized_value for claim in (claims or []) if claim.status.value in {"observed", "derived", "human_confirmed"}}
+    accepted_values = {
+        claim.normalized_value
+        for claim in (claims or [])
+        if not is_profile_claim(claim)
+        and claim.status.value in {"observed", "derived", "human_confirmed"}
+    }
     for token in contract.forbidden_tokens:
         if token and token in raw and not any(token in value for value in accepted_values):
             issues.append(ValidationIssue(code="STALE_TOKEN", severity="error", message=f"Найдены остаточные данные: {token}", artifact=output.name))
@@ -151,6 +166,9 @@ def validate_semantics(
                     issues.append(ValidationIssue(code="INVALID_ATTACHMENT", severity="error", message=f"Недопустимое приложение {artifact_id}: {plan.output_filename}"))
     admissible: set[str] = set()
     for claim in claims:
+        if is_profile_claim(claim):
+            issues.append(ValidationIssue(code="PROFILE_SOURCE_RETIRED", severity="error", message=f"Профиль не является источником данных проекта: {claim.key}", locator=claim.locator))
+            continue
         if not claim.locator.strip() or not claim.evidence_fragment.strip():
             issues.append(ValidationIssue(code="INCOMPLETE_PROVENANCE", severity="error", message=f"Неполный источник значения {claim.key}", locator=claim.locator))
             continue
@@ -162,8 +180,6 @@ def validate_semantics(
             continue
         if claim.status.value in {"observed", "derived", "human_confirmed"}:
             admissible.add(claim.key)
-    if branch_id and not ({"customer.profile_confirmation", "customer.profile.version"} & admissible):
-        issues.append(ValidationIssue(code="UNAPPROVED_CUSTOMER_PROFILE", severity="error", message=f"Не подтверждён профиль заказчика: {branch_id}"))
     if branch_id:
         for key in sorted(REQUIRED_DOCUMENT_CLAIMS - admissible):
             issues.append(ValidationIssue(code="MISSING_DOCUMENT_CLAIM", severity="error", message=f"Нет подтверждённого обязательного поля: {key}"))
@@ -175,18 +191,6 @@ def validate_semantics(
             except ValueError:
                 continue
         return None
-
-    claim_values = {claim.key: claim.normalized_value for claim in claims if claim.key in admissible}
-    for profile_id in ("organization", branch_id):
-        if not profile_id or f"{profile_id}.profile.effective_from" not in claim_values:
-            continue
-        valid_from = parse_date(claim_values[f"{profile_id}.profile.effective_from"])
-        valid_to = parse_date(claim_values.get(f"{profile_id}.profile.effective_to", ""))
-        for item in work_items:
-            actual_start = parse_date(item.actual_start or "")
-            actual_end = parse_date(item.actual_end or "")
-            if not valid_from or not valid_to or not actual_start or not actual_end or actual_start < valid_from or actual_end > valid_to:
-                issues.append(ValidationIssue(code="PROFILE_OUTSIDE_VALIDITY", severity="error", message=f"Профиль {profile_id} не действует на даты работы: {item.work_type}"))
 
     for item in work_items:
         if not item.actual_start or not item.actual_end:

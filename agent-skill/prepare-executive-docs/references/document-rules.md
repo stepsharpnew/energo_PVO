@@ -9,7 +9,10 @@
   output name, or create or change the registered writable-target whitelist.
 - The model may return an assignment only for a contract-declared target. Reject
   every arbitrary or unregistered sheet/cell coordinate.
-- A value may be written only from an admissible claim. A missing, conflicting,
+- A value may be written only from an admissible claim in the current uploaded
+  PDF. Organization, customer and signatory profiles are neither sources nor
+  prerequisites. Human answers and completed workbooks cannot supply
+  selected-template values. A missing, conflicting,
   ambiguous, or unreliable value stays blank and receives the
   contract-defined visible fill.
 - A visible fill means `NEEDS_INPUT`; it is not a value, confirmation, or
@@ -41,8 +44,11 @@
 - Materials used in an act must have a passport or certificate identifier.
   `б/н`, `б/д`, and blanks are blocking unless a later approved exception says
   otherwise.
-- Select the customer branch from operator input. Customer and signatory values
-  must come from an approved profile valid on the work dates.
+- The former profile-based customer/signatory strategy is superseded as of
+  2026-09-07. For a new PDF-only draft, the PDF must identify the matching
+  customer/contractor/designer role and legal entity; signatory fields also
+  require evidence of the relevant execution role and authority. Do not treat
+  a legacy branch selection as factual evidence.
 - A repeated work or route segment produces another AOSR instance. A template
   tab number is not a semantic work identifier; determine the work from content
   and evidence.

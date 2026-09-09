@@ -29,7 +29,7 @@ The audit found 279 sheets, including 64 sheets whose names begin with `АОСР
 
 - Ten separate GNB books and many repeated BRTP tabs show that one document family can require multiple independent instances. Future contracts need `work_type` plus `instance_index`/segment identity rather than a unique hard-coded sheet name.
 - All 16 books retain at least one OOXML external-link part. Many links connect books in the completed package. The MVP may inspect these as historical dependencies, but generated final books must be self-contained and contain no external links.
-- Organization, customer, and signatory values in these workbooks are not approved profiles. They require explicit specialist confirmation and validity dates before production use.
+- Organization, customer, and signatory values in these workbooks are not sources for another project's fill. The audit's former proposal to create separately approved profiles is superseded by the user-approved PDF-only policy of 2026-09-07; do not import these values even if a historical profile was approved.
 - Several object-card fields differ across the corpus because it includes disciplines/segments and possibly separate subprojects. Do not merge them by folder membership alone.
 
 ## Required regression checks

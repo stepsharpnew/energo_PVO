@@ -72,6 +72,7 @@ async def index(request: Request):
             "processing_profile": default_policy.name,
             "today_iso": date.today().isoformat(),
             "template_options": template_catalog.public_list(),
+            "max_file_bytes": settings.max_file_bytes,
         },
     )
 

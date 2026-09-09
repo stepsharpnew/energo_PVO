@@ -4,11 +4,21 @@ import asyncio
 import threading
 import time
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
 from executive_docs.domain import Artifact
-from executive_docs.ingestion import build_inventory, classify, validate_signature
+from executive_docs.ingestion import (
+    _build_segments,
+    _pdf_text_reliability,
+    build_compact_evidence,
+    build_inventory,
+    classify,
+    read_indexed_source,
+    select_visual_sources,
+    validate_signature,
+)
 from executive_docs.pipeline import JobQueue
 from executive_docs.storage import is_selected_filename
 
@@ -134,3 +144,118 @@ def test_legacy_empty_file_placeholder_is_ignored(tmp_path: Path) -> None:
 
     assert updated == []
     assert manifest == "[]"
+
+
+SIGNATURE_OVERLAY = (
+    "ДОКУМЕНТ ПОДПИСАН ЭЛЕКТРОННОЙ ПОДПИСЬЮ Идентификатор: example\n"
+    "ОТПРАВЛЕНО Организация\nСертификат 123456789\n"
+    "УТВЕРЖДЕНО Организация\nСертификат 987654321\n"
+    'Оператор ЭДО ООО "Оператор"\n'
+)
+
+
+@pytest.mark.parametrize(
+    ("text", "reliable", "reason"),
+    [
+        ("", False, "no_text_layer"),
+        ("КЛ-6 кВ, 120 м", True, None),
+        ("Кабель ÖLFLEX 3×2,5 мм². " * 6, True, None),
+        ("РАБОЧИЙ ПРОЕКТ\x15\x15\x17\x03\x18\x13", False, "broken_font_encoding"),
+        ("ǚтǹоитǮлȅǺтǫо ǋǔИ ǚолǶǮȀǶогоǹǺǳиǲ район", False, "broken_font_encoding"),
+        ("Строительство (cid:127)(cid:234)", False, "unmapped_font_glyphs"),
+        (SIGNATURE_OVERLAY, False, "electronic_signature_overlay_only"),
+        ("Наименование объекта: строительство воздушной линии. " * 4 + SIGNATURE_OVERLAY, True, None),
+    ],
+)
+def test_pdf_text_reliability_detects_font_damage_and_signature_only_scans(
+    text: str, reliable: bool, reason: str | None,
+) -> None:
+    assert _pdf_text_reliability(text) == (reliable, reason)
+
+
+def test_unreliable_text_pages_remain_required_visual_evidence(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    texts = [
+        "Проект кабельной линии КЛ-6 кВ с читаемым текстом. " * 5,
+        "РАБОЧИЙ ПРОЕКТ\x15\x15\x17\x03\x18\x13 " * 10,
+        SIGNATURE_OVERLAY,
+        "",
+    ]
+    monkeypatch.setattr(
+        "executive_docs.ingestion.PdfReader",
+        lambda _: SimpleNamespace(
+            is_encrypted=False,
+            pages=[SimpleNamespace(extract_text=lambda text=text: text) for text in texts],
+        ),
+    )
+    segments, pages = _build_segments(tmp_path / "project.pdf")
+    assert [item["text_reliable"] for item in segments] == [True, False, False, False]
+    assert [item["visual_required"] for item in segments] == [False, True, True, True]
+    index = {"segments": segments, "pages": pages, "scope": "unknown"}
+    monkeypatch.setattr("executive_docs.ingestion.source_index", lambda *_: index)
+    artifact = Artifact(
+        id="project",
+        original_name="project.pdf",
+        stored_name="project.pdf",
+        media_type="application/pdf",
+        size=100,
+        sha256="0" * 64,
+        category="project",
+    )
+    with pytest.raises(ValueError, match="3 страниц"):
+        select_visual_sources(tmp_path, [artifact], max_pages=2, include_project=True)
+    selected = select_visual_sources(tmp_path, [artifact], max_pages=4, include_project=True)
+    assert selected[0]["pages"] == [1, 2, 3, 4]
+
+    packet = build_compact_evidence(tmp_path, [artifact], max_chars=10_000)
+    damaged = next(item for item in packet if item["locator"] == "page:2")
+    assert damaged["text"] == texts[1]
+    assert damaged["text_reliable"] is False
+    assert damaged["text_reliability_reason"] == "broken_font_encoding"
+    assert "page image" in damaged["evidence_instruction"]
+    reread, _ = read_indexed_source(tmp_path, artifact, pages=[2])
+    assert "UNRELIABLE TEXT LAYER" in reread
+    assert texts[1] in reread
+
+
+@pytest.mark.parametrize("category", ["execution_scheme", "filled_aosr"])
+def test_selected_template_keeps_vl_pdf_evidence_excluded_from_legacy_pilot(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, category: str,
+) -> None:
+    artifact = Artifact(
+        id="aosr-vl",
+        original_name="АОСР ВЛ.pdf",
+        stored_name="aosr-vl.pdf",
+        media_type="application/pdf",
+        size=100,
+        sha256="0" * 64,
+        category=category,
+    )
+    index = {
+        "pages": 1,
+        "scope": "vl",
+        "segments": [{
+            "page": 1,
+            "locator": "page:1",
+            "text": "ǚтǹоитǮлȅǺтǫо ǋǔИ ǚолǶǮȀǶогоǹǺǳиǲ район",
+            "text_reliable": False,
+            "text_reliability_reason": "broken_font_encoding",
+            "visual_required": True,
+            "score": 10,
+        }],
+    }
+    monkeypatch.setattr("executive_docs.ingestion.source_index", lambda *_: index)
+    assert build_compact_evidence(tmp_path, [artifact], 10_000) == []
+    assert select_visual_sources(tmp_path, [artifact], max_pages=1, include_project=True) == []
+
+    packet = build_compact_evidence(tmp_path, [artifact], 10_000, selected_template=True)
+    assert [(item["file_id"], item["locator"]) for item in packet] == [(artifact.id, "page:1")]
+    selected = select_visual_sources(
+        tmp_path, [artifact], max_pages=1, include_project=False, selected_template=True,
+    )
+    assert selected[0]["pages"] == [1]
+    with pytest.raises(ValueError, match="1 страниц"):
+        select_visual_sources(
+            tmp_path, [artifact], max_pages=0, include_project=True, selected_template=True,
+        )

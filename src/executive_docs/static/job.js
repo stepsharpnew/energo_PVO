@@ -25,6 +25,7 @@ const statusLabels = {
 
 const unresolvedCategoryLabels = {
   missing_from_pdf: "нет подтверждения в PDF",
+  not_returned: "модель не вернула значение; отсутствие не установлено",
   manual_confirmation: "требуется ручное подтверждение",
   conflict: "в PDF найдены противоречащие значения",
   ambiguous: "значение в PDF неоднозначно",
@@ -282,9 +283,10 @@ async function refresh() {
     )
     .join("");
 
-  const previews = await api(`/api/kits/${jobRef}/preview`);
-  show("previews", previews.files.length > 0);
-  document.getElementById("preview-list").innerHTML = previews.files
+  const previews = await api(`/api/kits/${jobRef}/preview`).catch(() => null);
+  if (previews) {
+    show("previews", previews.files.length > 0);
+    document.getElementById("preview-list").innerHTML = previews.files
     .map(
       (file) =>
         `<a target="_blank" rel="noopener" href="/api/kits/${jobRef}/files/${safePath(file)}">${esc(
@@ -292,6 +294,7 @@ async function refresh() {
         )}</a>`
     )
     .join("");
+  }
 
   show(
     "review",
@@ -301,8 +304,18 @@ async function refresh() {
   show("download", job.status === "APPROVED_FINAL");
 
   if (!terminal.has(job.status) && job.status !== "NEEDS_INPUT") {
-    refreshTimer = window.setTimeout(() => refresh().catch(showFatalError), 2000);
+    refreshTimer = window.setTimeout(() => refresh().catch(handleRefreshError), 2000);
   }
+}
+
+function handleRefreshError() {
+  document.getElementById("summary").textContent =
+    "Не удалось обновить состояние. Повторяем подключение; обработка задания продолжается на сервере.";
+  const pill = document.getElementById("status-pill");
+  pill.textContent = "Восстанавливаем связь";
+  pill.className = "status-pill is-warning";
+  window.clearTimeout(refreshTimer);
+  refreshTimer = window.setTimeout(() => refresh().catch(handleRefreshError), 5000);
 }
 
 function showFatalError(error) {
@@ -426,4 +439,4 @@ document.getElementById("revision-form").addEventListener("submit", async (event
   }
 });
 
-refresh().catch(showFatalError);
+refresh().catch(handleRefreshError);

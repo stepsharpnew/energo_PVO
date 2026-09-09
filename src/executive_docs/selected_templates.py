@@ -19,12 +19,26 @@ from .domain import (
     ValidationIssue,
 )
 from .excel import MAIN_NS, OOXMLWorkbook, sha256
+from .evidence_matching import entity_value_is_present, iter_evidence_spans, normalize_evidence_text, validate_numeric_identifiers
 
 
 TEMPLATE_ID = re.compile(r"[a-z][a-z0-9_-]{1,63}")
 CELL_ADDRESS = re.compile(r"[A-Z]{1,3}[1-9][0-9]*")
 SEMANTIC_ID = re.compile(r"[a-z][a-z0-9_.-]{2,127}")
 WARNING_FILL_RGB = "FFFFE699"
+PROJECT_FILL_RGB = "FFBDD7EE"
+PROJECT_DRAFT_HEADER = "&L&7ЧЕРНОВИК: синие ячейки — по проекту. Факт выполнения не подтверждён."
+PDF_EVIDENCE_RULES = {
+    "direct_pdf", "actual_executive_document_only", "organization_role_pdf",
+    "signatory_role_pdf", "authority_document_pdf",
+}
+ORGANIZATION_ROLE_PATTERNS = {
+    "contractor": r"монтажн\w*\s+организац|подрядчик|лицо[^.;\n]{0,70}осуществляющ\w*\s+строительств",
+    "customer": r"заказчик|застройщик",
+    "designer": r"проектн\w*\s+организац|проектировщик|подготовк\w*\s+проектн\w*\s+документац|разработчик\w*\s+проект",
+    "laboratory": r"электролаборатор|испытательн\w*\s+лаборатор|испытательн\w*\s+организац",
+    "commissioning": r"пусконаладочн\w*\s+организац|наладочн\w*\s+организац",
+}
 
 
 @dataclass(frozen=True)
@@ -39,6 +53,7 @@ class TemplateField:
     required: bool
     manual_reason: str | None
     value_pattern: str | None
+    allow_project_basis: bool = False
 
     @property
     def coordinate(self) -> tuple[str, str]:
@@ -62,20 +77,28 @@ class TemplateField:
                     f"Некорректный value_pattern: {sheet}!{cell}: {exc}"
                 ) from exc
         label = str(data.get("label") or f"{sheet}!{cell}")
+        evidence_rule = str(data.get("evidence_rule") or "direct_pdf")
+        if evidence_rule not in PDF_EVIDENCE_RULES:
+            raise ValueError(f"Неизвестное правило источника: {sheet}!{cell}: {evidence_rule}")
         return cls(
             sheet=sheet,
             cell=cell,
             label=label,
             semantic_id=semantic_id,
             description=str(data.get("description") or label),
-            evidence_rule=str(data.get("evidence_rule") or "direct_pdf"),
+            evidence_rule=evidence_rule,
             value_kind=str(data.get("value_kind") or "text"),
             required=bool(data.get("required", True)),
             manual_reason=str(data["manual_reason"]) if data.get("manual_reason") else None,
             value_pattern=value_pattern,
+            allow_project_basis=bool(data.get("allow_project_basis", False)),
         )
 
     def validate_raw_value(self, raw_value: str) -> None:
+        if (self.semantic_id or "").endswith(".registration"):
+            error = validate_numeric_identifiers(raw_value)
+            if error:
+                raise ValueError(error)
         if self.value_pattern and not re.fullmatch(
             self.value_pattern,
             raw_value.strip(),
@@ -84,6 +107,93 @@ class TemplateField:
                 f"Значение не соответствует смыслу поля {self.label}: "
                 f"{self.sheet}!{self.cell}"
             )
+
+    def evidence_context_error(
+        self, fragments: list[str], raw_value: str, subject_name: str | None = None,
+        value_basis: str = "document",
+    ) -> str | None:
+        """Reject obvious context substitutions; the model still reconciles meaning.
+
+        Context can span PDF pages. Every supplied fragment is independently
+        source-checked by the analyzer before this bounded semantic guard runs.
+        These checks do not turn a matching keyword into final document approval.
+        """
+        if value_basis == "project":
+            if not self.allow_project_basis:
+                return "Для этого поля нельзя подставлять проектное значение"
+            # Only whitelisted material/quantity fields may contain a marked
+            # project value. The page/value proof is still checked separately.
+            return None
+        if self.evidence_rule == "direct_pdf":
+            return None
+        normalize = normalize_evidence_text
+        normalized = [normalize(fragment) for fragment in fragments]
+        primary = normalized[0] if normalized else ""
+        if self.evidence_rule == "actual_executive_document_only":
+            if re.search(
+                r"\bне\s+(?:были\s+|был\w*\s+)?(?:выполн|произвед|проведен|измерен|испытан)|"
+                r"проектн\w*\s+(?:длин|объем|количеств|значени|дат)|планир|предусмотр|"
+                r"буд\w*\s+(?:выполн|произвед|проведен)|следует|необходимо|выполнить",
+                primary,
+            ):
+                return "Цитата содержит проектное, запланированное или невыполненное действие, а не подтверждённый факт"
+            if not re.search(
+                r"фактическ|выполнен|исполнен|произведен|освидетельств|"
+                r"исполнительн\w*\s+схем|акт\s|журнал\s|протокол\s|результат\w*\s+(?:испытан|измерен)",
+                primary,
+            ):
+                return "Нужен фрагмент PDF о выполненных работах или фактическом результате, а не проектное значение"
+            return None
+        role = (self.semantic_id or "").split(".", 1)[0]
+        pattern = ORGANIZATION_ROLE_PATTERNS.get(role)
+        subject_raw = raw_value if (self.semantic_id or "").endswith(".name") else (subject_name or "")
+        if not subject_raw or not fragments or not entity_value_is_present(subject_raw, fragments[0]):
+            return "Основная цитата должна связывать значение с названием организации или ФИО представителя (subject_name)"
+        # A quote about a different entity cannot establish this value's role.
+        # Require role -> subject order without another party label in between.
+        role_quotes: list[str] = []
+        for raw_fragment, fragment in zip(fragments, normalized):
+            if not pattern:
+                continue
+            subject_positions = list(iter_evidence_spans(subject_raw, raw_fragment, require_entity_boundaries=True))
+            for role_match in re.finditer(pattern, fragment):
+                for subject_at, _ in subject_positions:
+                    if not 0 <= subject_at - role_match.end() <= 240:
+                        continue
+                    between = fragment[role_match.end():subject_at]
+                    if re.search(r"\bне\b", between) or any(
+                        re.search(other_pattern, between)
+                        for other_role, other_pattern in ORGANIZATION_ROLE_PATTERNS.items()
+                        if other_role != role
+                    ):
+                        continue
+                    role_quotes.append(fragment)
+                    break
+                if fragment in role_quotes:
+                    break
+        if not role_quotes:
+            return f"В цитатах PDF не подтверждена роль для поля «{self.label}»"
+        if self.evidence_rule in {"signatory_role_pdf", "authority_document_pdf"}:
+            parts = (self.semantic_id or "").split(".")
+            representative = parts[1] if len(parts) > 2 else ""
+            if representative in {"tester_1", "tester_2"}:
+                representative = "tester"
+            role_context = {
+                "construction_control": r"строительн\w*\s+контрол",
+                "site_representative": r"представител|производител\w*\s+работ|руководител\w*\s+работ|прораб",
+                "other_representative": r"ин\w*\s+представител|друг\w*\s+представител",
+                "director": r"директор|руководител\w*\s+организац",
+                "tester": r"испытан\w*\s+провод|провел|выполнил|испытатель",
+                "reviewer": r"проверил|проверяющ",
+                "head": r"начальник|руководител",
+            }.get(representative)
+            if not role_context or not any(re.search(role_context, fragment) for fragment in role_quotes):
+                return f"В цитатах PDF не подтверждена конкретная роль представителя для поля «{self.label}»"
+        if self.evidence_rule == "authority_document_pdf" and not re.search(
+            r"приказ|доверенност|распоряжени|решени", primary,
+        ):
+            return "В цитатах PDF нет документа о полномочиях представителя"
+        return None
 
 
 @dataclass(frozen=True)
@@ -182,6 +292,8 @@ class SelectedTemplateContract:
                 "description": field.description,
                 "evidence_rule": field.evidence_rule,
                 "value_kind": field.value_kind,
+                "value_pattern": field.value_pattern,
+                "allow_project_basis": field.allow_project_basis,
             }
             for field in self.fields
             if not field.manual_reason
@@ -253,6 +365,24 @@ class TemplateCatalog:
             )
 
 
+def material_assignment_errors(contract: SelectedTemplateContract, assignments: list[TemplateCellAssignment]) -> dict[tuple[str, str], str]:
+    """Keep a material's columns together; never mix independently found items."""
+    groups: dict[str, dict[str, TemplateCellAssignment]] = {}
+    for item in assignments:
+        field = contract.field_map.get((item.sheet, item.cell.upper()))
+        match = re.fullmatch(r"(.+\.materials\.item_\d+)\.(name|type|quantity)", field.semantic_id or "") if field else None
+        if match:
+            groups.setdefault(match[1], {})[match[2]] = item
+    errors: dict[tuple[str, str], str] = {}
+    for group in groups.values():
+        name = group.get("name")
+        identities = {(item.source_file_id, item.locator, normalize_evidence_text(item.evidence_fragment)) for item in group.values()}
+        if name is None or len(identities) != 1:
+            for item in group.values():
+                errors[(item.sheet, item.cell.upper())] = "Название, марка и количество одной строки должны относиться к одной позиции PDF с общей цитатой и страницей"
+    return errors
+
+
 class SelectedTemplateGenerator:
     def __init__(self, catalog: TemplateCatalog):
         self.catalog = catalog
@@ -263,6 +393,9 @@ class SelectedTemplateGenerator:
         assignments: list[TemplateCellAssignment],
     ) -> dict[tuple[str, str], TemplateCellAssignment]:
         field_map = contract.field_map
+        group_errors = material_assignment_errors(contract, assignments)
+        if group_errors:
+            raise ValueError(next(iter(group_errors.values())))
         assignment_map: dict[tuple[str, str], TemplateCellAssignment] = {}
         for assignment in assignments:
             coordinate = assignment.sheet, assignment.cell.upper()
@@ -275,6 +408,12 @@ class SelectedTemplateGenerator:
                 raise ValueError(f"Повтор записи: {assignment.sheet}!{assignment.cell}")
             if not assignment.value.strip() or assignment.value.lstrip().startswith("="):
                 raise ValueError(f"Пустое значение или формула запрещены: {assignment.sheet}!{assignment.cell}")
+            context_error = field.evidence_context_error([
+                assignment.evidence_fragment,
+                *(item.evidence_fragment for item in assignment.context_evidence),
+            ], assignment.value, assignment.subject_name, assignment.value_basis)
+            if context_error:
+                raise ValueError(context_error)
             assignment_map[coordinate] = assignment
         return assignment_map
 
@@ -321,12 +460,12 @@ class SelectedTemplateGenerator:
             reason = (
                 field.manual_reason
                 or (finding.reason if finding else None)
-                or "В PDF нет надёжно подтверждённого значения"
+                or "Модель не вернула значение; отсутствие в PDF не установлено"
             )
             category = (
                 "manual_confirmation"
                 if field.manual_reason
-                else finding.category if finding else "missing_from_pdf"
+                else finding.category if finding else "not_returned"
             )
             unresolved.append(
                 UnresolvedTemplateCell(
@@ -383,6 +522,13 @@ class SelectedTemplateGenerator:
             warning_targets.setdefault(item.sheet, []).append(item.cell)
         if warning_targets:
             workbook.highlight_cells(warning_targets, rgb=contract.warning_fill_rgb)
+        project_targets: dict[str, list[str]] = {}
+        for item in assignments:
+            if item.value_basis == "project":
+                project_targets.setdefault(item.sheet, []).append(item.cell.upper())
+        if project_targets:
+            workbook.highlight_cells(project_targets, rgb=PROJECT_FILL_RGB)
+            _mark_project_headers(workbook)
         workbook.enable_full_calculation()
         destination.mkdir(parents=True, exist_ok=True)
         output = destination / f"ЧЕРНОВИК - {contract.output_filename}"
@@ -415,6 +561,32 @@ class SelectedTemplateGenerator:
                 f"Ожидалось числовое значение: {field.sheet}!{field.cell}"
             ) from exc
         return int(value) if value == value.to_integral_value() else float(value)
+
+
+def _mark_project_headers(workbook: OOXMLWorkbook) -> None:
+    """Keep the distinction visible on printed acts, not only in the web report."""
+    later_tags = {
+        "rowBreaks", "colBreaks", "customProperties", "cellWatches", "ignoredErrors",
+        "smartTags", "drawing", "legacyDrawing", "legacyDrawingHF", "picture",
+        "oleObjects", "controls", "webPublishItems", "tableParts", "extLst",
+    }
+    header_order = ["oddHeader", "oddFooter", "evenHeader", "evenFooter", "firstHeader", "firstFooter"]
+    for sheet_name in workbook.sheet_parts:
+        root = workbook._sheet_root(sheet_name)
+        headers = root.find(f"{{{MAIN_NS}}}headerFooter")
+        if headers is None:
+            headers = etree.Element(f"{{{MAIN_NS}}}headerFooter")
+            position = next((i for i, child in enumerate(root) if etree.QName(child).localname in later_tags), len(root))
+            root.insert(position, headers)
+        for name in ("oddHeader", "evenHeader", "firstHeader"):
+            header = headers.find(f"{{{MAIN_NS}}}{name}")
+            if header is None:
+                header = etree.Element(f"{{{MAIN_NS}}}{name}")
+                position = next((i for i, child in enumerate(headers) if etree.QName(child).localname in header_order and header_order.index(etree.QName(child).localname) > header_order.index(name)), len(headers))
+                headers.insert(position, header)
+            original = header.text or ""
+            header.text = PROJECT_DRAFT_HEADER + ("\n" + original if original else "")
+        workbook._save_sheet_root(sheet_name, root)
 
 
 def validate_selected_template_output(
@@ -486,6 +658,7 @@ def validate_selected_template_output(
             )
             for item in assignments
         }
+        project_set = {(item.sheet, item.cell.upper()) for item in assignments if item.value_basis == "project"}
         unresolved_set = {(item.sheet, item.cell.upper()) for item in unresolved}
         expected_unresolved = set(contract.field_map) - set(assignment_map)
         if unresolved_set != expected_unresolved:
@@ -533,7 +706,7 @@ def validate_selected_template_output(
                     default_style = (0, 0, 0, 0, 0, 0, 0, 0, 0)
                     source_style = list(source_cell._style or default_style)
                     output_style = list(output_cell._style or default_style)
-                    if coordinate in unresolved_set and len(source_style) == len(output_style):
+                    if coordinate in unresolved_set | project_set and len(source_style) == len(output_style):
                         # StyleArray index 1 is fillId. Every other style component
                         # must remain byte-for-byte equivalent.
                         output_style[1] = source_style[1]
@@ -570,6 +743,14 @@ def validate_selected_template_output(
                         locator=f"{sheet_name}!{cell}",
                     )
                 )
+        for sheet_name, cell in project_set:
+            target = output_book[sheet_name][cell]
+            if target.fill.fill_type != "solid" or target.fill.fgColor.rgb != PROJECT_FILL_RGB:
+                issues.append(ValidationIssue(
+                    code="PROJECT_CELL_NOT_HIGHLIGHTED", severity="error",
+                    message="Проектное значение должно быть выделено синим и не считаться фактическим",
+                    artifact=output.name, locator=f"{sheet_name}!{cell}",
+                ))
         if len(getattr(source_book, "_external_links", [])) != len(
             getattr(output_book, "_external_links", [])
         ):
@@ -586,7 +767,7 @@ def validate_selected_template_output(
         output_book.close()
 
     try:
-        source_structure = _package_structure(source)
+        source_structure = _package_structure(source, project_draft=bool(project_set))
         output_structure = _package_structure(output)
         if source_structure["workbook"] != output_structure["workbook"]:
             issues.append(
@@ -625,6 +806,7 @@ def validate_selected_template_output(
             output,
             warning_rgb=contract.warning_fill_rgb,
             unresolved=unresolved_set,
+            project=project_set,
         )
         if not styles_preserved:
             issues.append(
@@ -803,6 +985,7 @@ def _style_definitions_preserved(
     *,
     warning_rgb: str,
     unresolved: set[tuple[str, str]],
+    project: set[tuple[str, str]] | None = None,
 ) -> tuple[bool, str]:
     """Allow only warning-fill styles derived from original cellXfs."""
 
@@ -869,7 +1052,9 @@ def _style_definitions_preserved(
         ):
             return False, "Изменено исходное определение заливки"
 
-    def is_warning_fill(fill: etree._Element) -> bool:
+    project = project or set()
+
+    def is_warning_fill(fill: etree._Element, rgb: str) -> bool:
         pattern = fill.find(f"{{{MAIN_NS}}}patternFill")
         if (
             pattern is None
@@ -881,34 +1066,25 @@ def _style_definitions_preserved(
         background = pattern.find(f"{{{MAIN_NS}}}bgColor")
         return (
             foreground is not None
-            and (foreground.get("rgb") or "").upper() == warning_rgb.upper()
+            and (foreground.get("rgb") or "").upper() == rgb.upper()
             and background is not None
             and background.get("indexed") == "64"
         )
 
-    warning_fill_id = next(
-        (
-            index
-            for index, fill in enumerate(source_fills)
-            if is_warning_fill(fill)
-        ),
-        None,
-    )
+    permitted_fill_ids: set[str] = set()
     expected_fill_count = len(source_fills)
-    if warning_fill_id is None and unresolved:
-        expected_fill_count += 1
-        warning_fill_id = len(source_fills)
-        if (
-            len(output_fills) != expected_fill_count
-            or not is_warning_fill(output_fills[-1])
-        ):
-            return False, "Добавлена заливка, не соответствующая предупреждающему цвету"
-    elif len(output_fills) != expected_fill_count:
+    for rgb, targets in ((warning_rgb, unresolved), (PROJECT_FILL_RGB, project)):
+        if not targets:
+            continue
+        fill_id = next((i for i, fill in enumerate(source_fills) if is_warning_fill(fill, rgb)), None)
+        if fill_id is None:
+            fill_id = expected_fill_count
+            expected_fill_count += 1
+            if len(output_fills) < expected_fill_count or not is_warning_fill(output_fills[fill_id], rgb):
+                return False, "Добавлена заливка, не соответствующая цвету черновика"
+        permitted_fill_ids.add(str(fill_id))
+    if len(output_fills) != expected_fill_count:
         return False, "Набор заливок изменён вне разрешённого предупреждения"
-    if warning_fill_id is None:
-        if unresolved:
-            return False, "Не найдено определение предупреждающей заливки"
-        warning_fill_id = -1
 
     for index, source_xf in enumerate(source_xfs):
         if index >= len(output_xfs) or canonical(source_xf) != canonical(
@@ -928,7 +1104,7 @@ def _style_definitions_preserved(
     }
     for style in list(output_xfs)[len(source_xfs):]:
         if (
-            style.get("fillId") != str(warning_fill_id)
+            style.get("fillId") not in permitted_fill_ids
             or style.get("applyFill") != "1"
             or xf_signature(style) not in source_signatures
         ):
@@ -936,7 +1112,7 @@ def _style_definitions_preserved(
 
     expected_extra_ids = set(range(len(source_xfs), len(output_xfs)))
     referenced_extra_ids: set[int] = set()
-    for sheet_name, coordinate in unresolved:
+    for sheet_name, coordinate in unresolved | project:
         root = output_package._sheet_root(sheet_name)
         cells = root.xpath(
             f"//x:c[@r='{coordinate}']",
@@ -990,10 +1166,12 @@ def _immutable_package_parts_preserved(
     return True, ""
 
 
-def _package_structure(path: Path) -> dict[str, object]:
+def _package_structure(path: Path, *, project_draft: bool = False) -> dict[str, object]:
     """Canonical workbook structure with writable cell payloads removed."""
 
     package = OOXMLWorkbook(path)
+    if project_draft:
+        _mark_project_headers(package)
     workbook = etree.fromstring(package.parts["xl/workbook.xml"])
     for calc_properties in workbook.findall(f"{{{MAIN_NS}}}calcPr"):
         workbook.remove(calc_properties)

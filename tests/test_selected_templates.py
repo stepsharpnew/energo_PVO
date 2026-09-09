@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 import io
+import json
 import re
 import zipfile
+from dataclasses import replace
 from pathlib import Path
+from types import SimpleNamespace
 
 import openpyxl
 import pytest
@@ -23,6 +26,7 @@ from executive_docs.domain import (
 )
 from executive_docs.excel import MAIN_NS, OOXMLWorkbook, sha256
 from executive_docs.ingestion import build_inventory
+from executive_docs.knowledge import KnowledgeBase
 from executive_docs.pipeline import Pipeline
 from executive_docs.repository import Repository
 from executive_docs.selected_templates import (
@@ -323,6 +327,9 @@ def test_template_assignment_must_match_text_on_the_cited_pdf_page(tmp_path: Pat
         artifacts=[artifact],
     )
     state.artifacts, _ = build_inventory(storage.job_dir(JOB_ID), state.artifacts)
+    (storage.job_dir(JOB_ID) / "state" / "selected-visual-evidence-r1.json").write_text(json.dumps([{
+        "file_id": artifact.id, "sha256": artifact.sha256, "pages": [2],
+    }]), encoding="utf-8")
     valid = TemplateFillAnalysis(
         summary="ok",
         assignments=[
@@ -511,6 +518,249 @@ def test_invalid_missing_finding_returns_model_correction_without_pydantic_leak(
     assert "input_value" not in error
 
 
+def recovery_context(tmp_path: Path):
+    catalog = build_catalog(tmp_path)
+    original = catalog.get("sample")
+    contract = replace(original, fields=(
+        original.fields[0],
+        replace(original.fields[0], cell="B3"),
+        replace(original.fields[0], cell="B4"),
+        original.fields[1],
+    ))
+    settings = Settings(
+        root=tmp_path, data_dir=tmp_path / "data", runs_dir=tmp_path / "data/runs",
+        db_path=tmp_path / "data/app.db", skill_dir=ROOT / "agent-skill/prepare-executive-docs",
+        openai_api_key="test-key", openai_analysis_model="test-model",
+        exact_token_preflight=False, max_job_cost_usd=0,
+    )
+    storage = Storage(settings)
+    storage.initialize_job(JOB_ID)
+    pdf = io.BytesIO()
+    writer = PdfWriter()
+    writer.add_blank_page(width=595, height=842)
+    writer.write(pdf)
+    pdf.seek(0)
+    artifact = storage.save_upload(JOB_ID, "project.pdf", pdf, "application/pdf")
+    state = ProjectState(job_id=JOB_ID, operator_name="test", artifacts=[artifact])
+    root = storage.job_dir(JOB_ID)
+    state.artifacts, _ = build_inventory(root, state.artifacts)
+    (root / "state/selected-visual-evidence-r1.json").write_text(json.dumps([{
+        "file_id": artifact.id, "sha256": artifact.sha256, "pages": [1],
+    }]), encoding="utf-8")
+    assignment = {
+        "sheet": "Данные", "cell": "B1", "value": "P-42",
+        "source_file_id": artifact.id, "locator": "page:1",
+        "evidence_fragment": "Project code P-42",
+    }
+    return settings, contract, state, root, assignment
+
+
+def test_recovery_keeps_verified_values_and_contains_malformed_missing_evidence(tmp_path: Path) -> None:
+    _, contract, state, root, assignment = recovery_context(tmp_path)
+    payload = {
+        "summary": "model summary",
+        "assignments": [assignment, {**assignment, "cell": "B4", "locator": "page:999"}],
+        "unresolved": [{
+            "sheet": "Данные", "cell": "B3", "category": "missing_from_pdf",
+            "reason": "Needs specialist review", "source_locators": ["page:1"],
+            "source_values": ["P-42"], "evidence_fragments": ["Project code P-42"],
+        }],
+    }
+    result, diagnostics = OpenAIAgent._recover_template_fill(state, contract, [payload], root)
+    assert [(a.cell, a.value) for a in result.assignments] == [("B1", "P-42")]
+    assert [(f.cell, f.category) for f in result.unresolved] == [("B3", "rejected"), ("B4", "rejected")]
+    assert result.unresolved[0].source_values == ["P-42"]
+    assert diagnostics[0]["cell"] == "B4"
+    assert OpenAIAgent._template_fill_rejection(state, contract, result, root) is None
+
+
+def test_recovery_never_chooses_between_conflicting_duplicates_or_writes_manual_cells(tmp_path: Path) -> None:
+    _, contract, state, root, assignment = recovery_context(tmp_path)
+    result, diagnostics = OpenAIAgent._recover_template_fill(state, contract, [{
+        "assignments": [assignment, {**assignment, "value": "P-77"}, {**assignment, "cell": "B2"}],
+    }], root)
+    assert result.assignments == []
+    assert {f.cell for f in result.unresolved} == {"B1", "B3", "B4"}
+    assert len(diagnostics) == 2
+
+
+def test_recovery_same_value_with_different_evidence_is_not_a_conflict(tmp_path: Path) -> None:
+    _, contract, state, root, assignment = recovery_context(tmp_path)
+    result, diagnostics = OpenAIAgent._recover_template_fill(state, contract, [{"assignments": [
+        {**assignment, "locator": "page:99"},
+        assignment,
+        {**assignment, "evidence_fragment": "Title: P-42"},
+    ]}], root)
+    assert [a.value for a in result.assignments] == ["P-42"]
+    assert not diagnostics
+
+
+@pytest.mark.parametrize("reliable,expected_assignments", [(True, 0), (False, 1)])
+def test_visual_evidence_does_not_bypass_a_reliable_text_layer(tmp_path: Path, monkeypatch, reliable, expected_assignments) -> None:
+    _, contract, state, root, assignment = recovery_context(tmp_path)
+    monkeypatch.setattr("executive_docs.agent.read_indexed_source", lambda *a, **k: ("Different text", False))
+    monkeypatch.setattr("executive_docs.agent.source_index", lambda *a, **k: {"segments": [{
+        "page": 1, "text": "Different text", "visual_required": True, "text_reliable": reliable,
+    }]})
+    result, _ = OpenAIAgent._recover_template_fill(state, contract, [{"assignments": [assignment]}], root)
+    assert len(result.assignments) == expected_assignments
+
+
+def test_visual_evidence_requires_the_page_to_have_been_sent_to_the_model(tmp_path: Path) -> None:
+    _, contract, state, root, assignment = recovery_context(tmp_path)
+    (root / "state/selected-visual-evidence-r1.json").write_text("[]", encoding="utf-8")
+    result, diagnostics = OpenAIAgent._recover_template_fill(state, contract, [{"assignments": [assignment]}], root)
+    assert not result.assignments
+    assert "not found" in diagnostics[0]["reason"]
+
+
+def test_selected_agent_collects_all_submissions_without_paid_validation_retries(tmp_path: Path, monkeypatch) -> None:
+    settings, contract, state, root, assignment = recovery_context(tmp_path)
+    calls = []
+
+    class FakeResponses:
+        def create(self, **kwargs):
+            calls.append(kwargs)
+            assert len(calls) == 1, "A field-validation error must not trigger another paid call"
+            assert kwargs["tool_choice"] == "required"
+            return SimpleNamespace(
+                id="response-one", model="test-model",
+                usage=SimpleNamespace(model_dump=lambda **_: {"input_tokens": 100, "output_tokens": 50}),
+                output=[SimpleNamespace(
+                    type="function_call", name="submit_template_fill", call_id=f"call-{i}",
+                    arguments=json.dumps(payload),
+                ) for i, payload in enumerate([
+                    {"summary": "part1", "assignments": [assignment]},
+                    {"summary": "part2", "assignments": [{**assignment, "cell": "B3"}], "unresolved": [{
+                        "sheet": "Данные", "cell": "B4", "category": "conflict", "reason": "bad record",
+                        "source_locators": ["page:1"], "source_values": [], "evidence_fragments": [],
+                    }]},
+                ])],
+            )
+
+    monkeypatch.setattr("executive_docs.agent.OpenAI", lambda **_: SimpleNamespace(
+        responses=FakeResponses(), files=SimpleNamespace(delete=lambda _: None),
+    ))
+    monkeypatch.setattr(OpenAIAgent, "_upload_visual_inputs", lambda *a, **k: ([], [], [{
+        "file_id": state.artifacts[0].id, "sha256": state.artifacts[0].sha256, "pages": [1],
+    }]))
+    result = OpenAIAgent(settings, KnowledgeBase(settings.skill_dir)).fill_template(state, root, contract)
+    assert [a.cell for a in result.assignments] == ["B1", "B3"]
+    assert [f.cell for f in result.unresolved] == ["B4"]
+    assert len(state.model_usage) == 1
+    events = [json.loads(line) for line in (root / "state/agent-events.jsonl").read_text().splitlines()]
+    assert any(event["event"] == "selected_template_submission" for event in events)
+    validation = next(event for event in events if event["event"] == "selected_template_validation")
+    assert validation["accepted_count"] == 2
+    assert validation["rejected_records"][0]["cell"] == "B4"
+    request_texts = [
+        part["text"]
+        for message in calls[0]["input"] if isinstance(message, dict)
+        for part in message.get("content", []) if part.get("type") == "input_text"
+    ]
+    prompt = next(json.loads(text) for text in request_texts if '"fact_source_policy"' in text)
+    assert prompt["fact_source_policy"] == "uploaded_pdf_only"
+    assert "approved_profile_claims" not in prompt
+    assert "without an approved profile" not in "\n".join(request_texts)
+    # Corpus discoveries must never supply another job's company/factual values.
+    assert "ООО «ГЕФЕСТ»" not in "\n".join(request_texts)
+
+
+@pytest.mark.parametrize("semantic_id,rule,fragment,allowed", [
+    ("customer.name", "organization_role_pdf", "Заказчик: ООО Тест", True),
+    ("designer.name", "organization_role_pdf", "Генеральный проектировщик: ООО Тест", True),
+    ("contractor.name", "organization_role_pdf", "Монтажная организация: ООО Тест", True),
+    ("contractor.name", "organization_role_pdf", "Проектная организация: ООО Тест", False),
+    ("customer.name", "organization_role_pdf", "Сетевая организация: ООО Тест", False),
+    ("laboratory.name", "organization_role_pdf", "Испытательная электролаборатория ООО Тест", True),
+    ("commissioning.name", "organization_role_pdf", "Пусконаладочная организация ООО Тест", True),
+    ("customer.construction_control.name", "signatory_role_pdf", "Представитель заказчика по вопросам строительного контроля: Иванов", True),
+    ("customer.construction_control.name", "signatory_role_pdf", "Заказчик. Задание утвердил главный инженер Иванов", False),
+    ("contractor.construction_control.authority", "authority_document_pdf", "Приказ №15: строительный контроль подрядчика — Иванов", True),
+    ("contractor.construction_control.authority", "authority_document_pdf", "Приказ №91: требования к аттестации материалов подрядчика", False),
+    ("laboratory.tester_1.name", "signatory_role_pdf", "Испытательная электролаборатория. Испытания проводил Иванов", True),
+    ("actual.start", "actual_executive_document_only", "Фактическая дата начала работ: 01.03.2026", True),
+    ("actual.start", "actual_executive_document_only", "Дата выпуска проекта: 01.03.2026", False),
+    ("actual.quantity", "actual_executive_document_only", "Проектная длина: 308 м", False),
+    ("actual.quantity", "actual_executive_document_only", "Работы не выполнены. Проектная длина: 308 м", False),
+])
+def test_pdf_only_context_guards_preserve_roles_and_actuals(
+    tmp_path: Path, semantic_id: str, rule: str, fragment: str, allowed: bool,
+) -> None:
+    field = replace(build_catalog(tmp_path).get("sample").fields[0],
+                    semantic_id=semantic_id, evidence_rule=rule)
+    value = "Иванов" if "Иванов" in fragment else "ООО Тест"
+    subject = None
+    if rule == "authority_document_pdf":
+        value, subject = "№15", "Иванов"
+    assert (field.evidence_context_error([fragment], value, subject) is None) is allowed
+
+
+def test_pdf_only_context_is_checked_against_same_source(tmp_path: Path, monkeypatch) -> None:
+    _, contract, state, root, assignment = recovery_context(tmp_path)
+    field = replace(contract.fields[0], semantic_id="customer.registration", evidence_rule="organization_role_pdf")
+    contract = replace(contract, fields=(field,))
+    text = "Заказчик ООО Тест. ИНН 1234567890"
+    monkeypatch.setattr("executive_docs.agent.source_index", lambda *a, **k: {"segments": [{
+        "page": 1, "text": text, "visual_required": False, "text_reliable": True,
+    }]})
+    assignment = {**assignment, "value": "1234567890", "evidence_fragment": "ООО Тест. ИНН 1234567890",
+                  "subject_name": "ООО Тест",
+                  "context_evidence": [{"locator": "page:1", "evidence_fragment": "Заказчик ООО Тест"}]}
+    result, diagnostics = OpenAIAgent._recover_template_fill(state, contract, [{"assignments": [assignment]}], root)
+    assert len(result.assignments) == 1
+    assert not diagnostics
+    assert result.assignments[0].context_evidence[0].locator == "page:1"
+    for invalid in [
+        {"locator": "page:2", "evidence_fragment": "Заказчик ООО Тест"},
+        {"locator": "page:1", "evidence_fragment": "Заказчик ООО Другая компания"},
+    ]:
+        rejected, diagnostics = OpenAIAgent._recover_template_fill(state, contract, [{
+            "assignments": [{**assignment, "context_evidence": [invalid]}],
+        }], root)
+        assert not rejected.assignments
+        assert diagnostics
+    # No profile/name knowledge can replace role evidence in this source.
+    rejected, _ = OpenAIAgent._recover_template_fill(state, contract, [{
+        "assignments": [{**assignment, "context_evidence": []}],
+    }], root)
+    assert not rejected.assignments
+
+
+def test_context_cannot_borrow_another_entity_or_person_role(tmp_path: Path) -> None:
+    base = build_catalog(tmp_path).get("sample").fields[0]
+    customer = replace(base, semantic_id="customer.name", evidence_rule="organization_role_pdf")
+    assert customer.evidence_context_error(
+        ["Подрядчик: ООО Альфа", "Заказчик: ООО Бета"], "ООО Альфа",
+    )
+    assert customer.evidence_context_error(
+        ["Заказчик: ООО Бета. Подрядчик: ООО Альфа"], "ООО Альфа",
+    )
+    registration = replace(customer, semantic_id="customer.registration")
+    assert registration.evidence_context_error(
+        ["ООО Альфа ИНН 1234567890", "Заказчик ООО Бета"], "1234567890", "ООО Альфа",
+    )
+    signer = replace(base, semantic_id="customer.construction_control.name", evidence_rule="signatory_role_pdf")
+    assert signer.evidence_context_error(
+        ["Разработал проект Иванов", "Представитель заказчика по строительному контролю Петров"], "Иванов",
+    )
+
+
+def test_supplementary_pdf_provenance_is_exported_in_report(tmp_path: Path) -> None:
+    from executive_docs.packaging import write_report
+    _, _, state, root, assignment = recovery_context(tmp_path)
+    state.template_assignments = [TemplateCellAssignment.model_validate({
+        **assignment, "subject_name": "ООО Тест", "context_evidence": [{
+            "locator": "page:1", "evidence_fragment": "Заказчик ООО Тест",
+        }],
+    })]
+    write_report(state, root)
+    report = json.loads((root / "report/r1/report.json").read_text())
+    assert report["template_assignments"][0]["context_evidence"] == [
+        {"locator": "page:1", "evidence_fragment": "Заказчик ООО Тест"},
+    ]
+
+
 def test_selected_template_pipeline_creates_one_draft_in_one_pass(tmp_path: Path) -> None:
     catalog = build_catalog(tmp_path)
     contract = catalog.get("sample")
@@ -653,9 +903,9 @@ def test_real_candidates_are_discovery_only_and_do_not_retain_known_project_valu
         assert contract.status == "DISCOVERY_REVIEW_REQUIRED"
         assert contract.approved is False
         expected_derivation = (
-            "source_structure_plus_reviewed_aosr_overrides"
+            "source_structure_plus_reviewed_aosr_and_pdf_role_overrides"
             if contract.template_id == "aosr_vl"
-            else "source_only_discovery"
+            else "source_structure_plus_reviewed_pdf_role_overrides"
         )
         assert contract.structural_findings["target_derivation"] == expected_derivation
         assert contract.structural_findings["remaining_sensitive_value_count"] == 0

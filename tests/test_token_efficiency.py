@@ -8,7 +8,7 @@ from pypdf import PdfWriter
 
 from executive_docs.config import Settings
 from executive_docs.domain import Artifact, ProjectState
-from executive_docs.ingestion import _selected_pdf_pages, build_inventory, select_visual_sources, source_index
+from executive_docs.ingestion import EXTRACTOR_VERSION, _selected_pdf_pages, build_inventory, select_visual_sources, source_index
 from executive_docs.usage import TokenBudgetExceeded, ensure_budget, usage_record
 
 
@@ -35,7 +35,7 @@ def test_sha_index_is_reused_and_out_of_pilot_visuals_are_filtered(tmp_path: Pat
     kl6 = _pdf_artifact(tmp_path, "АОСР 1-7 КЛ 6кВ.pdf")
     ktp = _pdf_artifact(tmp_path, "АОСР 1 КТП.pdf")
     artifacts, _ = build_inventory(tmp_path, [kl6, ktp])
-    cached_path = tmp_path / "extracted" / f"{kl6.sha256}-2.json"
+    cached_path = tmp_path / "extracted" / f"{kl6.sha256}-{EXTRACTOR_VERSION}.json"
     assert cached_path.exists()
     first_mtime = cached_path.stat().st_mtime_ns
     source_index(tmp_path, artifacts[0])

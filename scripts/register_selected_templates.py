@@ -26,8 +26,8 @@ SOURCE_DIR = ROOT / "NEW_TEMPLATES" / "Attachments_vku@e-systems-4"
 ETALON_DIR = ROOT / "ETALON"
 APPROVED_DIR = ROOT / "templates" / "approved"
 CONTRACTS_DIR = ROOT / "templates" / "fill-contracts"
-VERSION = "2026-07-30-discovery-2"
-AOSR_VL_VERSION = "2026-08-05-discovery-3"
+VERSION = "2026-09-08-discovery-6"
+AOSR_VL_VERSION = VERSION
 TEMPLATES = (
     ("emr", "1. ЭМР1.xlsx", "Электромонтажные работы (ЭМР)", "emr"),
     ("protocols", "2. Протоколы.xlsx", "Протоколы испытаний", "protocols"),
@@ -121,43 +121,6 @@ SHEET_RENAMES = {
         "Титульный Гефест": "Титульный подрядчик",
     },
 }
-MANUAL_TOKENS = {
-    "passport_or_certificate": (
-        "паспорт",
-        "сертификат",
-        "декларац",
-        "свидетельств",
-        "удостоверен",
-        "документ о качестве",
-    ),
-    "signatory_or_authority": (
-        "подписант",
-        "подпись",
-        "приказ",
-        "директор",
-        "представител",
-        "строительн",
-        "контрол",
-        "нрс",
-        "нострой",
-        "доверенн",
-        "полномочи",
-        "ф.и.о",
-    ),
-    "actual_execution_fact": (
-        "фактическ",
-        "дата начала",
-        "дата оконч",
-        "начало работ",
-        "окончание работ",
-        "выполнено",
-        "исполнено",
-        "объем выполн",
-        "объём выполн",
-    ),
-}
-
-
 def _aosr_field(
     semantic_id: str,
     label: str,
@@ -167,6 +130,8 @@ def _aosr_field(
     evidence_rule: str = "direct_pdf",
     required: bool = True,
     value_pattern: str | None = None,
+    manual_reason: str | None = None,
+    allow_project_basis: bool = False,
 ) -> dict:
     return {
         "semantic_id": semantic_id,
@@ -175,8 +140,9 @@ def _aosr_field(
         "value_kind": value_kind,
         "evidence_rule": evidence_rule,
         "required": required,
-        "manual_reason": None,
+        "manual_reason": manual_reason,
         "value_pattern": value_pattern,
+        "allow_project_basis": allow_project_basis,
     }
 
 
@@ -209,8 +175,13 @@ AOSR_VL_FIELD_OVERRIDES = {
     ),
     ("Данные объект", "B42"): _aosr_field(
         "project.city",
-        "Город выпуска документации",
-        "Населённый пункт, указанный для выпуска проектной документации",
+        "Город (блок «Проект»)",
+        "Подпись исходного шаблона не различает город проектной организации "
+        "и место выпуска основного проекта; город вложенного задания не подтверждает это поле",
+        manual_reason=(
+            "Нужно уточнить, относится ли город к проектной организации или месту выпуска "
+            "основного проекта, прежде чем сопоставлять поле сведениям PDF"
+        ),
     ),
     ("Данные объект", "B43"): _aosr_field(
         "project.design_document_code",
@@ -359,6 +330,27 @@ AOSR_VL_FIELD_OVERRIDES = {
     ),
 }
 
+# Only these quantitative work/material fields may carry a visibly marked
+# design-basis draft value. Dates, act numbers and quality documents never do.
+AOSR_VL_PROJECT_QUANTITY_UNITS = {
+    ("АОСР-2", "P63"): "опоры (шт.)", ("АОСР-2", "V63"): "стойки СВ 95-3 (шт.)",
+    ("АОСР-3", "T62"): "опоры (шт.)", ("АОСР-3", "X62"): "м³",
+    ("АОСР-4", "H69"): "м", ("АОСР-4", "H70"): "м", ("АОСР-4", "H71"): "м",
+    ("АОСР-6", "H69"): "м", ("АОСР-6", "H70"): "шт.",
+    ("АОСР-7", "H69"): "кг", ("АОСР-7", "H70"): "шт.",
+}
+AOSR_VL_PROJECT_QUANTITY_TARGETS = set(AOSR_VL_PROJECT_QUANTITY_UNITS)
+for _target in AOSR_VL_PROJECT_QUANTITY_TARGETS:
+    AOSR_VL_FIELD_OVERRIDES[_target]["allow_project_basis"] = True
+    AOSR_VL_FIELD_OVERRIDES[_target]["description"] += (
+        f". Единица исходного шаблона: {AOSR_VL_PROJECT_QUANTITY_UNITS[_target]}. "
+        "Не вписывать число в другой единице и не пересчитывать неуказанный итог. "
+        "Если в PDF есть только проектное количество для этой работы и того же материала, "
+        "разрешён черновой перенос с value_basis=project, отдельной подсветкой и проверкой "
+        "специалистом. Не выдавать проектное количество за выполненное. Не вычислять "
+        "отсутствующие объёмы и не заменять материал похожей маркой."
+    )
+
 AOSR_VL_BROKEN_FORMULA_CELLS = {
     "АОСР-1": {"A117"},
     "АОСР-2": {"A118"},
@@ -379,6 +371,272 @@ AOSR_VL_FORMULA_OVERRIDES = {
     ("АОСР-6", "A62"): "=IF('АОСР-5'!A86=\"\",\"\",'АОСР-5'!A86)",
     ("АОСР-7", "A62"): "=IF('АОСР-6'!A86=\"\",\"\",'АОСР-6'!A86)",
 }
+
+
+def object_card_field_overrides(template_id: str, source_book) -> dict:
+    """Map explicit PDF-backed inputs, never organization/profile lookup values.
+
+    Captions and formula consumers in NEW_TEMPLATES establish the target role.
+    The PDF must independently establish each value and that same role. Direct
+    lookup precedents may hold current-PDF facts only when a precise card field
+    consumes them; unused lookup columns are not reusable organization profiles.
+    """
+
+    if template_id not in {item[0] for item in TEMPLATES}:
+        return {}
+    sheet_name = "Данные объект"
+    worksheet = source_book[sheet_name]
+    fields = {}
+
+    backing_cells = {
+        "emr": {"B34": "G2", "B35": "G3"},
+        "protocols": {"B23": "B2", "B24": "B3", "B34": "F1", "B35": "F2", "B36": "F3"},
+        "ojr": {"B31": "F2", "B32": "F3"},
+        "avk": {"B24": "F2", "B25": "F3"},
+        "aosr_vl": {},
+    }[template_id]
+
+    def add(coordinate: str, expected_label: str, definition: dict) -> None:
+        cell = worksheet[coordinate]
+        observed_label = normalized_sheet(str(worksheet.cell(cell.row, 1).value or ""))
+        if observed_label != normalized_sheet(expected_label):
+            raise ValueError(f"Изменилась подпись поля карточки: {sheet_name}!{coordinate}")
+        if coordinate in backing_cells:
+            target = backing_cells[coordinate]
+            expected_formulas = {
+                f"='Данные организации'!{target}",
+                f"='[1]Данные организации'!{target}",
+            }
+            if cell.value not in expected_formulas:
+                raise ValueError(f"Изменилась ссылка поля карточки: {sheet_name}!{coordinate}")
+            backing = source_book["Данные организации"][target]
+            if is_formula(backing.value) or is_merged_non_anchor(backing.parent, backing):
+                raise ValueError(f"Некорректный источник поля карточки: Данные организации!{target}")
+            fields[("Данные организации", target)] = dict(definition)
+            return
+        if is_formula(cell.value) or is_merged_non_anchor(worksheet, cell):
+            raise ValueError(f"Некорректное поле карточки: {sheet_name}!{coordinate}")
+        fields[(sheet_name, coordinate)] = dict(definition)
+
+    for coordinate, caption in (("B2", "№ САП"), ("B3", "Объект"), ("B4", "р-н"), ("B5", "Адрес")):
+        add(coordinate, caption, AOSR_VL_FIELD_OVERRIDES[(sheet_name, coordinate)])
+
+    actual_date_rows = ((6, "start", "Дата старт"), (7, "end", "Дата финиш")) if template_id in {"avk", "aosr_vl"} else (
+        (6, "staking", "Дата разбивки"), (7, "start", "Дата старт"), (8, "end", "Дата финиш"),
+    )
+    date_labels = {"start": "Фактическая дата начала работ", "end": "Фактическая дата окончания работ", "staking": "Фактическая дата разбивки"}
+    for row, kind, caption in actual_date_rows:
+        add(f"B{row}", caption, _aosr_field(
+            f"actual.{kind}", date_labels[kind],
+            f"{date_labels[kind]} по записи о выполненных работах в загруженном PDF. "
+            "Не использовать проектный график, дату договора, выпуска проекта или электронной подписи.",
+            value_kind="date", evidence_rule="actual_executive_document_only",
+        ))
+
+    # All three inputs must carry the organization's explicit project role.
+    # The EMR project block is intentionally absent: source captions B51–B56
+    # disagree with its output formulas (e.g. B52 is used as designer name).
+    organization_rows = {
+        "aosr_vl": {"contractor": 11, "customer": 23, "designer": 39},
+        "avk": {"contractor": 11, "customer": 23, "designer": 36},
+        "emr": {"contractor": 19, "customer": 33},
+        "ojr": {"contractor": 17, "customer": 30, "designer": 50, "commissioning": 58},
+        "protocols": {"contractor": 22, "customer": 34, "designer": 50, "laboratory": 58},
+    }[template_id]
+    role_names = {
+        "contractor": "Монтажная организация (лицо, осуществляющее строительство)",
+        "customer": "Заказчик / технический заказчик",
+        "designer": "Проектная организация (разработчик проектной документации)",
+        "commissioning": "Пусконаладочная организация",
+        "laboratory": "Испытательная электролаборатория",
+    }
+    for role, first_row in organization_rows.items():
+        for offset, part, caption in ((0, "name", "Организация"), (1, "registration", "Реквизиты"), (2, "address", "адрес")):
+            label = f"{role_names[role]}: {caption.lower()}"
+            add(f"B{first_row + offset}", caption, _aosr_field(
+                f"{role}.{part}", label,
+                f"{label}. Только из текущего PDF, с явной связью юридического лица "
+                "с этой ролью в данном проекте. Для реквизитов/адреса подтвердить принадлежность "
+                "той же организации; при необходимости сослаться также на страницу с её ролью. "
+                "Логотип, общая фамилия директора или адрес объекта не подтверждают роль. "
+                "При противоречащих организациях для одной роли оставить пустым и показать обе версии.",
+                evidence_rule="organization_role_pdf",
+            ))
+
+    # These roles are established by output-form captions, not by names or
+    # positions prefilled in the source object card. Other unlabeled groups
+    # remain unreviewed rather than being guessed from an old organization.
+    representative_rows = {
+        "aosr_vl": (
+            (16, "contractor.construction_control", "Представитель монтажной организации по строительному контролю", True),
+            (19, "contractor.site_representative", "Представитель лица, осуществляющего строительство", True),
+            (32, "customer.construction_control", "Представитель заказчика по строительному контролю", True),
+            (35, "customer.other_representative", "Иной представитель заказчика, участвующий в освидетельствовании", True),
+        ),
+        "emr": ((27, "contractor.site_representative", "Полномочный представитель подрядчика при проверке готовности к работам", True),),
+        "ojr": (
+            (22, "contractor.construction_control", "Уполномоченный представитель подрядчика по строительному контролю", True),
+            (26, "contractor.site_representative", "Уполномоченный представитель лица, осуществляющего строительство", True),
+            (40, "customer.construction_control", "Уполномоченный представитель заказчика по строительному контролю", True),
+        ),
+        "protocols": (
+            (61, "laboratory.reviewer", "Специалист электролаборатории, проверивший протокол", False),
+            (64, "laboratory.tester_1", "Первый специалист электролаборатории, проводивший проверку", False),
+            (66, "laboratory.tester_2", "Второй специалист электролаборатории, проводивший проверку", False),
+        ),
+        "avk": (),
+    }[template_id]
+    for first_row, role, role_label, has_authority in representative_rows:
+        parts = [(0, "position", "Должность"), (1, "name", "Ф.И.О.")]
+        if has_authority:
+            parts.append((2, "authority", "Приказ"))
+        for offset, part, caption in parts:
+            add(f"B{first_row + offset}", caption, _aosr_field(
+                f"{role}.{part}", f"{role_label}: {caption}",
+                f"{role_label}: {caption}. PDF должен прямо связывать человека, организацию "
+                "и указанную роль на этом объекте. Разработчик чертежа, директор или автор "
+                "электронной подписи не становится подписантом этого документа автоматически. "
+                "Для основания полномочий нужны реквизиты распорядительного документа и его "
+                "связь с тем же человеком/ролью; не переносить приказ другого назначения.",
+                evidence_rule="authority_document_pdf" if part == "authority" else "signatory_role_pdf",
+            ))
+
+    installation_rows = {
+        "emr": ((12, "ТП", "substation"), (13, "АСП", "asp"), (14, "ВЛ-10", "overhead_line_10kv"),
+                (15, "ВЛ-0,4", "overhead_line_04kv"), (16, "КЛ", "cable_line"), (17, "ВРЩ", "switchboard")),
+        "protocols": ((15, "ТП", "substation"), (17, "ВЛ-10", "overhead_line_10kv"),
+                      (18, "ВЛ-0,4", "overhead_line_04kv"), (19, "КЛ", "cable_line"), (20, "ВРЩ", "switchboard")),
+        "ojr": ((12, "ВЛ-10", "overhead_line_10kv"), (13, "ВЛ-0,4", "overhead_line_04kv"),
+                (14, "КЛ", "cable_line"), (15, "ВРЩ", "switchboard")),
+        "avk": ((9, "ТП", "substation"),),
+        "aosr_vl": (),
+    }
+    for row, caption, kind in installation_rows[template_id]:
+        add(
+            f"B{row}", caption,
+            _aosr_field(
+                f"project.installation.{kind}",
+                f"Обозначение электроустановки: {caption}",
+                f"Проектное наименование или диспетчерское обозначение {caption} из PDF. "
+                "Оставить пустым, если установка такого вида в проекте не указана; "
+                "не подставлять обозначение другого вида установки.",
+            ),
+        )
+
+    # In the EMR source this lower block has shifted captions. Do not infer its
+    # city/code mapping from stale example values or from another workbook.
+    project_rows = {"protocols": (53, 54), "ojr": (53, 54), "avk": (39, 40)}
+    if template_id in project_rows:
+        city_row, code_row = project_rows[template_id]
+        add(f"B{city_row}", "Город", AOSR_VL_FIELD_OVERRIDES[(sheet_name, "B42")])
+        add(f"B{code_row}", "№", AOSR_VL_FIELD_OVERRIDES[(sheet_name, "B43")])
+    if template_id == "avk":
+        add(
+            "B41", "Название",
+            _aosr_field(
+                "project.design_document_title", "Наименование проектной документации",
+                "Полное название проектной или рабочей документации, указанное на титульном листе PDF",
+            ),
+        )
+    if template_id == "aosr_vl":
+        # The legacy source caption B9 says ВРЩ; its separately reviewed VL
+        # override, not this generic card mapper, supplies the line semantics.
+        add("B42", "Город", AOSR_VL_FIELD_OVERRIDES[(sheet_name, "B42")])
+        add("B43", "№", AOSR_VL_FIELD_OVERRIDES[(sheet_name, "B43")])
+    if template_id == "protocols":
+        for row, caption, key in (
+            (10, "Температура воздуха", "temperature"),
+            (11, "Влажность", "humidity"),
+            (12, "Атмосферное давление", "pressure"),
+        ):
+            add(f"B{row}", caption, _aosr_field(
+                f"laboratory.test_conditions.{key}", f"Фактические условия испытания: {caption.lower()}",
+                f"Измеренные {caption.lower()} во время испытания по протоколу в PDF. "
+                "Не использовать климатические справочные данные и проектные расчётные условия.",
+                value_kind="number", evidence_rule="actual_executive_document_only",
+            ))
+    return fields
+
+
+def material_table_field_overrides(template_id: str, source_book) -> dict:
+    """Expand only caption-proven material columns, never old example facts.
+
+    The source's repeated-row order is a layout, not a required material order.
+    Each current PDF item receives one row; its name, type and quantity stay on
+    that same row. Empty spare rows are existing anchors, not new workbook rows.
+    """
+    fields = {}
+    if template_id == "avk":
+        sheet_name = " Журнал АВК"
+        worksheet = source_book[sheet_name]
+        for coordinate, expected in {
+            "C34": "Наименование деталей, материалов, изделий, конструкций, оборудования",
+            "D34": "Количество",
+        }.items():
+            if normalized_sheet(str(worksheet[coordinate].value or "")) != normalized_sheet(expected):
+                raise ValueError(f"Изменилась подпись материальной таблицы: {sheet_name}!{coordinate}")
+        # Rows 36:76 are linked to individual acts with stale example product
+        # names and are intentionally not made writable here. These ten spare
+        # rows are genuinely blank and have no quantity/result formulas.
+        for row in range(77, 87):
+            if worksheet[f"A{row}"].value != row - 35:
+                raise ValueError(f"Изменилась строка материальной таблицы: {sheet_name}!A{row}")
+            for column, part, label in (
+                ("C", "name", "Наименование и марка материала или оборудования"),
+                ("D", "quantity", "Количество с единицей измерения"),
+            ):
+                coordinate = f"{column}{row}"
+                cell = worksheet[coordinate]
+                if cell.value not in (None, "") or is_merged_non_anchor(worksheet, cell):
+                    raise ValueError(f"Резервная строка материальной таблицы больше не пуста: {sheet_name}!{coordinate}")
+                fields[(sheet_name, coordinate)] = _aosr_field(
+                    f"avk.materials.item_{row - 76}.{part}",
+                    f"Материал / оборудование, резервная позиция {row - 76}: {label.lower()}",
+                    f"{label}. C/D строки {row} относятся к одной позиции текущего PDF. "
+                    "Разные позиции спецификации последовательно занимают строки 77–86. "
+                    "Только проект: value_basis=project, не факт поставки или годности. "
+                    "Единица количества — как в PDF, без расчёта отсутствующего итога.",
+                    evidence_rule="actual_executive_document_only",
+                    allow_project_basis=True,
+                    required=False,
+                )
+        return fields
+    if template_id != "emr":
+        return fields
+    sheet_name = "Ведомость общ"
+    worksheet = source_book[sheet_name]
+    captions = {
+        "E17": "Наименование электрооборудования, комплекта",
+        "AI17": "Тип, марка",
+        "BE17": "Кол-во",
+    }
+    for coordinate, expected in captions.items():
+        if normalized_sheet(str(worksheet[coordinate].value or "")) != normalized_sheet(expected):
+            raise ValueError(f"Изменилась подпись материальной таблицы: {sheet_name}!{coordinate}")
+    for row in range(19, 42):
+        if worksheet[f"A{row}"].value != row - 18:
+            raise ValueError(f"Изменилась строка материальной таблицы: {sheet_name}!A{row}")
+        for column, part, label in (
+            ("E", "name", "Наименование электрооборудования или материала"),
+            ("AI", "type", "Тип, марка электрооборудования или материала"),
+            ("BE", "quantity", "Количество с единицей измерения"),
+        ):
+            coordinate = f"{column}{row}"
+            cell = worksheet[coordinate]
+            if is_formula(cell.value) or is_merged_non_anchor(worksheet, cell):
+                raise ValueError(f"Некорректная ячейка материальной таблицы: {sheet_name}!{coordinate}")
+            fields[(sheet_name, coordinate)] = _aosr_field(
+                f"emr.materials.item_{row - 18}.{part}",
+                f"Материал / оборудование, позиция {row - 18}: {label.lower()}",
+                f"{label}. E/AI/BE строки {row} относятся к одной позиции текущего PDF. "
+                "Разные марки занимают разные строки 19–41 в порядке спецификации. "
+                "Только проект: value_basis=project, не факт монтажа. "
+                "Единица количества — как в PDF, без расчёта отсутствующего итога.",
+                evidence_rule="actual_executive_document_only",
+                allow_project_basis=True,
+                required=False,
+            )
+    return fields
 
 
 def digest(path: Path) -> str:
@@ -692,88 +950,23 @@ def manual_reason(
     label: str,
     source_cell,
 ) -> str | None:
+    """Withhold only unknown mappings, not categories presumed absent from PDF.
+
+    Discovery finds cells worth clearing, but nearby text and old cell values
+    do not establish a safe semantic target. Explicit reviewed-source overrides
+    below remove this reason and declare PDF evidence rules for dates, actuals,
+    quality documents, organizations and representatives alike.
+    """
     normalized = normalized_sheet(sheet)
-    value = source_cell.value
-    text = f"{sheet} {label} {value or ''}".casefold().replace("ё", "е")
     if "данные организации" in normalized:
-        return "Реквизиты, подписанты и полномочия требуют утверждённого профиля организации"
-    if any(
-        token in text
-        for token in (
-            " огрн",
-            " инн",
-            " кпп",
-            "реквизит",
-            "адрес",
-            "организац",
-            "заказчик",
-            "застройщик",
-            "подрядчик",
-            " пао ",
-            " ооо ",
-            " ао «",
-            ' ао "',
-            "филиал",
-            "главный инженер",
-            "лицо, ответствен",
-            "члены комиссии",
-        )
-    ) or any(token in text for token in PRIOR_PROJECT_TOKENS):
-        return "Реквизиты, организация или ответственный специалист требуют утверждённого профиля"
-    if (
-        source_cell.is_date
-        or isinstance(value, (date, datetime))
-        or DATE_PATTERN.search(str(value or ""))
-        or TEXTUAL_DATE_PATTERN.search(str(value or ""))
-        or "дата" in text
-    ):
-        return "Дата требует отдельного подтверждения специалистом; проектный график не является фактом выполнения"
-    if template_id == "protocols" and normalized == "оборудование":
-        return "Прибор, заводской номер и сведения о поверке требуют отдельного подтверждения"
-    if template_id == "protocols" and is_protocol_actual_entry_cell(
-        source_cell.parent,
-        source_cell,
-    ):
-        return "Фактический параметр или результат испытания требует отдельного подтверждения"
-    if template_id == "avk" and normalized != "данные объект":
-        return "Фактическое значение входного контроля требует отдельного подтверждения"
-    if template_id == "avk" and looks_project_specific(value) and (
-        DATE_PATTERN.search(str(value or ""))
-        or any(
-            token in text
-            for token in (
-                "паспорт",
-                "сертификат",
-                "декларац",
-                "свидетельств",
-                "удостоверен",
-                "документ о качестве",
-            )
-        )
-    ):
-        return "Документ о качестве и его реквизиты требуют отдельного подтверждения"
-    if template_id == "avk" and "журнал авк" in normalized:
-        return "Фактическая запись входного контроля требует отдельного подтверждения"
-    if template_id == "ojr" and normalized.startswith("раздел"):
-        return "Фактическая запись общего журнала работ требует отдельного подтверждения"
-    if template_id == "aosr_vl" and normalized.startswith("аоср"):
-        return "Фактическое значение АОСР требует отдельного подтверждения"
-    if template_id == "emr" and (
-        "реестр" in normalized or normalized.startswith("ведомость")
-    ):
-        return "Фактическая запись реестра требует отдельного подтверждения"
-    if PERSON_PATTERN.search(str(value or "")) or PERSON_PATTERN_REVERSED.search(
-        str(value or "")
-    ):
-        return "ФИО и полномочия подписанта требуют утверждённого профиля"
-    for category, tokens in MANUAL_TOKENS.items():
-        if any(token in text for token in tokens):
-            return {
-                "passport_or_certificate": "Паспорт или сертификат отсутствует в PDF и требует ручного подтверждения",
-                "signatory_or_authority": "Подписант или основание полномочий требует утверждённого профиля",
-                "actual_execution_fact": "Фактическое значение нельзя выводить из проектного PDF",
-            }[category]
-    return None
+        return "Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе"
+    if template_id == "emr" and normalized == "данные объект" and source_cell.coordinate in {
+        "B51", "B52", "B53", "B54", "B55", "B56",
+    }:
+        return "Подписи блока «Проект» расходятся с назначением формул-потребителей; требуется уточнить сопоставление ячеек"
+    if normalized == "данные объект":
+        return "Роль или назначение этого поля карточки не определены однозначно по подписям и формулам исходного шаблона"
+    return "Для этой ячейки ещё не проверены смысл поля и сопоставление записи PDF со строкой выбранного шаблона"
 
 
 def compare_with_etalon(candidate_book, etalon_book) -> dict:
@@ -896,6 +1089,8 @@ def register(
         source_external_links = len(getattr(source_book, "_external_links", []))
         sheet_renames = SHEET_RENAMES.get(template_id, {})
         references = formula_references(source_book)
+        card_overrides = object_card_field_overrides(template_id, source_book)
+        material_overrides = material_table_field_overrides(template_id, source_book)
         registered_by_sheet: dict[str, set[str]] = defaultdict(set)
         for worksheet in source_book.worksheets:
             for row in worksheet.iter_rows():
@@ -907,6 +1102,11 @@ def register(
                         references,
                     ):
                         registered_by_sheet[worksheet.title].add(cell.coordinate)
+
+        for sheet_name, coordinate in card_overrides:
+            registered_by_sheet[sheet_name].add(coordinate)
+        for sheet_name, coordinate in material_overrides:
+            registered_by_sheet[sheet_name].add(coordinate)
 
         if template_id == "aosr_vl":
             for sheet_name, coordinate in AOSR_VL_FIELD_OVERRIDES:
@@ -971,11 +1171,9 @@ def register(
                             "evidence_rule": "direct_pdf",
                         }
                     )
-                override = (
-                    AOSR_VL_FIELD_OVERRIDES.get((sheet_name, coordinate))
-                    if template_id == "aosr_vl"
-                    else None
-                )
+                override = card_overrides.get((sheet_name, coordinate)) or material_overrides.get((sheet_name, coordinate))
+                if template_id == "aosr_vl":
+                    override = override or AOSR_VL_FIELD_OVERRIDES.get((sheet_name, coordinate))
                 if override:
                     field.update(override)
                 fields.append(field)
@@ -1066,10 +1264,13 @@ def register(
             findings.update(
                 {
                     "target_derivation": (
-                        "source_structure_plus_reviewed_aosr_overrides"
+                        "source_structure_plus_reviewed_aosr_and_pdf_role_overrides"
                         if template_id == "aosr_vl"
-                        else "source_only_discovery"
+                        else "source_structure_plus_reviewed_pdf_role_overrides"
                     ),
+                    "value_source_policy": "uploaded_pdf_only",
+                    "project_basis_target_count": sum(bool(field.get("allow_project_basis")) for field in fields),
+                    "reviewed_material_target_count": len(material_overrides),
                     "discovery_target_count": len(fields),
                     "cleared_cell_count": sum(
                         len(items) for items in clear_targets.values()

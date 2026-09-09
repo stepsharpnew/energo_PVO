@@ -53,6 +53,8 @@ class Settings:
     fill_contracts_dir: Path = ROOT / "templates" / "fill-contracts"
     approved_templates_dir: Path = ROOT / "templates" / "approved"
     source_templates_dir: Path = ROOT / "template"
+    # Legacy constructor compatibility only. Profile files are no longer read
+    # or required at startup; processing_profile below is unrelated.
     profiles_dir: Path = ROOT / "profiles"
     openai_api_key: str = os.getenv("OPENAI_API_KEY", "")
     # OPENAI_MODEL is retained as a compatibility/display fallback. Stage and
@@ -137,7 +139,6 @@ class Settings:
             self.contracts_dir,
             self.fill_contracts_dir,
             self.approved_templates_dir,
-            self.profiles_dir,
         ):
             path.mkdir(parents=True, exist_ok=True)
 

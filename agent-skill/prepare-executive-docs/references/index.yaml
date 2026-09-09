@@ -1,14 +1,18 @@
-version: 4
+version: 6
 topics:
   workflow: workflow.md
   token_efficiency: token-efficiency.md
   selected_template_v2: selected-template-v2.md
+  # Offline corpus audit only; never load into paid analysis or filling context.
+  selected_template_findings: selected-template-findings.md
   source_priority: source-priority.md
   document_rules: document-rules.md
   semantic_fields: semantic-fields.md
   kl_04: pilot-work-families.md
   kl_6: pilot-work-families.md
   vrs: pilot-work-families.md
+  # Historical aliases only: factual profiles were retired on 2026-09-07.
+  retired_profiles: customer-profiles.md
   customer_khimki: customer-profiles.md
   customer_solnechnogorsk: customer-profiles.md
   validation: validation.md

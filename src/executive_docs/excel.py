@@ -15,6 +15,7 @@ import yaml
 from lxml import etree
 
 from .domain import Claim, DocumentPlan, NeedInputQuestion, WorkItem
+from .profiles import is_profile_claim
 
 
 MAIN_NS = "http://schemas.openxmlformats.org/spreadsheetml/2006/main"
@@ -864,6 +865,7 @@ class ExcelGenerator:
             claim.key: claim.normalized_value
             for claim in claims
             if claim.status.value in {"observed", "derived", "human_confirmed"}
+            and not is_profile_claim(claim)
         }
 
     def generate(
@@ -1014,7 +1016,7 @@ class ExcelGenerator:
             if any(token in text for token in ("change", "изменен", "изменён", "отклонен", "отклонён")):
                 categories.add("changes")
             if any(token in text for token in ("profile", "профил", "подписант", "реквизит", "полномочи")):
-                categories.add("profiles")
+                categories.add("organizations")
         return categories
 
     def generate_draft(
@@ -1054,13 +1056,13 @@ class ExcelGenerator:
                 "customer.site_representative.name",
             )
         ):
-            categories.add("profiles")
+            categories.add("organizations")
         labels = {
             "dates": "не подтверждены фактические даты",
             "volumes": "не подтверждены фактические объёмы",
             "materials": "не указаны паспорта/сертификаты материалов",
             "changes": "не подтверждено наличие отклонений от проекта",
-            "profiles": "не утверждены реквизиты и подписанты",
+            "organizations": "не подтверждены источниками реквизиты и полномочия представителей",
         }
         warning_block = "ЧЕРНОВИК. НЕ ДЛЯ ПОДПИСАНИЯ."
         if categories:
@@ -1079,7 +1081,7 @@ class ExcelGenerator:
         if "dates" in categories:
             set_common("actual.start", "НЕ ПОДТВЕРЖДЕНО")
             set_common("actual.end", "НЕ ПОДТВЕРЖДЕНО")
-        if "profiles" in categories:
+        if "organizations" in categories:
             for key in contract.common_fields:
                 if not key.startswith(("contractor.", "customer.", "designer.")):
                     continue
