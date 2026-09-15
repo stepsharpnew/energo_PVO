@@ -453,3 +453,61 @@ The ten completed XLSX files were inventoried, never used as extraction facts.
   application suite passed 432 tests; the registration-focused suite passed
   50 tests and EMR/AVK regeneration checks passed. These are technical/offline
   results, not autonomous model coverage, specialist approval or deployment.
+
+## Paid example2 website control, 2026-09-15
+
+Diagnostic findings only: not model context, specialist approval, a profile or
+permission to copy execution facts from a project. Source PDF is the same
+66-page example2 file with SHA-256
+`dc02354b627464213514c2806a40b15dc39f569cf141b3d7b9356f2207e889e6`.
+
+- User authorized two paid website runs, EMR and AVK, total at most $1 and no
+  paid retries. Isolated website used main `ccfcf5f`, candidate v9, ordinary
+  upload/API, queue, analyzer and generator. Final paid analysis was started
+  using the job pages' retry buttons after unpaid preflight failures. Only
+  the PDF was uploaded; no completed workbook or fixture facts were supplied.
+- Default exact preflight rejected 106084 EMR / 105502 AVK input tokens against
+  the 100000 limit, with no paid responses. Test-only settings then allowed
+  110000 input / 11000 output tokens, $0.50 per job, one model call and one
+  agent step, no provider retries, exact counting required. This single-pass
+  experiment does not measure the optional second source-reading turn.
+- EMR job `500d03cc-5f86-4942-912e-e34d121e261c`, public reference
+  `20260915-090421-009208`: one Terra response, estimated $0.329602. Accepted
+  35 cells: six common fields, 16 material names, 13 types, zero quantities.
+  Model submitted 16 material rows and 16 quantities, all citing PDF page 64.
+- AVK job `51a40276-83e0-44b1-87b4-27c9d78277cc`, public reference
+  `20260915-090504-960658`: one Terra response, estimated $0.363472. Accepted
+  47 cells: seven common fields and 40 material names, zero quantities.
+  Model submitted 40 rows/quantities on pages 58 (16), 61 (8), and 64 (16).
+  Combined name/type proof failed for 36 rows; fallback retained only names
+  and marked them for review, losing useful distinguishing marks.
+- Total estimated application cost $0.693074, two paid responses. These are
+  dated application tariff estimates, not independently checked invoices.
+  The earlier offline 68/48 result was NOT reproduced, and AVK 47 is not
+  equivalent to offline 48: the latter included 22 explicit quantities.
+- Reconstructing the actual 70000-character compact context yielded only
+  pages 26, 46, 6, 42, 43, 44, 55, 56, 57 and 60. The visual manifest contained
+  40 pages including 58, 61 and 64, but neither 62 nor 63. Thus specification
+  pages 62–63 used by the offline fixture were absent from BOTH text and
+  image input. Removing the earlier 32-page cap did not fix byte-budget/rank
+  displacement. This is an uncovered context-selection defect.
+- All 56 submitted quantity cells were rejected at value-proof validation.
+  Saved model quotes used table separators such as `шт — 1`, whereas the
+  quantity matcher expects adjacency through whitespace. AVK name/type proof
+  likewise lost combinations separated with an em dash. This does not
+  authorize arbitrary punctuation stripping, negative-sign removal, unit
+  guessing, or unconditional acceptance of all rejected values.
+- Visual review of source page 64 found at least one correctly rejected model
+  mark (EMR insulator `ISM35-15-10-B` does not match the printed mark). Preserve
+  exact digit/code evidence checks while addressing table-layout separators.
+- Both actual XLSX files passed accepted-value read-back checks and had zero
+  technical severity=error findings, but remain NEEDS_INPUT. Five printed
+  preview pages from disposable LibreOffice copies were reviewed: material
+  names are readable, quantities visibly blank, AVK fallback rows orange;
+  EMR retains its mostly empty second print page. Original output hashes and
+  source PDF remained unchanged. No template/semantic approval is implied.
+- Raw responses, diagnostics, costs, input manifests and preview artifacts
+  are preserved under `data/runs/paid-web-20260915-0855/`. They enable further
+  validator replay without another paid response; corrected context recall
+  still requires a separately authorized model test. No application fix or
+  production deployment was performed during this paid control.
