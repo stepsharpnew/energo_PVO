@@ -29,7 +29,7 @@ from .domain import (
     TemplateUnresolvedFinding,
     WorkItem,
 )
-from .evidence_matching import material_quantity_is_present, normalize_evidence_text, text_value_is_present, title_value_is_present
+from .evidence_matching import material_name_with_type, material_quantity_is_present, material_row_fragment_is_present, normalize_evidence_text, text_value_is_present, title_value_is_present
 from .ingestion import (
     build_compact_evidence,
     build_inventory,
@@ -191,6 +191,7 @@ class OpenAIAgent:
         max_pages: int,
         include_project: bool,
         selected_template: bool = False,
+        text_pages: set[tuple[str, int]] | None = None,
     ) -> tuple[list[dict], list[str], list[dict]]:
         content: list[dict] = []
         remote_ids: list[str] = []
@@ -200,6 +201,7 @@ class OpenAIAgent:
             max_pages=max_pages,
             include_project=include_project,
             selected_template=selected_template,
+            text_pages=text_pages,
         )
         audit: list[dict] = []
         for item in selected:
@@ -803,6 +805,7 @@ class OpenAIAgent:
             artifact: Any,
             page_number: int,
             fragment: str,
+            *, material_row: bool = False,
         ) -> bool:
             if job_root is None:
                 return True
@@ -824,6 +827,8 @@ class OpenAIAgent:
             if (segment or {}).get("layout_text_reliable"):
                 proof_texts.append(str(segment.get("layout_text") or ""))
             if any(text_value_is_present(fragment, text) for text in proof_texts):
+                return True
+            if material_row and any(material_row_fragment_is_present(fragment, text) for text in proof_texts):
                 return True
             # Broken embedded fonts and signature-only text layers can hide a
             # readable scanned page. These pages are mandatory visual inputs.
@@ -875,6 +880,7 @@ class OpenAIAgent:
                 artifact,
                 page_number,
                 assignment.evidence_fragment,
+                material_row=bool(re.fullmatch(r".+\.materials\.item_\d+\.(name|type|quantity)", field.semantic_id or "")),
             ):
                 return (
                     f"Cell {assignment.sheet}!{assignment.cell} cites a fragment "
@@ -1094,7 +1100,7 @@ class OpenAIAgent:
                 columns = next(iter(table_rows.values()))
                 name = item.name
                 if item.type and "type" not in columns and not text_value_is_present(item.type, name):
-                    name = f"{name} {item.type}"
+                    name = material_name_with_type(name, item.type, item.evidence_fragment)
                 def row_identity(evidenced_name: str) -> str:
                     return json.dumps([item.table_id, item.source_file_id, item.locator,
                         normalize_evidence_text(item.evidence_fragment), normalize_evidence_text(evidenced_name),
@@ -1367,6 +1373,10 @@ class OpenAIAgent:
         if len(state.artifacts) != 1 or Path(state.artifacts[0].original_name).suffix.lower() != ".pdf":
             raise ValueError("Для выбранного шаблона требуется ровно один PDF")
         policy = self.settings.policy(state.processing_profile)
+        compact_evidence = build_compact_evidence(
+            job_root, state.artifacts, policy.max_evidence_chars, selected_template=True,
+        )
+        text_pages = {(item["file_id"], int(item["locator"].removeprefix("page:"))) for item in compact_evidence}
         client = OpenAI(
             api_key=self.settings.openai_api_key,
             timeout=self.settings.openai_timeout_seconds,
@@ -1380,16 +1390,21 @@ class OpenAIAgent:
             max_pages=policy.max_visual_pages,
             include_project=True,
             selected_template=True,
+            text_pages=text_pages,
         )
         visual_record = job_root / "state" / f"selected-visual-evidence-r{state.revision}.json"
         visual_record.parent.mkdir(parents=True, exist_ok=True)
         visual_record.write_text(json.dumps(visual_audit, ensure_ascii=False), encoding="utf-8")
-        compact_evidence = build_compact_evidence(
-            job_root,
-            state.artifacts,
-            policy.max_evidence_chars,
-            selected_template=True,
-        )
+        visual_pages = {(item["file_id"], page) for item in visual_audit for page in item["pages"]}
+        page_coverage = [{
+            "file_id": artifact.id,
+            "text_pages": sorted(page for file_id, page in text_pages if file_id == artifact.id),
+            "visual_pages": sorted(page for file_id, page in visual_pages if file_id == artifact.id),
+            "pages_not_preloaded": [page for page in range(1, (artifact.pages or 0) + 1)
+                                    if (artifact.id, page) not in text_pages | visual_pages],
+        } for artifact in state.artifacts]
+        text_record = job_root / "state" / f"selected-text-evidence-r{state.revision}.json"
+        text_record.write_text(json.dumps({"coverage": page_coverage, "evidence": compact_evidence}, ensure_ascii=False), encoding="utf-8")
         topics = (
             "workflow",
             "token_efficiency",
@@ -1422,18 +1437,21 @@ class OpenAIAgent:
             "inventory": json.loads(manifest),
             "selected_local_evidence": compact_evidence,
             "selected_visual_evidence": visual_audit,
+            "source_page_coverage": page_coverage,
             "rules": [
                 "Return values only for coordinates present in selected_template.writable_cells.",
                 "Use semantic_id and description as the field meaning; nearby workbook text is context, not permission to substitute another identifier.",
                 "A SAP number is not a project/document cipher: never put a long hyphenated or slash-delimited project code into a SAP field.",
                 "Never select, replace, rename, or add a template, worksheet, output file, or formula.",
                 "Every assignment must cite the uploaded PDF file_id, page:N, and a short evidence fragment.",
+                "source_page_coverage lists original PDF pages supplied as readable text or labelled images. If pages_not_preloaded contains a relevant page, use read_source for that missing detail before claiming its facts are absent. Do not reread pages already supplied.",
                 "Optimize coverage of PDF-supported facts, not certainty of identical wording. First inspect the title/requisites, explanatory notes, work quantities and ALL specification pages; then map the extracted facts across the selected template. An empty execution date does not prevent filling materials or project information.",
                 "For material_tables prefer compact material_rows: one record per source position with table_id, name, type (or null), quantity WITH SOURCE UNIT (or null), source_file_id, original page:N, one full source-row evidence_fragment and value_basis. The server assigns consecutive registered rows and splits the columns. Do not repeat these positions in assignments. Return ALL usable positions up to table capacity, not just the first example. A missing quantity or type must not suppress an evidenced name. Preserve distinct sections/segments in the source quote.",
                 "For allows_mapping_review=true descriptive fields, an exact caption match is NOT required. If the PDF fact is certain and the target meaning is plausible but needs specialist review, transfer the actual source text and set mapping_review_reason to a short Russian explanation. It will be orange, not verified. Otherwise use null. This option never permits invented words/digits, conflicting scope/values, unrelated filler, actual quantities/dates, identifiers, organizations or signatories. value_basis still distinguishes document/project and all page/value proof remains required.",
                 "Maximize useful coverage of this draft: inspect all sections and repeated rows, not only the object card. Reuse a PDF fact in EVERY registered cell with the same meaning, preserving row/entity/segment associations. Never put unrelated values in spare cells just to increase the count.",
                 "For semantic_id *.materials.item_N.*, populate all found material positions consecutively in free rows. The name, type and quantity sharing item_N must refer to ONE PDF position with matching units; do not scatter one item across rows, duplicate it to inflate coverage, or provide only the first example. When capacity is insufficient, report the remaining positions as a limitation in the summary.",
                 "For each material item_N always include its name. Reuse ONE identical short evidence_fragment and page locator for all its name/type/quantity cells; quote the full source position containing those values. A quantity without its item name or columns quoted from different positions is rejected.",
+                "Transcribe material-row cells in the original order, preserving the name, mark, number and source unit exactly. Whitespace or visible column separators may separate cells, but never change a sign, decimal separator, unit, code or quantity to make it match.",
                 "Use value_basis=document for documentary facts. Where allow_project_basis=true, ALSO transfer explicit design quantities, equipment/material names or characteristics with value_basis=project. The generator visibly marks them 'по проекту'; they are not verified actual execution. If only design evidence exists, a marked project value is preferable to an empty eligible cell.",
                 "Never use value_basis=project for actual dates, act numbers, quality-document identifiers, execution signatories, authority, test results or any field with allow_project_basis=false. Do not calculate an absent quantity or silently choose between conflicting values. Keep material identity, unit and work segment exactly matched.",
                 "Harmless punctuation, quotes, whitespace and район/р-н/р-он normalization is permitted. Preserve every digit, numeric separator and identifier. For long requisites quote only individually legible verified entries; omit an unreadable bank account rather than losing the whole organization block or guessing its digits.",

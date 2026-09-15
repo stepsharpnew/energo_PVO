@@ -688,9 +688,29 @@ def test_selected_agent_collects_all_submissions_without_paid_validation_retries
     prompt = next(json.loads(text) for text in request_texts if '"fact_source_policy"' in text)
     assert prompt["fact_source_policy"] == "uploaded_pdf_only"
     assert "approved_profile_claims" not in prompt
+    context_audit = json.loads((root / "state/selected-text-evidence-r1.json").read_text())
+    assert context_audit["evidence"] == prompt["selected_local_evidence"]
+    assert context_audit["coverage"] == prompt["source_page_coverage"]
+    assert context_audit["coverage"][0]["visual_pages"] == [1]
+    assert context_audit["coverage"][0]["pages_not_preloaded"] == []
     assert "without an approved profile" not in "\n".join(request_texts)
     # Corpus discoveries must never supply another job's company/factual values.
     assert "ООО «ГЕФЕСТ»" not in "\n".join(request_texts)
+
+
+def test_required_text_limit_fails_before_client_creation_or_upload(tmp_path: Path, monkeypatch) -> None:
+    from executive_docs.ingestion import EvidenceContextLimitError
+
+    settings, contract, state, root, _ = recovery_context(tmp_path)
+    def context_too_large(*args, **kwargs):
+        raise EvidenceContextLimitError("required text does not fit")
+    def forbidden_client(**kwargs):
+        raise AssertionError("Client/file upload must not start on a local context error")
+    monkeypatch.setattr("executive_docs.agent.build_compact_evidence", context_too_large)
+    monkeypatch.setattr("executive_docs.agent.OpenAI", forbidden_client)
+    with pytest.raises(EvidenceContextLimitError):
+        OpenAIAgent(settings, KnowledgeBase(settings.skill_dir)).fill_template(state, root, contract)
+    assert not state.model_usage
 
 
 @pytest.mark.parametrize("semantic_id,rule,fragment,allowed", [

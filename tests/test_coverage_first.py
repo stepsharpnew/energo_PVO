@@ -144,6 +144,37 @@ def test_single_name_column_keeps_source_name_when_mark_is_unconfirmed(tmp_path,
     assert any(d["kind"] == "material_columns" for d in diagnostics)
 
 
+def test_single_name_column_preserves_table_separator_mark_and_quantity(tmp_path, monkeypatch):
+    _, contract, state, rows = material_context(tmp_path, monkeypatch, row_count=1)
+    contract = replace(contract, fields=tuple(f for f in contract.fields if not f.semantic_id.endswith(".type")))
+    quote = "Провод — СИП-2 — м — 12,5"
+    monkeypatch.setattr("executive_docs.agent.source_index", lambda *_: {
+        "segments": [{"page": 1, "text": quote, "text_reliable": True, "visual_required": False}]})
+    raw = {**rows[0], "evidence_fragment": quote}
+    result, diagnostics = OpenAIAgent._recover_template_fill(state, contract, [{"material_rows": [raw]}], tmp_path)
+    assert {a.cell: a.value for a in result.assignments} == {"D1": "Провод — СИП-2", "F1": "12,5 м"}
+    assert not diagnostics
+    # Altered marks do not inherit this permission; the name survives alone.
+    result, diagnostics = OpenAIAgent._recover_template_fill(state, contract, [{"material_rows": [{**raw, "type": "СИП-3"}]}], tmp_path)
+    assert next(a.value for a in result.assignments if a.cell == "D1") == "Провод"
+    assert any(d["kind"] == "material_columns" for d in diagnostics)
+
+
+def test_table_quotes_with_separators_still_require_actual_page_digits(tmp_path, monkeypatch):
+    _, contract, state, rows = material_context(tmp_path, monkeypatch, row_count=1)
+    quote = "Провод — СИП-2 — м — 12,5"
+    monkeypatch.setattr("executive_docs.agent.source_index", lambda *_: {
+        "segments": [{"page": 1, "text": "Провод СИП-2 м12,5", "text_reliable": True,
+                      "visual_required": False, "layout_text_reliable": True,
+                      "layout_text": "Провод    СИП-2    м    12,5"}]})
+    raw = {**rows[0], "evidence_fragment": quote}
+    result, diagnostics = OpenAIAgent._recover_template_fill(state, contract, [{"material_rows": [raw]}], tmp_path)
+    assert len(result.assignments) == 3 and not diagnostics
+    wrong = {**raw, "quantity": "99 м", "evidence_fragment": quote.replace("12,5", "99")}
+    result, diagnostics = OpenAIAgent._recover_template_fill(state, contract, [{"material_rows": [wrong]}], tmp_path)
+    assert not result.assignments and diagnostics
+
+
 def test_mapping_review_has_visible_marker_preserves_formula_and_is_reported(tmp_path):
     catalog = draft_catalog(tmp_path, materials=True)
     contract = catalog.get("expanded")

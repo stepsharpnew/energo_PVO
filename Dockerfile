@@ -5,6 +5,9 @@ FROM ghcr.io/astral-sh/uv:0.9.25 AS uv
 FROM python:3.12-slim-bookworm
 
 ARG DEBIAN_FRONTEND=noninteractive
+ARG APP_REVISION=development
+ENV APP_REVISION=${APP_REVISION}
+LABEL org.opencontainers.image.revision=${APP_REVISION}
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \

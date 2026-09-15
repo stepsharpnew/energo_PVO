@@ -30,6 +30,19 @@ PUBLIC_FAILURE_MESSAGES = {
     ),
 }
 
+PUBLIC_LIMIT_MESSAGES = {
+    "context_limit": (
+        "Обязательные страницы PDF не помещаются в выбранный режим обработки. "
+        "Выберите более высокий режим или обратитесь к администратору для изменения лимита. "
+        "Анализ остановлен до отправки запроса модели. Повтор без изменения лимита не поможет."
+    ),
+    "model_budget": (
+        "Обработка остановлена: не удалось подтвердить, что следующий запрос укладывается "
+        "в лимиты размера, стоимости или числа вызовов модели. Этот запрос не отправлен. "
+        "Проверьте настройки лимитов с администратором; повтор без изменений не поможет."
+    ),
+}
+
 
 def public_text(value: str | None) -> str:
     """Remove storage identifiers from text intended for an operator."""
@@ -68,7 +81,7 @@ def public_question(question: NeedInputQuestion) -> NeedInputQuestion:
 
 def public_state(state: ProjectState) -> ProjectState:
     failure_message = (
-        PUBLIC_FAILURE_MESSAGES.get(state.status.value)
+        (PUBLIC_LIMIT_MESSAGES.get(state.failure_code) or PUBLIC_FAILURE_MESSAGES.get(state.status.value))
         if state.error
         else None
     )

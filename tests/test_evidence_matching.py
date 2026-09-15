@@ -6,6 +6,8 @@ from executive_docs.evidence_matching import (
     entity_value_is_present,
     iter_evidence_spans,
     material_quantity_is_present,
+    material_name_with_type,
+    material_row_fragment_is_present,
     normalize_evidence_text,
     text_value_is_present,
     title_value_is_present,
@@ -284,3 +286,45 @@ def test_material_quantity_preserves_number_and_unit_in_either_column_order(valu
 )
 def test_material_quantity_does_not_reorder_generic_text_or_change_number_unit(value: str, fragment: str) -> None:
     assert not material_quantity_is_present(value, fragment)
+
+
+@pytest.mark.parametrize("separator", ["—", "–", "|"])
+@pytest.mark.parametrize("suffix,value", [
+    ("шт — 1", "1 шт"), ("шт. — 2", "2 шт"), ("м — 62", "62 м"),
+    ("кг — 0,25", "0,25 кг"), ("12 — м", "12 м"),
+    ("м — 62 — 1,24 кг", "62 м"),
+])
+def test_explicit_material_table_cells_preserve_quantities(separator, suffix, value):
+    quote = ("Провод — СИП-3г 1х70 — " + suffix).replace("—", separator)
+    assert material_quantity_is_present(value, quote)
+
+
+@pytest.mark.parametrize("value,quote", [
+    ("5 м", "Сталь — кг/м — 5"), ("5 м", "Сталь — Н · м — 5"),
+    ("5 м", "Сталь — м — − 5"), ("5 м", "Сталь — м — -5"),
+    ("5 м", "Сталь — м — +5"), ("5 м", "Сталь — м — 12,5"),
+    ("5 м", "Сталь — м — 12, 5"), ("12.5 м", "Сталь — м — 12,5"),
+    ("5 м", "Сталь — мм — 5"), ("5 м", "Сталь — м² — 5"),
+    ("5 кг", "Сталь — масса — кг — 5"), ("5 м", "Сталь — м — 5 — Другой материал"),
+    ("5 м", "Сталь — м\n5"), ("5 м", "м — 5"),
+    ("5 м", "Сталь — м — 5,0"), ("5 м", "Сталь — м — -"),
+])
+def test_table_separators_do_not_relax_numbers_units_signs_or_mass(value, quote):
+    assert not material_quantity_is_present(value, quote)
+
+
+def test_joined_material_mark_preserves_literal_separator_and_exact_code():
+    quote = "Траверса — ТМ73 — шт — 4"
+    assert material_name_with_type("Траверса", "ТМ73", quote) == "Траверса — ТМ73"
+    assert not text_value_is_present(material_name_with_type("Траверса", "ТМ74", quote), quote)
+    assert not text_value_is_present(material_name_with_type("Траверса", "ТМ7", quote), quote)
+
+
+def test_material_quote_separator_normalization_never_changes_source():
+    source = "Провод    СИП-2    м    12,5"
+    assert material_row_fragment_is_present("Провод — СИП-2 — м — 12,5", source)
+    assert not material_row_fragment_is_present("Провод — СИП-3 — м — 12,5", source)
+    assert not material_row_fragment_is_present("Провод — СИП-2 — м — 12.5", source)
+    assert not material_row_fragment_is_present("Провод — СИП-2 — м — 12,5", source.replace("12,5", "− 12,5"))
+    assert not material_row_fragment_is_present("Провод — СИП-2 — м — 12,5", source.replace("м", "кг/м"))
+    assert not material_row_fragment_is_present("Провод — СИП-2 — м — 12,5", "Провод СИП-2\nДругой материал м 12,5")

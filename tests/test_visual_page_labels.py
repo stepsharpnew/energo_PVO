@@ -237,17 +237,17 @@ def _segment(page, text, *, reliable=True, layout=None):
 def test_selected_text_routes_late_tables_before_36_scans_without_32_page_cap(tmp_path, monkeypatch):
     artifact = _source(tmp_path / "input" / "project.pdf", count=1)
     segments = [_segment(page, "Broken duplicate scan text " * 20, reliable=False) for page in range(1, 37)]
-    segments += [_segment(page, "Readable project explanation. " * 20) for page in range(37, 67)]
+    segments += [_segment(page, "Readable project explanation. " * 20) for page in range(37, 77)]
     segments[61] = _segment(62, "Спецификация материалов и оборудования\nCable m791,24", layout="Спецификация материалов и оборудования\nCable       m  79  1,24")
     segments[62] = _segment(63, "Ведомость объемов работ\nУстройство опор шт. 12")
-    index = {"segments": segments, "pages": 66, "scope": "unknown"}
+    index = {"segments": segments, "pages": 76, "scope": "unknown"}
     monkeypatch.setattr("executive_docs.ingestion.source_index", lambda *_: index)
     packet = build_compact_evidence(tmp_path, [artifact], 70_000, selected_template=True)
-    assert len(packet) > 32
+    assert len(packet) == 40  # Every readable page, no duplicate broken-font text.
     assert {"page:62", "page:63"}.issubset({item["locator"] for item in packet[:3]})
     assert len(json.dumps(packet, ensure_ascii=False)) <= 70_000
-    assert next(item for item in packet if item["locator"] == "page:62")["layout_text"].endswith("m  79  1,24")
-    assert len(index["segments"]) == 66
+    assert next(item for item in packet if item["locator"] == "page:62")["layout_text"].endswith("m\t79\t1,24")
+    assert len(index["segments"]) == 76
     reversed_index = {**index, "segments": list(reversed(segments))}
     monkeypatch.setattr("executive_docs.ingestion.source_index", lambda *_: reversed_index)
     assert build_compact_evidence(tmp_path, [artifact], 70_000, selected_template=True) == packet
@@ -258,8 +258,34 @@ def test_selected_packet_counts_layout_and_escaped_text_within_budget(tmp_path, 
     artifact = _source(tmp_path / "input" / "project.pdf", count=1)
     segment = _segment(1, "\x01\x02\n" * 2000, reliable=False, layout="Cable m 79 1,24 " * 2000)
     monkeypatch.setattr("executive_docs.ingestion.source_index", lambda *_: {"segments": [segment], "scope": "unknown"})
-    packet = build_compact_evidence(tmp_path, [artifact], budget, selected_template=True)
-    assert not packet or len(json.dumps(packet, ensure_ascii=False)) <= budget
+    from executive_docs.ingestion import EvidenceContextLimitError
+    with pytest.raises(EvidenceContextLimitError, match="платный анализ не запущен"):
+        build_compact_evidence(tmp_path, [artifact], budget, selected_template=True)
+
+
+def test_long_padded_pages_do_not_displace_complete_late_specifications(tmp_path, monkeypatch):
+    artifact = _source(tmp_path / "input" / "project.pdf", count=1)
+    pages = [_segment(page, ("Материалы количество заказчик" + " " * 300 + "X\n") * 50)
+             for page in range(1, 21)]
+    pages += [_segment(62, "Спецификация материалов\nПровод м791,24", layout=
+                        "Спецификация материалов\nПровод" + " " * 200 + "м    79    1,24\nКОНЕЦ-62"),
+              _segment(63, "Спецификация оборудования\nБолт М12 шт. 10\nКОНЕЦ-63")]
+    monkeypatch.setattr("executive_docs.ingestion.source_index", lambda *_: {"segments": pages})
+    packet = build_compact_evidence(tmp_path, [artifact], 70_000, selected_template=True)
+    assert len(packet) == 22 and len(json.dumps(packet, ensure_ascii=False)) < 70_000
+    by_page = {p["locator"]: p for p in packet}
+    assert by_page["page:62"]["layout_text"].endswith("КОНЕЦ-62")
+    assert by_page["page:63"]["text"].endswith("КОНЕЦ-63")
+    assert "м\t79\t1,24" in by_page["page:62"]["layout_text"]
+
+
+def test_partial_layout_keeps_independent_reliable_plain_text(tmp_path, monkeypatch):
+    artifact = _source(tmp_path / "input" / "project.pdf", count=1)
+    segment = {**_segment(1, "Спецификация Провод м791,24 Штамп ООО А", layout="Спецификация\nПровод м 79 1,24"),
+               "layout_text_partial": True}
+    monkeypatch.setattr("executive_docs.ingestion.source_index", lambda *_: {"segments": [segment]})
+    page = build_compact_evidence(tmp_path, [artifact], 2000, selected_template=True)[0]
+    assert "Штамп ООО А" in page["text"] and page["layout_text_partial"]
 
 
 def test_selected_visual_optional_table_beats_legacy_kl_boost_and_keeps_scan(tmp_path, monkeypatch):
@@ -274,3 +300,13 @@ def test_selected_visual_optional_table_beats_legacy_kl_boost_and_keeps_scan(tmp
     assert _selected_template_text_score(segments[2]) > _selected_template_text_score(segments[1])
     with pytest.raises(ValueError, match="1 страниц"):
         select_visual_sources(tmp_path, [artifact], max_pages=0, include_project=True, selected_template=True)
+
+
+def test_optional_images_cover_missing_text_pages_without_removing_required_scan(tmp_path, monkeypatch):
+    artifact = _source(tmp_path / "input" / "project.pdf", count=3)
+    segments = [_segment(1, "Scan", reliable=False), _segment(2, "Readable appendix"),
+                _segment(3, "Спецификация материалов")]
+    monkeypatch.setattr("executive_docs.ingestion.source_index", lambda *_: {"segments": segments, "pages": 3})
+    selected = select_visual_sources(tmp_path, [artifact], max_pages=2, include_project=True,
+                                    selected_template=True, text_pages={(artifact.id, 1), (artifact.id, 3)})
+    assert selected[0]["pages"] == [1, 2]

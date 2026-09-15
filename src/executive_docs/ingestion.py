@@ -474,6 +474,10 @@ def _selected_template_text_score(segment: dict) -> int:
     reliable = segment.get("text_reliable", True) or segment.get("layout_text_reliable", False)
     text = _normalized(str(segment.get("text") or "") + " " + str(segment.get("layout_text") or ""))
     score = 1_000 if reliable else 0
+    if _is_material_specification(segment):
+        # A real specification must outrank a drawing that happens to mention
+        # equipment, quantities and an organization in its stamp.
+        score += 2_000
     if any(term in text for term in ("спецификац", "наименование и техническ", "количество", "кол-во")):
         score += 650
     if any(term in text for term in ("ведомость объем", "ведомость объём", "материал", "оборудован")):
@@ -485,6 +489,89 @@ def _selected_template_text_score(segment: dict) -> int:
     return score
 
 
+def _is_material_specification(segment: dict) -> bool:
+    text = _normalized(str(segment.get("text") or "") + " " + str(segment.get("layout_text") or ""))
+    return "наименование и техническ" in text or "спецификац" in text
+
+
+class EvidenceContextLimitError(ValueError):
+    """Required PDF pages cannot fit; do not submit a partial source."""
+
+
+def _compact_page_whitespace(text: str) -> str:
+    # Layout extraction often pads a short line to the full drawing width.
+    # Retain lines and column boundaries without changing a single visible
+    # character, digit, separator or word order.
+    return "\n".join(
+        re.sub(r"[ \t]{2,}", "\t", line.strip())
+        for line in text.splitlines() if line.strip()
+    )
+
+
+def _selected_template_evidence(root: Path, artifacts: list[Artifact], max_chars: int) -> list[dict]:
+    candidates: list[tuple[bool, int, str, int, dict]] = []
+    for artifact in artifacts:
+        if Path(artifact.original_name).suffix.lower() != ".pdf":
+            continue
+        index = source_index(root, artifact)
+        for segment in index["segments"]:
+            plain_reliable = segment.get("text_reliable", True)
+            layout_reliable = bool(segment.get("layout_text_reliable"))
+            if not plain_reliable and not layout_reliable:
+                # The mandatory visual manifest carries these pages. Broken
+                # font text adds no reliable facts and must not displace tables.
+                continue
+            plain = _compact_page_whitespace(str(segment.get("text") or "")) if plain_reliable else ""
+            layout = _compact_page_whitespace(str(segment.get("layout_text") or "")) if layout_reliable else ""
+            record = {
+                "file_id": artifact.id, "category": artifact.category,
+                "scope_hint": index.get("scope", "unknown"), "locator": segment["locator"],
+                "visual_required": segment.get("visual_required", False),
+                "text_reliable": plain_reliable, "text": plain,
+            }
+            if layout and (_is_material_specification(segment) or not plain):
+                record["layout_text"] = layout
+                record["layout_text_reliable"] = True
+                if segment.get("layout_text_partial"):
+                    record["layout_text_partial"] = True
+                    # Preserve the independent plain view when rotated text was
+                    # omitted. A partial layout must never replace its stamp.
+                else:
+                    record["text"] = ""
+                record["evidence_instruction"] = (
+                    "Use layout_text for table columns. Preserve digits and source units. "
+                    "If visual_required, inspect the labelled original page image too."
+                )
+            if not record["text"] and not record.get("layout_text"):
+                continue
+            page = int(segment.get("page") or 0)
+            # Never silently crop a specification or hide an explicit party
+            # block (which may contain a conflicting organization identity).
+            text = _normalized(plain or layout)
+            required = _is_material_specification(segment) or page == 1 or any(
+                term in text for term in ("заказчик", "проектная организация", "подрядчик", "застройщик", "реквизит")
+            )
+            candidates.append((required, _selected_template_text_score(segment), artifact.id, page, record))
+
+    candidates.sort(key=lambda item: (not item[0], -item[1], item[2], item[3]))
+    required_records = [item[4] for item in candidates if item[0]]
+    required_size = len(json.dumps(required_records, ensure_ascii=False))
+    if required_records and required_size > max_chars:
+        raise EvidenceContextLimitError(
+            "Обязательные текстовые страницы PDF не помещаются в выбранный режим: "
+            f"нужно {required_size} символов, лимит {max_chars}. "
+            "Выберите более высокий режим или увеличьте лимит; платный анализ не запущен."
+        )
+    packet: list[dict] = []
+    used = 2
+    for _, _, _, _, record in candidates:
+        size = len(json.dumps(record, ensure_ascii=False)) + (2 if packet else 0)
+        if used + size <= max_chars:
+            packet.append(record)
+            used += size
+    return packet
+
+
 def build_compact_evidence(
     root: Path,
     artifacts: list[Artifact],
@@ -492,21 +579,22 @@ def build_compact_evidence(
     *,
     selected_template: bool = False,
 ) -> list[dict]:
+    if selected_template:
+        return _selected_template_evidence(root, artifacts, max_chars)
     candidates: list[tuple[int, Artifact, dict, str]] = []
     for artifact in artifacts:
-        selected_pdf = selected_template and Path(artifact.original_name).suffix.lower() == ".pdf"
-        if artifact.category == "filled_aosr" and not selected_pdf:
+        if artifact.category == "filled_aosr":
             continue
         index = source_index(root, artifact)
         scope = index.get("scope", "unknown")
-        if not selected_pdf and artifact.category == "execution_scheme" and scope in OUT_OF_SCOPE_PATTERNS:
+        if artifact.category == "execution_scheme" and scope in OUT_OF_SCOPE_PATTERNS:
             continue
-        is_project = selected_pdf or artifact.category in {"project", "technical_conditions"}
-        per_file = len(index["segments"]) if selected_pdf else (32 if is_project else 3)
-        score_segment = _selected_template_text_score if selected_pdf else lambda item: _segment_context_score(item, project=is_project)
+        is_project = artifact.category in {"project", "technical_conditions"}
+        per_file = 32 if is_project else 3
+        score_segment = lambda item: _segment_context_score(item, project=is_project)
         ranked = sorted(
             index["segments"],
-            key=lambda item: (-score_segment(item), int(item.get("page") or 0) if selected_pdf else 0, str(item["locator"])),
+            key=lambda item: (-score_segment(item), str(item["locator"])),
         )[:per_file]
         category_bonus = {
             "project": 50,
@@ -526,7 +614,7 @@ def build_compact_evidence(
                 )
             )
     packet: list[dict] = []
-    used = 2 if selected_template else 0  # JSON list brackets in selected mode.
+    used = 0
     for _, artifact, segment, scope in sorted(candidates, key=lambda item: -item[0]):
         if used >= max_chars:
             break
@@ -535,15 +623,7 @@ def build_compact_evidence(
         if remaining <= 0:
             break
         excerpt = segment["text"][: min(8_000, remaining)]
-        layout_text = segment.get("layout_text") if segment.get("layout_text_reliable") else None
-        if selected_template and layout_text and re.sub(r"\s+", " ", layout_text).strip() != re.sub(r"\s+", " ", segment["text"]).strip():
-            # Keep both independently extracted views, with a shared per-page
-            # text allowance. Layout gets most space when it restores columns.
-            layout_text = layout_text[:min(6_000, remaining)]
-            excerpt = excerpt[:max(0, min(2_000, remaining - len(layout_text)))]
-        else:
-            layout_text = None
-        if not excerpt.strip() and not layout_text:
+        if not excerpt.strip():
             continue
         record = {
             "file_id": artifact.id,
@@ -561,29 +641,7 @@ def build_compact_evidence(
             ),
             "text": excerpt,
         }
-        if layout_text:
-            record["layout_text"] = layout_text
-            record["layout_text_reliable"] = True
-            if segment.get("layout_text_partial"):
-                record["layout_text_partial"] = True
-                record["layout_text_warnings"] = segment.get("layout_text_warnings", [])
-        if selected_template:
-            separator = 2 if packet else 0
-            # Count actual serialized text, including escaped control chars
-            # from broken fonts, instead of assuming fixed record overhead.
-            record_size = len(json.dumps(record, ensure_ascii=False))
-            while used + separator + record_size > max_chars:
-                overflow = used + separator + record_size - max_chars
-                key = "text" if record["text"] else "layout_text"
-                if not record.get(key):
-                    break
-                record[key] = record[key][:max(0, len(record[key]) - overflow)]
-                record_size = len(json.dumps(record, ensure_ascii=False))
-            if used + separator + record_size > max_chars or not (record["text"].strip() or record.get("layout_text", "").strip()):
-                continue
-            used += separator + record_size
-        else:
-            used += len(excerpt) + record_overhead
+        used += len(excerpt) + record_overhead
         packet.append(record)
     return packet
 
@@ -689,6 +747,7 @@ def select_visual_sources(
     max_pages: int,
     include_project: bool,
     selected_template: bool = False,
+    text_pages: set[tuple[str, int]] | None = None,
 ) -> list[dict]:
     page_candidates: list[tuple[int, str, int, Artifact, Path, str, bool]] = []
     for artifact in artifacts:
@@ -730,6 +789,11 @@ def select_visual_sources(
                     priority, reason = 1_300, "project page without reliable text layer"
                     required = True
                 elif selected_pdf:
+                    if text_pages is not None and (artifact.id, page) in text_pages:
+                        # Complete readable text is already supplied. Spend
+                        # optional vision capacity on a page otherwise absent.
+                        # Mandatory scans above are never removed by this rule.
+                        continue
                     priority = 500 + _selected_template_text_score(segment)
                     reason = "selected-template readable table or role evidence"
                 elif _pilot_match_count(segment.get("text", "")):
@@ -750,7 +814,7 @@ def select_visual_sources(
     ranked = sorted(page_candidates, key=lambda item: (-item[0], item[1], item[2]))
     required_candidates = [item for item in ranked if item[6]]
     if len(required_candidates) > max_pages:
-        raise ValueError(
+        raise EvidenceContextLimitError(
             f"Минимально необходимый визуальный контекст требует {len(required_candidates)} страниц, "
             f"а выбранный профиль разрешает {max_pages}. Используйте более высокий профиль или увеличьте лимит."
         )

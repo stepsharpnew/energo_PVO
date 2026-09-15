@@ -143,6 +143,66 @@ _MATERIAL_QUANTITY = re.compile(
 )
 
 
+def _separated_table_quantity(number: str, unit: str, fragment: str) -> bool:
+    """Read complete unit/quantity cells in an explicitly separated source row.
+
+    A spaced em/en dash can separate table cells, but a lone dash is also a
+    sign. Require a preceding name cell, a whole unit cell and a whole numeric
+    cell. Never strip punctuation from numbers, codes or composite units.
+    """
+    unit_pattern = re.escape(unit.rstrip("."))
+    if unit.rstrip(".") in {"шт", "компл"}:
+        unit_pattern += r"\.?"
+    mass = r"(?:масса(?:\s+(?:единицы|ед\.?|изделия))?\s*[:=]?\s*)?\d+(?:[.,]\d+)?(?:\s*кг)?"
+    for line in fragment.splitlines():
+        for separator in ("—", "–", "|"):
+            cells = re.split(r"[ \t]+" + re.escape(separator) + r"[ \t]+", line.strip())
+            if len(cells) < 3 or not re.search(r"[а-яa-z]", cells[0]):
+                continue
+            for index in range(1, len(cells) - 1):
+                left, right = cells[index:index + 2]
+                if re.search(r"\bмасса\b", " ".join(cells[:index])):
+                    continue
+                if not (
+                    (re.fullmatch(unit_pattern, left) and right == number)
+                    or (left == number and re.fullmatch(unit_pattern, right))
+                ):
+                    continue
+                # Only an optional, separately stated mass may follow the
+                # quantity/unit pair; another item is not the same source row.
+                tail = cells[index + 2:]
+                if not tail or (len(tail) == 1 and re.fullmatch(mass, tail[0])):
+                    return True
+    return False
+
+
+def material_name_with_type(name: str, kind: str, fragment: str) -> str:
+    """Join compact name/type fields using a separator actually in their quote.
+
+    This changes neither evidence matching nor either component. If no joined
+    value is evidenced, ordinary validation/fallback will reject the mark.
+    """
+    for separator in (" ", " — ", " – ", " | "):
+        combined = name + separator + kind
+        if text_value_is_present(combined, fragment):
+            return combined
+    return name + " " + kind
+
+
+def material_row_fragment_is_present(fragment: str, page_text: str) -> bool:
+    """Match ordered table cells when the quote inserts visible column bars.
+
+    Only quote-side, whitespace-delimited table separators can become spaces.
+    The actual source stays untouched, so a negative sign, changed digit,
+    different code or intervening row text still prevents a match. Use only
+    for a registered material-row field, never role/identifier evidence.
+    """
+    cells = re.split(r"[ \t]+(?:—|–|\|)[ \t]+", fragment)
+    if len(cells) < 2 or any(not cell.strip() for cell in cells):
+        return False
+    return text_value_is_present(" ".join(cells), page_text)
+
+
 def material_quantity_is_present(value: str, fragment: str) -> bool:
     """Match one material-row quantity when unit/quantity columns are reversed.
 
@@ -156,6 +216,9 @@ def material_quantity_is_present(value: str, fragment: str) -> bool:
     quantity = _MATERIAL_QUANTITY.fullmatch(raw_value)
     if quantity is None:
         return False
+    source = unicodedata.normalize("NFC", fragment).casefold()
+    if _separated_table_quantity(quantity.group("number"), quantity.group("unit"), source):
+        return True
     number = re.escape(quantity.group("number"))
     unit = re.escape(quantity.group("unit").rstrip("."))
     if quantity.group("unit").rstrip(".") in {"шт", "компл"}:
@@ -171,7 +234,6 @@ def material_quantity_is_present(value: str, fragment: str) -> bool:
     tail = rf"(?:\s*[;|]\s*{mass}|\s+{mass})?\s*[.;]?\s*$"
     forward = before_number + number + r"\s*" + unit + tail
     reverse = r"(?<![\w/·⋅∙×*÷∕⁄^+\-−–—])" + unit + r"\s+" + number + tail
-    source = unicodedata.normalize("NFC", fragment).casefold()
     for pattern in (forward, reverse):
         for match in re.finditer(pattern, source):
             preceding = source[:match.start()].rstrip()

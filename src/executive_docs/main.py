@@ -21,6 +21,7 @@ from .questions import is_internal_question, normalized_answer
 from .repository import Repository
 from .selected_templates import TemplateCatalog
 from .storage import Storage, is_selected_filename
+from .version import VERSION, release_revision
 
 
 settings.ensure_directories()
@@ -46,8 +47,16 @@ async def lifespan(_: FastAPI):
     await queue.stop()
 
 
-app = FastAPI(title="ИИ-агент исполнительной документации", version="0.1.0", lifespan=lifespan)
+app = FastAPI(title="ИИ-агент исполнительной документации", version=VERSION, lifespan=lifespan)
 app.mount("/static", StaticFiles(directory=str(Path(__file__).parent / "static")), name="static")
+
+
+@app.get("/healthz")
+async def healthz():
+    # Health checks must not enumerate production jobs or expose environment,
+    # API credentials, PDF metadata or filesystem paths.
+    return JSONResponse({"status": "ok", "version": VERSION, "revision": release_revision()},
+                        headers={"Cache-Control": "no-store"})
 
 
 def get_job_or_404(job_id: str) -> ProjectState:
@@ -215,6 +224,7 @@ async def retry_analysis(job_id: str):
         )
     state.status = JobStatus.FILES_UPLOADED
     state.error = None
+    state.failure_code = None
     state.summary = "Повторный анализ поставлен в очередь"
     repository.save(state)
     await queue.enqueue(state.job_id)

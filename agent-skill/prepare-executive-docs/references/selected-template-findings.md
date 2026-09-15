@@ -511,3 +511,38 @@ permission to copy execution facts from a project. Source PDF is the same
   validator replay without another paid response; corrected context recall
   still requires a separately authorized model test. No application fix or
   production deployment was performed during this paid control.
+
+## 2026-09-15: release 0.2.0 saved-response replay and context routing
+
+Offline diagnostic evidence only, not specialist approval, new source facts,
+or a new model benchmark. Uses the two historical jobs and unchanged example2
+PDF identified in the preceding paid-control finding.
+
+- Replayed the original saved submissions through the repaired row evidence
+  matcher and the current registered v9 generators. Network was disabled.
+  EMR now accepts 51 cells (previously 35), including all 16 returned
+  quantities; AVK accepts 87 (previously 47), including all 40 quantities.
+  AVK also preserves 36 previously lost name/type combinations in the same
+  name cells. These are not 36 additional cells or newly extracted positions.
+- Spaced column delimiters are recognized only for registered material rows.
+  Numeric signs, decimal punctuation, units and codes remain checked; a
+  quantity cannot be taken from an unrelated row or a mass column. The
+  incorrectly returned EMR insulator mark remains rejected. No automatic
+  correction from this finding or the completed workbook is authorized.
+- The new 70000-character text packet is 69815 serialized characters: 33
+  complete readable pages, including specification pages 62 and 63. Together
+  with 39 labelled visual pages it covers all 66 original page numbers.
+  Mandatory scans remain present. Page-number coverage does not demonstrate
+  model attention, accurate transcription, full extraction, or token-budget
+  success for a future paid response.
+- Read back all 51/87 accepted values independently with openpyxl, without
+  resaving the source outputs. Both outputs have zero technical severity=error
+  findings. Five native-print preview pages were reviewed: quantities and
+  combined names/marks are readable, blue project-basis highlighting remains,
+  and the inherited mostly empty second EMR print page is unchanged. Source
+  PDF pages 58, 61 and 64 were visually compared. Draft specialist review is
+  still required; this does not approve execution facts or template semantics.
+- Source PDF, historical response logs and original paid XLSX hashes remained
+  unchanged. New replay artifacts and previews are under
+  `data/runs/release-20260915/`. New model responses: zero; new model cost: $0.
+  The wider context still needs a separately authorized paid model benchmark.

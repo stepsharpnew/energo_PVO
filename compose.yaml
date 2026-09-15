@@ -18,9 +18,13 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        APP_REVISION: ${APP_REVISION:-development}
     restart: unless-stopped
     env_file:
       - .env
+    environment:
+      APP_REVISION: ${APP_REVISION:-development}
     expose:
       - "8000"
     depends_on:
@@ -34,7 +38,7 @@ services:
         - CMD
         - python
         - -c
-        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/', timeout=5)"
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/healthz', timeout=5)"
       interval: 10s
       timeout: 5s
       retries: 12
@@ -58,7 +62,7 @@ services:
     healthcheck:
       test:
         - CMD-SHELL
-        - "wget --quiet --output-document=/dev/null http://127.0.0.1/ || exit 1"
+        - "wget --quiet --output-document=/dev/null http://127.0.0.1/healthz || exit 1"
       interval: 10s
       timeout: 5s
       retries: 12

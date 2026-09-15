@@ -146,6 +146,7 @@ jobs:
           install -m 600 "$deploy_env" "$deploy_dir/.env"
 
           cd "$deploy_dir"
+          export APP_REVISION="$revision"
           docker compose config --quiet
           docker compose build
           docker compose up \
@@ -154,4 +155,7 @@ jobs:
             --wait \
             --wait-timeout 180
           docker compose ps
+          # A healthy old container is not a successful release. Verify the
+          # public proxy and exact requested revision without reading any jobs.
+          docker compose exec -T backend python -c 'import json,sys,urllib.request; payload=json.load(urllib.request.urlopen("http://nginx/healthz",timeout=10)); assert payload["status"] == "ok"; assert payload["revision"] == sys.argv[1], payload; print("Released", payload["version"], payload["revision"])' "$revision"
           REMOTE

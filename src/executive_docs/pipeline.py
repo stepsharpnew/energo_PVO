@@ -21,6 +21,7 @@ from .domain import (
 )
 from .excel import ExcelGenerator
 from .knowledge import KnowledgeBase
+from .ingestion import EvidenceContextLimitError
 from .packaging import build_result_zip, merge_pdfs, render_selected_sheets, revision_paths, write_report
 from .profiles import is_profile_claim, is_profile_metadata_key
 from .questions import is_delegated_value
@@ -33,6 +34,7 @@ from .selected_templates import (
 )
 from .storage import Storage
 from .validation import validate_semantics, validate_workbook
+from .usage import TokenBudgetExceeded
 
 
 class Pipeline:
@@ -54,6 +56,11 @@ class Pipeline:
     def _set_failure(self, state: ProjectState, status: JobStatus, exc: Exception) -> None:
         state.status = status
         state.error = str(exc)
+        state.failure_code = (
+            "context_limit" if isinstance(exc, EvidenceContextLimitError)
+            else "model_budget" if isinstance(exc, TokenBudgetExceeded)
+            else None
+        )
         state.summary = str(exc)
         self.repository.save_progress(state)
 
@@ -253,6 +260,7 @@ class Pipeline:
             if not state.template_analysis_complete:
                 state.status = JobStatus.ANALYZING
                 state.error = None
+                state.failure_code = None
                 state.draft_report_ready = False
                 state.draft_excel_files = []
                 state.validation_issues = []
@@ -445,6 +453,7 @@ class Pipeline:
                 state.work_items = work_items
                 state.document_plans = document_plans
                 state.error = None
+                state.failure_code = None
                 self.repository.save(state)
         if state.draft_excel_requested and state.document_plans:
             state.status = JobStatus.GENERATING
@@ -477,6 +486,7 @@ class Pipeline:
             if state.draft_excel_requested:
                 state.draft_excel_error = None
             state.error = None
+            state.failure_code = None
             policy = self.settings.policy(state.processing_profile)
             state.model = (
                 f"analysis={policy.analysis_model}; review={policy.review_model}"

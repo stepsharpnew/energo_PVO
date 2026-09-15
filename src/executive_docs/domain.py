@@ -342,6 +342,7 @@ class ProjectState(StrictModel):
     created_at: str = Field(default_factory=utc_now)
     updated_at: str = Field(default_factory=utc_now)
     error: str | None = None
+    failure_code: Literal["context_limit", "model_budget"] | None = None
 
     @property
     def public_ref(self) -> str:

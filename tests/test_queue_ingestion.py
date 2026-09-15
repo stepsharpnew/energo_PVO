@@ -220,8 +220,9 @@ def test_unreliable_text_pages_remain_required_visual_evidence(
 
 
 @pytest.mark.parametrize("category", ["execution_scheme", "filled_aosr"])
+@pytest.mark.parametrize("text_reliable", [False, True])
 def test_selected_template_keeps_vl_pdf_evidence_excluded_from_legacy_pilot(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, category: str,
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, category: str, text_reliable: bool,
 ) -> None:
     # Selected-template visual packets label even a full one-page PDF now.
     # Keep a real source behind the mocked routing index for that operation.
@@ -248,8 +249,8 @@ def test_selected_template_keeps_vl_pdf_evidence_excluded_from_legacy_pilot(
         "segments": [{
             "page": 1,
             "locator": "page:1",
-            "text": "ǚтǹоитǮлȅǺтǫо ǋǔИ ǚолǶǮȀǶогоǹǺǳиǲ район",
-            "text_reliable": False,
+            "text": "Строительство ВЛИ Солнечногорский район" if text_reliable else "ǚтǹоитǮлȅǺтǫо ǋǔИ ǚолǶǮȀǶогоǹǺǳиǲ район",
+            "text_reliable": text_reliable,
             "text_reliability_reason": "broken_font_encoding",
             "visual_required": True,
             "score": 10,
@@ -260,7 +261,9 @@ def test_selected_template_keeps_vl_pdf_evidence_excluded_from_legacy_pilot(
     assert select_visual_sources(tmp_path, [artifact], max_pages=1, include_project=True) == []
 
     packet = build_compact_evidence(tmp_path, [artifact], 10_000, selected_template=True)
-    assert [(item["file_id"], item["locator"]) for item in packet] == [(artifact.id, "page:1")]
+    # Broken font glyphs no longer consume text capacity. Their original page
+    # is still mandatory visual input, regardless of legacy category/scope.
+    assert [(item["file_id"], item["locator"]) for item in packet] == ([(artifact.id, "page:1")] if text_reliable else [])
     selected = select_visual_sources(
         tmp_path, [artifact], max_pages=1, include_project=False, selected_template=True,
     )

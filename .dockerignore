@@ -13,6 +13,7 @@ project1
 project2
 NEW_TEMPLATES
 ETALON
+example2
 TEMPLAT
 scripts/*
 !scripts/clean_pilot_templates.py
