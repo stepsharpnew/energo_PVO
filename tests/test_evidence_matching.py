@@ -8,8 +8,20 @@ from executive_docs.evidence_matching import (
     material_quantity_is_present,
     normalize_evidence_text,
     text_value_is_present,
+    title_value_is_present,
     validate_numeric_identifiers,
 )
+
+
+def test_long_project_title_may_restore_only_a_closing_prose_parenthesis():
+    title = "Строительство ВЛИ-0,38 кВ (сооруж. по дог. №С8-25-303-235077(542604) от 05.11.2025, пос. Березки, д.101)"
+    fragment = 'по титулу: «' + title[:-1] + '»'
+    assert title_value_is_present(title, fragment)
+    assert not text_value_is_present(title, fragment)
+    assert not title_value_is_present(title.replace("235077", "235078"), fragment)
+    assert not title_value_is_present(title.replace("0,38", "0,4"), fragment)
+    assert not title_value_is_present("С8-25-303-235077(542604)", "С8-25-303-235077(542604")
+    assert not title_value_is_present("(12,5)", "(125")
 
 
 @pytest.mark.parametrize(
@@ -221,6 +233,9 @@ def test_address_spacing_is_not_global_token_or_number_repair(value: str, fragme
         ("2,4 кг", "Краска белая кг 2,4"),
         ("143 м", "Провод СИП, количество 143 м."),
         ("12 шт", "Стойка СВ95-3АТ шт. 12"),
+        ("143 м", "Провод СИП м 143; масса 1,24 кг"),
+        ("79 м", "Провод СИП-2г 3х95+1х95 м 79 1,24"),
+        ("79 м", "Провод СИП-2г 3х95+1х95 79 м 1,24"),
     ],
 )
 def test_material_quantity_preserves_number_and_unit_in_either_column_order(value: str, fragment: str) -> None:
@@ -260,7 +275,9 @@ def test_material_quantity_preserves_number_and_unit_in_either_column_order(valu
         ("70 м", "Провод 3х70+1х70 м 143"),
         ("5 мм", "Уголок 50х50х5 мм шт. 5"),
         ("8 мм", "Сталь круглая d8 мм, ГОСТ 2590-2006 м 40"),
-        ("143 м", "Провод СИП м 143; масса 1,24 кг"),
+        ("79 м", "Провод СИП-2г 3х95+1х95 м791,24"),
+        ("1,24 кг", "Провод СИП м 143; масса 1,24 кг"),
+        ("1 м", "Заземляющий проводник ЗП6 1 м шт. 5"),
         ("143 м кабеля", "Провод СИП м 143"),
         ("ИНН 5044089069", "ИНН 5044089069"),
     ],

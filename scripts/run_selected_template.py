@@ -34,12 +34,24 @@ def main() -> int:
         default="quality",
     )
     parser.add_argument("--operator", default="Регрессионный запуск selected-template")
+    parser.add_argument("--data-dir", type=Path, help="Изолированное хранилище тестового запуска")
+    parser.add_argument("--max-cost-usd", type=float, help="Предельная оценка стоимости до платного вызова")
     args = parser.parse_args()
 
     source = args.pdf.resolve()
     if not source.is_file() or source.suffix.lower() != ".pdf":
         raise SystemExit(f"PDF не найден: {source}")
     settings = replace(base_settings, agent_mode=args.mode)
+    if args.data_dir:
+        data = args.data_dir.resolve()
+        if not data.is_relative_to(ROOT / "data/runs"):
+            raise SystemExit("Изолированные запуски разрешены только под data/runs/")
+        settings = replace(settings, data_dir=data, runs_dir=data / "runs", db_path=data / "app.db")
+    if args.max_cost_usd is not None:
+        import math
+        if not math.isfinite(args.max_cost_usd) or args.max_cost_usd <= 0:
+            raise SystemExit("Лимит стоимости должен быть положительным конечным числом")
+        settings = replace(settings, max_job_cost_usd=args.max_cost_usd)
     if args.mode == "openai" and not settings.openai_api_key:
         raise SystemExit("OPENAI_API_KEY is required for --mode openai")
     settings.ensure_directories()

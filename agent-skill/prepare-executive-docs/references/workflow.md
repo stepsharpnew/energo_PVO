@@ -33,7 +33,10 @@ Required phases:
    sets `allow_project_basis`, a documented project quantity, material, name or
    type may be written with `value_basis="project"` and a visible «по проекту»
    marker. This is not actual-execution evidence. Keep other unresolved targets
-   blank and visibly filled; unknown mappings remain closed.
+   blank and visibly filled; unknown mappings remain closed. A declared
+   `allows_mapping_review` descriptive target may retain certain PDF text with
+   a plausible match and orange `mapping_review_reason`, not an invented or
+   conflicting fact. Prefer compact `material_rows` for supported tables.
 8. Return one grouped `NEEDS_INPUT` batch for all known critical blockers and
    project-basis values awaiting execution confirmation. Distinguish omitted
    (`not_returned`), rejected, and explicitly missing PDF evidence instead of

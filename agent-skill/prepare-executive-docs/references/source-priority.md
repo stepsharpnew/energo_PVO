@@ -46,6 +46,13 @@ all registered targets of the same meaning; never duplicate it into a different
 role or scope. An unreadable or omitted digit remains unresolved rather than
 being supplied by normalization.
 
+For explicitly allowed descriptive targets only, certain PDF text with a
+plausible but non-literal target match may be retained as an orange
+`mapping_review_reason` candidate. This weakens caption matching, not source
+proof, identity, quantity, conflict handling or execution requirements. A role
+label before or after its entity within the same source block is equally usable
+when the party association is unambiguous.
+
 An omitted model record (`not_returned`) is not proof of absent evidence.
 Preserve rejected proposed values as `rejected` with the reason and available
 source pointers; reserve `missing_from_pdf` for explicitly reported absence.

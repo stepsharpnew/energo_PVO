@@ -1,7 +1,7 @@
 template_id: protocols
 display_name: Протоколы испытаний
 document_kind: protocols
-version: 2026-09-08-discovery-6
+version: 2026-09-15-discovery-9
 status: DISCOVERY_REVIEW_REQUIRED
 approved: false
 source_template: NEW_TEMPLATES/Attachments_vku@e-systems-4/2. Протоколы.xlsx
@@ -9,7 +9,7 @@ source_sha256: 2e0fef59590b73bbdc6164204f2d881b8d0511cb97417bff678a8e2bf6cab0ab
 etalon_example: ETALON/2. Протоколы.xlsx
 etalon_sha256: 37cd7d1b6ab1595395f536352d596ecc9c2317c69a566346d38aacbe94083cc3
 candidate_template: templates/approved/2. Протоколы.xlsx
-candidate_sha256: 101cef7b041a0ecf03563f9623e828c8f6573c12653721045a5f14b1e9a6242a
+candidate_sha256: f79e7770f99f2b0f18ce3be46f2dd60bb0c5353a8125966eeada274733b06636
 output_filename: 2. Протоколы.xlsx
 warning_fill_rgb: FFFFE699
 structural_findings:
@@ -18,7 +18,7 @@ structural_findings:
   candidate_vs_etalon_sheet_names_match: true
   candidate_only_sheet_count: 0
   etalon_only_sheet_count: 0
-  candidate_vs_etalon_formula_differences: 98
+  candidate_vs_etalon_formula_differences: 372
   candidate_vs_etalon_nonformula_differences: 640
   formula_errors_observed: 0
   etalon_external_links: 0
@@ -26,7 +26,7 @@ structural_findings:
   value_source_policy: uploaded_pdf_only
   project_basis_target_count: 0
   reviewed_material_target_count: 0
-  discovery_target_count: 637
+  discovery_target_count: 613
   cleared_cell_count: 637
   localized_external_formula_references: 0
   removed_external_links: 0
@@ -42,6 +42,14 @@ structural_findings:
   remaining_sensitive_value_examples: []
   renamed_sheet_count: 0
   renamed_candidate_sheets: []
+  cleanup_only_cell_count: 24
+  blank_preserving_formula_count: 367
+  formula_override_count: 0
+  revealed_input_row_count: 2
+  cleared_broken_formula_count: 0
+  quarantined_broken_formula_count: 0
+  unsafe_blank_formula_count: 0
+  unsafe_blank_formula_examples: []
   raw_ref_error_count: 0
   package_forbidden_token_count: 0
   package_forbidden_token_examples: []
@@ -54,12 +62,6 @@ fields:
   manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
 - sheet: Данные организации
   cell: C1
-  label: организация · реквизиты
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
-  cell: D1
   label: организация · реквизиты
   value_kind: text
   required: true
@@ -99,12 +101,6 @@ fields:
   required: true
   manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
 - sheet: Данные организации
-  cell: D2
-  label: реквизиты · адрес
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
   cell: F2
   label: 'Заказчик / технический заказчик: реквизиты'
   value_kind: text
@@ -139,12 +135,6 @@ fields:
   required: true
   manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
 - sheet: Данные организации
-  cell: D3
-  label: адрес · район
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
   cell: F3
   label: 'Заказчик / технический заказчик: адрес'
   value_kind: text
@@ -159,48 +149,6 @@ fields:
   value_pattern: null
   allow_project_basis: false
 - sheet: Данные организации
-  cell: F4
-  label: район · адрес
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
-  cell: G4
-  label: Данные организации!G4
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
-  cell: F5
-  label: директор · район
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
-  cell: G5
-  label: Данные организации!G5
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
-  cell: B6
-  label: директор · директор ФИО
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
-  cell: C6
-  label: директор · директор ФИО
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
-  cell: D6
-  label: директор · директор ФИО
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
   cell: F6
   label: директор · директор ФИО
   value_kind: text
@@ -209,24 +157,6 @@ fields:
 - sheet: Данные организации
   cell: G6
   label: Данные организации!G6
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
-  cell: B7
-  label: директор ФИО · Строй.контроль
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
-  cell: C7
-  label: директор ФИО · Строй.контроль
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
-  cell: D7
-  label: директор ФИО · Строй.контроль
   value_kind: text
   required: true
   manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
@@ -250,12 +180,6 @@ fields:
   manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
 - sheet: Данные организации
   cell: C8
-  label: Строй.контроль · Приказ стр.контр.
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
-  cell: D8
   label: Строй.контроль · Приказ стр.контр.
   value_kind: text
   required: true
@@ -285,12 +209,6 @@ fields:
   required: true
   manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
 - sheet: Данные организации
-  cell: D9
-  label: Приказ стр.контр. · Строй.контроль
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
   cell: F9
   label: Приказ стр.контр. · Строй.контроль
   value_kind: text
@@ -315,12 +233,6 @@ fields:
   required: true
   manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
 - sheet: Данные организации
-  cell: D10
-  label: ФИО стр.контр. · Представитель
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
   cell: F10
   label: ФИО стр.контр. · Представитель
   value_kind: text
@@ -330,36 +242,6 @@ fields:
   cell: G10
   label: Данные организации!G10
   value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
-  cell: F11
-  label: Представитель · ФИО предст.
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
-  cell: G11
-  label: Данные организации!G11
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
-  cell: I11
-  label: Данные организации!I11
-  value_kind: number
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
-  cell: F12
-  label: ФИО предст. · Представитель
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
-  cell: I12
-  label: Данные организации!I12
-  value_kind: number
   required: true
   manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
 - sheet: Данные организации
@@ -411,12 +293,6 @@ fields:
   required: true
   manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
 - sheet: Данные организации
-  cell: D18
-  label: Прораб · Приказ прораб
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
   cell: B19
   label: Приказ прораб · Прораб
   value_kind: text
@@ -429,12 +305,6 @@ fields:
   required: true
   manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
 - sheet: Данные организации
-  cell: D19
-  label: Приказ прораб · Прораб
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
   cell: B20
   label: ФИО прораб · Приказ прораб
   value_kind: text
@@ -442,12 +312,6 @@ fields:
   manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
 - sheet: Данные организации
   cell: C20
-  label: ФИО прораб · Приказ прораб
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
-  cell: D20
   label: ФИО прораб · Приказ прораб
   value_kind: text
   required: true

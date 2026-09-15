@@ -76,7 +76,8 @@ class Pipeline:
                 locator=item.locator,
                 evidence_fragment=item.evidence_fragment,
                 status=ClaimStatus.OBSERVED,
-                rule_id="selected-template:project-draft" if item.value_basis == "project" else None,
+                rule_id=("selected-template:mapping-review" if item.mapping_review_reason else
+                         "selected-template:project-draft" if item.value_basis == "project" else None),
                 affected_documents=[contract.template_id],
             )
             for item in analysis.assignments
@@ -271,6 +272,7 @@ class Pipeline:
                 if rejection:
                     raise ValueError(rejection)
                 state.template_assignments = analysis.assignments
+                state.template_analysis_summary = analysis.summary
                 state.template_unresolved_findings = analysis.unresolved
                 state.claims = [
                     claim
@@ -395,14 +397,18 @@ class Pipeline:
             else:
                 state.status = JobStatus.NEEDS_INPUT
                 project_count = sum(item.value_basis == "project" for item in state.template_assignments)
+                review_count = sum(bool(item.mapping_review_reason) for item in state.template_assignments)
                 not_returned = sum(item.category == "not_returned" for item in unresolved)
                 rejected = sum(item.category == "rejected" for item in unresolved)
                 state.summary = (
                     f"Сформирован один черновой Excel-файл. Перенесено полей: "
-                    f"{len(state.template_assignments)}, из них по проекту: {project_count} (синие ячейки). "
+                    f"{len(state.template_assignments)}, из них по проекту: {project_count}. "
+                    f"Проверить привязку к полю: {review_count} (оранжевые ячейки); синие — по проекту. "
                     f"Пустых выделенных полей: {len(unresolved)} (жёлтые). "
                     f"Не возвращено моделью: {not_returned}; отклонено проверкой: {rejected}. "
                     f"Статус шаблона: {contract.status}."
+                    + (" Часть строк материалов не помещена: проверьте ограничения таблицы." if
+                       "строк материалов не помещена" in (state.template_analysis_summary or "") else "")
                 )
             if not persist():
                 return

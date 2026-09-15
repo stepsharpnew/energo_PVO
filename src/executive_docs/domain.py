@@ -145,8 +145,23 @@ class TemplateCellAssignment(StrictModel):
     locator: str
     evidence_fragment: str
     value_basis: Literal["document", "project"] = "document"
+    mapping_review_reason: str | None = Field(default=None, min_length=8, max_length=600)
     subject_name: str | None = None
     context_evidence: list[TemplateEvidenceContext] = Field(default_factory=list, max_length=4)
+
+
+class TemplateMaterialRow(StrictModel):
+    """One PDF specification position, mapped to fixed template slots locally."""
+
+    table_id: str
+    name: str = Field(min_length=1)
+    type: str | None = None
+    quantity: str | None = None
+    source_file_id: str
+    locator: str
+    evidence_fragment: str
+    value_basis: Literal["document", "project"] = "project"
+    mapping_review_reason: str | None = Field(default=None, min_length=8, max_length=600)
 
 
 class UnresolvedTemplateCell(StrictModel):
@@ -219,6 +234,7 @@ class TemplateFillAnalysis(StrictModel):
     summary: str
     assignments: list[TemplateCellAssignment] = Field(default_factory=list)
     unresolved: list[TemplateUnresolvedFinding] = Field(default_factory=list)
+    material_rows: list[TemplateMaterialRow] = Field(default_factory=list, max_length=500)
 
     @model_validator(mode="after")
     def validate_assignments(self) -> "TemplateFillAnalysis":
@@ -297,6 +313,7 @@ class ProjectState(StrictModel):
     selected_template_sha256: str | None = None
     selected_template_contract_sha256: str | None = None
     template_assignments: list[TemplateCellAssignment] = Field(default_factory=list)
+    template_analysis_summary: str | None = None
     template_unresolved_findings: list[TemplateUnresolvedFinding] = Field(
         default_factory=list
     )

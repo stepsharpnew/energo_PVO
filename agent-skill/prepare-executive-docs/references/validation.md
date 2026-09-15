@@ -35,12 +35,20 @@ Assignment checks:
 - actual dates, act numbers, quality-document identifiers, execution signers
   and authority, and measured results still require their own actual evidence;
 - reusing a fact in several registered cells is valid only when each target's
-  meaning matches; unknown mappings and conflicting values remain closed.
+  meaning matches; unknown mappings and conflicting values remain closed;
+- an `allows_mapping_review` descriptive field may retain exact PDF text with
+  a plausible mapping and `mapping_review_reason`, visibly orange. This does
+  not relax value/page proof or permit uncertain critical facts. The report
+  must distinguish these filled candidates from blank unresolved cells;
+- compact material rows expand only into current registered table slots before
+  the same assignment checks. No raw material row may bypass validation or
+  silently overwrite a cell. Preserve identity, unit, segment and shared quote.
 
 Unresolved-field checks:
 
 - every missing, conflicting, ambiguous, rejected, or unapproved-rule field
-  remains blank;
+  remains blank except the explicitly allowed descriptive mapping candidate,
+  whose source fact is certain and which is separately marked and reported;
 - every unresolved contract target has exactly the registered visible fill;
 - a resolved target does not retain the unresolved fill after regeneration;
 - style changes are limited to the fill component of declared unresolved

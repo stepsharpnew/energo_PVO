@@ -351,8 +351,45 @@ def test_ooxml_guard_blank_formula_results_wraps_only_safe_formula_classes(
     try:
         assert guarded["Данные"]["C1"].value == '=IF(B1="","",B1)'
         assert guarded["Данные"]["C2"].value == (
-            '=IF(COUNTA(B1,B2)=0,"",CONCATENATE(B1," - ",B2))'
+            '=IF(AND(B1="",B2=""),"",CONCATENATE(IF(B1="","",B1)," - ",IF(B2="","",B2)))'
         )
         assert guarded["Данные"]["C3"].value == "=B1+1"
     finally:
         guarded.close()
+
+
+def test_blank_guard_ignores_cell_names_in_text_and_is_idempotent(tmp_path: Path) -> None:
+    source = tmp_path / "source.xlsx"
+    book = openpyxl.Workbook()
+    book.active["C1"] = '=CONCATENATE("ТП35 ",B1)'
+    book.active["C2"] = '=CONCATENATE(SUM(B1:B2)," кВ")'
+    book.save(source)
+    package = OOXMLWorkbook(source)
+    assert package.guard_blank_formula_results() == 1
+    assert package.guard_blank_formula_results() == 0
+    package.save(source)
+    result = openpyxl.load_workbook(source)
+    assert result.active["C1"].value == '=IF(AND(B1=""),"",CONCATENATE("ТП35 ",IF(B1="","",B1)))'
+    assert result.active["C2"].value == '=CONCATENATE(SUM(B1:B2)," кВ")'
+    result.close()
+
+
+@pytest.mark.parametrize("mac_epoch", [False, True])
+def test_date_serialization_respects_workbook_epoch_and_existing_format(tmp_path: Path, mac_epoch: bool) -> None:
+    from datetime import datetime
+    from openpyxl.utils.datetime import CALENDAR_MAC_1904
+    source = tmp_path / "date.xlsx"
+    book = openpyxl.Workbook()
+    if mac_epoch:
+        book.epoch = CALENDAR_MAC_1904
+    book.active["B1"].number_format = "dd.mm.yyyy"
+    book.save(source)
+    package = OOXMLWorkbook(source)
+    package.set_cell("Sheet", "B1", datetime(2026, 5, 5))
+    package.set_cell("Sheet", "B2", datetime(2026, 5, 6))
+    package.save(source)
+    result = openpyxl.load_workbook(source)
+    assert result.active["B1"].value == datetime(2026, 5, 5)
+    assert result.active["B1"].number_format == "dd.mm.yyyy"
+    assert result.active["B2"].value == datetime(2026, 5, 6)
+    result.close()

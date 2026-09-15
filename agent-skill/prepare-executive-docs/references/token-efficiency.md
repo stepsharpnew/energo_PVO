@@ -18,6 +18,9 @@ Optimize cost without weakening evidence requirements.
    do not buy another extraction solely because the fact appears in several
    workbook cells. Include `value_basis="project"` only where the target
    explicitly permits a project-basis draft prefill.
+   Prefer compact `material_rows` for registered material tables: one source
+   quote and locator per position, not repeated for each column. The server
+   handles the fixed column mapping, leaving more output budget for facts.
 4. For the legacy KL/VRS pilot, route explicitly out-of-scope KTP, VL, GEO, GNB,
    AVK, and EMR evidence out of paid context. Do not apply that legacy filter to
    a separately registered selected-template contract whose approved scope

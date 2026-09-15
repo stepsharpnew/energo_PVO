@@ -1,7 +1,7 @@
 template_id: aosr_vl
 display_name: АОСР воздушной линии
 document_kind: aosr_vl
-version: 2026-09-08-discovery-6
+version: 2026-09-15-discovery-9
 status: DISCOVERY_REVIEW_REQUIRED
 approved: false
 source_template: NEW_TEMPLATES/Attachments_vku@e-systems-4/8. АОСР ВЛ1.xlsx
@@ -9,7 +9,7 @@ source_sha256: f699953b7542c1af800a1bc53925f96f06e4ba2962f8ae7cef5bd5b3c61cbd6e
 etalon_example: ETALON/8. АОСР ВЛ1.xlsx
 etalon_sha256: f10e0a73344ff529a34701072ca606bbfeee35a18e05289f45a72d855021349e
 candidate_template: templates/approved/8. АОСР ВЛ1.xlsx
-candidate_sha256: 680d274ccd0d36f4f80b468bae53b84ec77e64540439097acede6d2ac8d89c34
+candidate_sha256: d3149626658e36baf69cbd160cfaf5bb051ad90092cee1ad9482ff4752140d1e
 output_filename: 8. АОСР ВЛ1.xlsx
 warning_fill_rgb: FFFFE699
 structural_findings:
@@ -49,7 +49,9 @@ structural_findings:
   cleanup_only_cell_count: 73
   blank_preserving_formula_count: 288
   formula_override_count: 8
+  revealed_input_row_count: 2
   cleared_broken_formula_count: 7
+  quarantined_broken_formula_count: 0
   unsafe_blank_formula_count: 0
   unsafe_blank_formula_examples: []
   raw_ref_error_count: 0

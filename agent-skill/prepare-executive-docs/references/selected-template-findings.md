@@ -286,3 +286,170 @@ actual-work confirmation. Default document-basis assignments to these new
 material targets still require explicit execution evidence. Neither this
 audit nor the new mappings enables factual profiles, ETALON values or prior
 project facts. This corpus-specific topic stays outside filling-model context.
+
+## Production OJR diagnostic, 2026-09-10/11
+
+Read-only audit of the operator-supplied run `20260910-155341-238660` and
+downloaded `ЧЕРНОВИК - 3. ОЖР.xlsx`. No model call, deployment, template change
+or historical-run rewrite was performed by this audit.
+
+- The server download and supplied workbook have identical SHA-256
+  `d27a5548dc4cebb468a97e5a767ddf8f91e88b1da8bdabd5508e3a3bf96cbca0`.
+  The run used `2026-09-08-discovery-6`. Its candidate/contract hashes,
+  skill hash `b43d034e3140`, knowledge hash `0a50a023d5b7`, and both public
+  JavaScript hashes matched main `99aae1c` at the start of this audit.
+  GitHub main was checked remotely. SSH authentication was unavailable, so
+  this does not independently establish the complete container image revision.
+- The public run reports one Terra balanced call, 71,938 input tokens,
+  3,286 output tokens and estimated cost $0.233986. This is the application's
+  recorded estimate, not an independently verified invoice or a new audit cost.
+  There are six accepted targets and 157 unresolved: 130 contract-controlled
+  manual fields, 18 model-reported absences, six omissions and three rejected
+  proposals. These categories must not be collapsed into 157 absent PDF facts.
+- All six assignments are on `Данные объект`: B3, B4, B13, B30, B50 and B54.
+  Row 13 is hidden. All 101 workbook formulas match the registered candidate.
+  Four direct formulas on `Титульный лист` consume accepted card values:
+  A8/A176 use B3, A31 uses B30 together with unresolved B31, and A65 uses B50.
+  Further dependent formulas exist. B4, B13 and B54 have no formula consumers;
+  B55 already equals B3 and is not a missing writable target. An accepted card
+  value is not necessarily a visible populated field in the printed journal.
+- A LibreOffice preview of a disposable copy reconfirmed inherited
+  blank-to-zero defects: `Титульный лист!Q4` displays journal number zero,
+  H182/H185 display 30 December 1899 from blank actual-date cells B7/B8,
+  and A178 displays 1899 from blank B11. `Раздел1!D5:E7` displays six zeroes
+  in date columns. Neither source values nor the downloaded workbook were
+  changed. Preview helpers adjust print settings, so their page scaling is
+  not evidence about the source workbook's native print layout. QA renders
+  are under `data/runs/ojr-download-audit-20260910/`.
+- The 130 manual targets comprise 74 organization-reference cells,
+  23 object-card cells and 33 printed-sheet cells. The model receives no
+  direct printed-sheet targets. This is a mapping limitation, not proof that
+  all those source facts are absent or that opening all targets is safe.
+- Rejected proposals target object-card B5 (object address), B51 (designer
+  requisites) and B52 (designer address). Relevant address/legal-entity data
+  is visible on pages 1–2 of the local 25-page project-5593 PDF and the
+  designer role on page 10. The server source has the same filename, byte
+  length and page count as that corpus PDF, but its source hash was not
+  exposed by the public API. The public rejection messages omit the exact
+  validation reason and original proposal. Do not assert a particular
+  formatting/subject/identifier failure for this run without its saved
+  `selected_template_validation` and `selected_template_submission` events.
+
+This finding approves neither an OJR mapping nor any execution fact. Daily
+work records, actual dates, personnel, signatures and acceptance records
+cannot be reconstructed from design intent merely to improve coverage.
+## Selected-template remediation and paid OJR control, 2026-09-11–14
+
+Offline findings, not approved rules or factual profiles. Candidate version
+`2026-09-11-discovery-7` remains `DISCOVERY_REVIEW_REQUIRED`.
+
+- Rebuilt all five selected-template candidates using only NEW_TEMPLATES
+  captions and formula topology. Simple reference/concatenation blank guards
+  now apply to all five; mapped input rows are visible. Material captions
+  E17/AI17/BE17 in EMR and C34/D34 in AVK are preserved rather than cleared.
+  Unreferenced organization-library values are cleanup, not operator questions.
+- OJR B11 is the primary installation description consumed by title A178;
+  B13 remains the separate overhead-line-type field. Contractor data now feeds
+  A85/A87, not the developer block. Q4 is a journal number, not SAP. Participant
+  addresses stay in participant requisites blocks, not in SRO rows. Missing
+  representative positions no longer render the known company as a position.
+- Date parsing accepts complete calendar dates only, with the existing actual
+  event evidence check retained. Excel serialization preserves workbook epoch
+  and date formatting. Closing a prose parenthesis in a long object/title value
+  is permitted without relaxing any digits, internal codes or other fields.
+- Paid matched-PDF control: isolated job
+  `1b57f75a-fc4c-457c-9b4b-48752c2a4ef3`, OJR +
+  `ETALON/I-354783.Бережной.5557.pdf` (SHA c01345c38cb2306951ce91daf39d6215953acb1951bcc476b6f9c8cdfe4c19d9).
+  One Terra call: 77,945 input / 2,324 output tokens, estimated $0.234569 under
+  the explicitly authorized $0.30 cap. Preparation failures before this call
+  had no model responses. No further paid calls were made.
+- Model proposed seven fields; B3 was rejected only for a closing parenthesis.
+  Unmodified saved-response replay with the formatting fix accepts all seven.
+  This is NOT evidence of adequate overall coverage or factual correctness.
+- Independent visual review found a designer inconsistency the model missed:
+  PDF p6 explicitly names ООО «Энергосистемы» as the design organization;
+  project title/stamps pp1/2/12/14 identify ООО «ГЕФЕСТ». The separately reviewed
+  draft leaves B50 empty with a conflict finding (six assignments remain).
+  This human review is NOT an automatic runtime conflict-detection fix. Do not
+  use the matching ETALON name to choose between these organizations.
+- Offline benchmark `scripts/audit_selected_template_parity.py` and its
+  `tests/fixtures/selected-template-parity/ojr-berezhnoy.yaml` fixture compare
+  explicitly reviewed facts, report untouched example values, formula cells,
+  execution-evidence requirements and unmapped ETALON differences separately.
+  The initial reviewed subset has six PDF-supported targets; overall ETALON
+  coverage intentionally remains unknown. Never load these files into model
+  context or treat partial coverage as a full golden-set result.
+- LibreOffice: OJR has zero recalculated errors and 20 tested empty formula
+  outputs remain empty. Baseline/current empty-template errors are EMR 70/70,
+  AVK 2/2, protocols 24/24, AOSR-VL 0/0. One initially introduced EMR C84 blank
+  date-offset error was fixed with a source-verified guard. Remaining legacy
+  lookup/broken-reference errors are not suppressed with blanket IFERROR and
+  still need template-specific repair. No production deployment was performed.
+
+## Independent example2 coverage regression, 2026-09-14–15
+
+Offline only; not model context, a profile, template approval, or a fresh paid
+model result. The operator supplied `example2/` specifically to avoid judging
+coverage on one PDF. Its 66-page PDF SHA-256 is
+`dc02354b627464213514c2806a40b15dc39f569cf141b3d7b9356f2207e889e6`.
+The ten completed XLSX files were inventoried, never used as extraction facts.
+
+- Native table extraction glues unit, quantity and mass (e.g. `м791,24`).
+  The independent upright layout extraction separates those columns. Never
+  split the glued number by guessing. A skipped rotated stamp warning does
+  not invalidate a correctly extracted upright table; degraded layout and
+  unknown extraction warnings still fall back to the plain/visual evidence.
+- The selected-template context previously kept at most 32 text pages and
+  prioritized unreliable scans and legacy KL/VRS matches. On this PDF, late
+  readable specification pages were displaced. Selected-template routing now
+  prioritizes readable tables/requisites without that legacy page-count cap;
+  source, visual and serialized-context budgets remain enforced.
+- All selected-template visual PDF pages now have a separate visible original
+  physical page label. This addresses the earlier AVK subset-page21 versus
+  original-page22 failure without silently repairing historical locators.
+- Candidate v8 explicitly converts AVK journal C/D36:86 to 51 independent
+  project-material slots (previously ten spare slots). The old supplier,
+  delivery, certificate, result and signer links in B/E/F/G/H/I/J36:86 are
+  removed and remain blank/manual. Other act sheets are not opened to new
+  material assignments. Source workbook and print/header geometry are pinned.
+- Compact material rows let the model return one source quote per position;
+  the server maps columns. Invalid names do not consume capacity. Equivalent
+  repetitions are deduplicated; contradictory versions of one source row
+  share targets and remain subject to conflict checks, not inflated counts.
+- `tests/fixtures/selected-template-coverage/example2-materials.json` records
+  25 independently checked VLI construction/grounding positions, general
+  facts, source/section/page pointers, raw quotes and separate visual
+  transcriptions. Its 33 native quotes were found exactly in the actual PDF.
+  It is a partial human-reviewed fixture, never a model extraction score.
+- The v8 real-index/recovery/generator check wrote EMR 68 cells (22 material
+  rows × three columns plus two general fields) and AVK 48 (22 × two plus four
+  general fields). Under otherwise identical checks, limiting AVK to ten rows
+  yielded 24 cells: increasing capacity added 24 real written cells. Both
+  outputs preserve 22 explicit project quantities; no missing actuals are
+  invented. Three complex multiline/spacing positions remain rejected.
+- Five preview pages were inspected. Material tables and quantities are
+  readable. EMR still clips the long customer header and has a mostly empty
+  second print page; this is a visual-review limitation, not template approval.
+  Initial v8 technical checks exposed the known 20 EMR broken references and
+  two AVK external formulas; these are distinct from extraction coverage.
+- `scripts/check_pdf_coverage.py` reproduces the offline test and separate
+  baseline comparisons under `data/runs/coverage-first-20260915/`. Existing
+  results are preserved. No model/API calls, new spending or server deployment
+  were performed. Autonomous recall after these changes still requires a
+  separately authorized new model run.
+- Final candidate v9 quarantines exactly 20 confirmed EMR literal `#REF!`
+  formulas and two unavailable AVK external formulas as blank, highlighted,
+  blocking manual fields. It neither guesses their values nor suppresses
+  errors with `IFERROR`. All other v8 cell values, formulas, styles and print
+  geometry were preserved; 18 healthy downstream blank-safe formulas remain.
+  Source-formula assertions prevent this cleanup from silently applying to a
+  changed source workbook. Candidates remain unapproved discovery templates.
+- The separate v9 replay at
+  `data/runs/coverage-first-20260915/example2-v9/` still writes EMR 68 and AVK
+  48 cells with exactly the same accepted values, quotes, pages and bases as
+  v8; both have zero technical `severity=error` findings. Five preview pages
+  were reviewed again, with the same recorded EMR print limitations. SHA
+  checks confirmed all 44 earlier v8 QA files remain unchanged. The final
+  application suite passed 432 tests; the registration-focused suite passed
+  50 tests and EMR/AVK regeneration checks passed. These are technical/offline
+  results, not autonomous model coverage, specialist approval or deployment.

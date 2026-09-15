@@ -5,6 +5,7 @@ import json
 import mimetypes
 import re
 import time
+from dataclasses import replace
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Callable
 
@@ -24,10 +25,11 @@ from .domain import (
     ProjectState,
     TemplateCellAssignment,
     TemplateFillAnalysis,
+    TemplateMaterialRow,
     TemplateUnresolvedFinding,
     WorkItem,
 )
-from .evidence_matching import material_quantity_is_present, normalize_evidence_text, text_value_is_present
+from .evidence_matching import material_quantity_is_present, normalize_evidence_text, text_value_is_present, title_value_is_present
 from .ingestion import (
     build_compact_evidence,
     build_inventory,
@@ -159,6 +161,7 @@ class OpenAIAgent:
                 pages=requested_pages or None,
                 sheets=args.get("sheets"),
                 max_chars=min(self.settings.max_source_chars_per_read, max(0, remaining_chars)),
+                include_layout=bool(state.selected_template_id),
             )
             return json.dumps(
                 {
@@ -771,6 +774,14 @@ class OpenAIAgent:
             normalized_value = normalized_evidence(raw_value)
             if re.fullmatch(r".+\.materials\.item_\d+\.quantity", field.semantic_id or ""):
                 return material_quantity_is_present(raw_value, fragment)
+            if field.value_kind == "date":
+                for match in re.finditer(r"(?<!\d)(?:\d{2}\.\d{2}\.\d{4}|\d{4}-\d{2}-\d{2})(?!\d)", fragment):
+                    try:
+                        if SelectedTemplateGenerator._typed_value(field, match.group()) == typed_value:
+                            return True
+                    except ValueError:
+                        continue
+                return False
             if field.value_kind == "number":
                 numeric_evidence = []
                 for match in re.finditer(
@@ -784,6 +795,8 @@ class OpenAIAgent:
                     except ValueError:
                         continue
                 return float(typed_value) in numeric_evidence
+            if field.semantic_id in {"project.object_name", "project.design_document_title"}:
+                return title_value_is_present(raw_value, fragment)
             return text_value_is_present(raw_value, fragment)
 
         def fragment_is_on_page(
@@ -807,7 +820,10 @@ class OpenAIAgent:
             indexed_page_text = normalized_evidence(
                 str((segment or {}).get("text") or "")
             )
-            if text_value_is_present(fragment, str((segment or {}).get("text") or "")):
+            proof_texts = [str((segment or {}).get("text") or "")]
+            if (segment or {}).get("layout_text_reliable"):
+                proof_texts.append(str(segment.get("layout_text") or ""))
+            if any(text_value_is_present(fragment, text) for text in proof_texts):
                 return True
             # Broken embedded fonts and signature-only text layers can hide a
             # readable scanned page. These pages are mandatory visual inputs.
@@ -888,7 +904,7 @@ class OpenAIAgent:
             context_error = field.evidence_context_error([
                 assignment.evidence_fragment,
                 *(item.evidence_fragment for item in assignment.context_evidence),
-            ], assignment.value, assignment.subject_name, assignment.value_basis)
+            ], assignment.value, assignment.subject_name, assignment.value_basis, assignment.mapping_review_reason)
             if context_error:
                 return context_error
         only_pdf = state.artifacts[0] if len(state.artifacts) == 1 else None
@@ -1029,6 +1045,126 @@ class OpenAIAgent:
         return None
 
     @classmethod
+    def _expand_material_rows(
+        cls, state: ProjectState, contract: "SelectedTemplateContract", payloads: list[dict[str, Any]],
+        job_root: Path, indexed_sources: dict[str, dict],
+    ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+        """Map model-extracted positions, not arbitrary Excel coordinates.
+
+        Verify the name before consuming capacity; validate all columns again
+        in _recover_template_fill. Existing
+        explicit row assignments reserve their slots; compact rows never
+        overwrite them. The current contract is the only mapping authority.
+        """
+        slots: dict[str, dict[int, dict[str, Any]]] = {}
+        for field in contract.fields:
+            match = re.fullmatch(r"(.+\.materials)\.item_(\d+)\.(name|type|quantity)", field.semantic_id or "")
+            if not match or field.manual_reason:
+                continue
+            slots.setdefault(match[1], {}).setdefault(int(match[2]), {})[match[3]] = field
+        occupied = {
+            (item.get("sheet"), str(item.get("cell", "")).upper())
+            for payload in payloads for item in payload.get("assignments", [])
+            if isinstance(item, dict)
+        } if all(isinstance(p.get("assignments", []), list) for p in payloads) else set()
+        remaining = {
+            table: [row for _, row in sorted(rows.items()) if not any(f.coordinate in occupied for f in row.values())]
+            for table, rows in slots.items()
+        }
+        expanded = [dict(payload) for payload in payloads]
+        additions: list[dict] = []
+        diagnostics: list[dict[str, Any]] = []
+        seen: set[str] = set()
+        source_row_targets: dict[str, dict[str, Any]] = {}
+        for payload in payloads:
+            rows = payload.get("material_rows", [])
+            if not isinstance(rows, list):
+                diagnostics.append({"kind": "material_rows", "reason": "expected a list"})
+                continue
+            for index, raw in enumerate(rows):
+                try:
+                    item = TemplateMaterialRow.model_validate(raw)
+                except ValidationError:
+                    diagnostics.append({"kind": "material_rows", "row": index + 1, "reason": "invalid material row"})
+                    continue
+                table_rows = slots.get(item.table_id)
+                if not table_rows:
+                    diagnostics.append({"kind": "material_rows", "row": index + 1, "reason": "unknown material table"})
+                    continue
+                columns = next(iter(table_rows.values()))
+                name = item.name
+                if item.type and "type" not in columns and not text_value_is_present(item.type, name):
+                    name = f"{name} {item.type}"
+                def row_identity(evidenced_name: str) -> str:
+                    return json.dumps([item.table_id, item.source_file_id, item.locator,
+                        normalize_evidence_text(item.evidence_fragment), normalize_evidence_text(evidenced_name),
+                        normalize_evidence_text(item.type or "") if "type" in columns else None,
+                        normalize_evidence_text(item.quantity or ""), item.value_basis], ensure_ascii=False)
+
+                identity = row_identity(name)
+                if identity in seen:
+                    continue
+                source_row_key = json.dumps([item.table_id, item.source_file_id, item.locator,
+                                             normalize_evidence_text(item.evidence_fragment)], ensure_ascii=False)
+                available = remaining.get(item.table_id)
+                targets = source_row_targets.get(source_row_key)
+                if targets is None and not available:
+                    diagnostics.append({"kind": "material_rows", "row": index + 1, "table_id": item.table_id,
+                                        "reason": "unknown table or material table capacity exceeded"})
+                    continue
+                if targets is None:
+                    targets = available[0]
+                if "name" not in targets:
+                    diagnostics.append({"kind": "material_rows", "row": index + 1, "reason": "table lacks a name column"})
+                    continue
+                name_field = targets["name"]
+                mapping_reason = item.mapping_review_reason
+                name_assignment = TemplateCellAssignment(sheet=name_field.sheet, cell=name_field.cell, value=name,
+                    source_file_id=item.source_file_id, locator=item.locator, evidence_fragment=item.evidence_fragment,
+                    value_basis=item.value_basis, mapping_review_reason=item.mapping_review_reason)
+                name_error = cls._template_fill_rejection(state, replace(contract, fields=(name_field,)),
+                    TemplateFillAnalysis(summary="Проверка названия позиции", assignments=[name_assignment]),
+                    job_root, indexed_sources, check_groups=False)
+                if name_error and name != item.name:
+                    # A faulty/illegible mark must not discard a separately
+                    # evidenced name. This retry is entirely local and keeps
+                    # the same page/quote; never repair the mark's digits.
+                    name_assignment = name_assignment.model_copy(update={"value": item.name})
+                    fallback_error = cls._template_fill_rejection(state, replace(contract, fields=(name_field,)),
+                        TemplateFillAnalysis(summary="Проверка названия без марки", assignments=[name_assignment]),
+                        job_root, indexed_sources, check_groups=False)
+                    if fallback_error is None:
+                        name = item.name
+                        name_error = None
+                        identity = row_identity(name)
+                        if name_field.allows_mapping_review:
+                            mapping_reason = "Перенесено название из PDF; марка не прошла проверку и требует сверки."
+                        diagnostics.append({"kind": "material_columns", "row": index + 1,
+                            "reason": "Неподтверждённая марка исключена; перенесено только подтверждённое название материала."})
+                if name_error:
+                    diagnostics.append({"kind": "material_rows", "row": index + 1, "reason": name_error})
+                    continue
+                if identity in seen:
+                    continue
+                if source_row_key not in source_row_targets:
+                    available.pop(0)
+                    source_row_targets[source_row_key] = targets
+                # Differing versions of the same PDF position share a target;
+                # ordinary duplicate/conflict validation must resolve them,
+                # never count them as two independent materials.
+                seen.add(identity)
+                for part, value in (("name", name), ("type", item.type), ("quantity", item.quantity)):
+                    if value is None or not value.strip() or part not in targets:
+                        continue
+                    field = targets[part]
+                    additions.append({"sheet": field.sheet, "cell": field.cell, "value": value,
+                                      "source_file_id": item.source_file_id, "locator": item.locator,
+                                      "evidence_fragment": item.evidence_fragment, "value_basis": item.value_basis,
+                                      "mapping_review_reason": mapping_reason if part in {"name", "type"} else None})
+        expanded.append({"assignments": additions})
+        return expanded, diagnostics
+
+    @classmethod
     def _recover_template_fill(
         cls,
         state: ProjectState,
@@ -1052,7 +1188,7 @@ class OpenAIAgent:
         # pipeline verifies it again before generation, not once per cell.
         indexed_sources = {artifact.id: source_index(job_root, artifact) for artifact in state.artifacts}
         records: dict[tuple[str, str], list[tuple[str, dict]]] = {}
-        diagnostics: list[dict[str, Any]] = []
+        payloads, diagnostics = cls._expand_material_rows(state, contract, payloads, job_root, indexed_sources)
         for payload in payloads:
             for kind in ("assignments", "unresolved"):
                 items = payload.get(kind, [])
@@ -1073,13 +1209,13 @@ class OpenAIAgent:
                         continue
                     records.setdefault(coordinate, []).append((kind, {**item, "cell": cell.upper()}))
 
-        def missing(coordinate: tuple[str, str], rejected: bool = False) -> TemplateUnresolvedFinding:
+        def missing(coordinate: tuple[str, str], rejected: bool = False, rejection: str | None = None) -> TemplateUnresolvedFinding:
             return TemplateUnresolvedFinding(
                 sheet=coordinate[0],
                 cell=coordinate[1],
                 category="rejected" if rejected else "not_returned",
                 reason=(
-                    "Предложенное значение отклонено проверкой. Это не означает отсутствия данных в PDF."
+                    cls._public_template_rejection(rejection or "")
                     if rejected
                     else "Модель не вернула значение для этого поля; отсутствие в PDF не установлено."
                 ),
@@ -1136,7 +1272,7 @@ class OpenAIAgent:
                         break
             if rejection:
                 diagnostics.append({"sheet": coordinate[0], "cell": coordinate[1], "reason": rejection})
-                unresolved.append(missing(coordinate, rejected=True))
+                unresolved.append(missing(coordinate, rejected=True, rejection=rejection))
             elif kind == "assignments":
                 assert isinstance(accepted, TemplateCellAssignment)
                 assignments.append(accepted)
@@ -1153,8 +1289,11 @@ class OpenAIAgent:
 
         result = TemplateFillAnalysis(
             summary=(
-                f"Подтверждено полей: {len(assignments)} из {len(fields)} доступных для переноса из PDF. "
+                f"Перенесено полей: {len(assignments)} из {len(fields)} доступных для переноса из PDF. "
                 "Остальные поля оставлены для проверки специалистом."
+                + (" Часть строк материалов не помещена: проверьте ограничения таблицы." if any(
+                    "capacity" in item.get("reason", "") for item in diagnostics
+                ) else "")
             ),
             assignments=assignments,
             unresolved=unresolved,
@@ -1163,6 +1302,23 @@ class OpenAIAgent:
         if rejection:
             raise ValueError(rejection)
         return result, diagnostics
+
+    @staticmethod
+    def _public_template_rejection(reason: str) -> str:
+        """Keep actionable diagnostics without exposing raw model/SDK payloads."""
+        translations = (
+            (("outside the PDF", "outside the uploaded PDF", "must cite", "invalid unresolved PDF locator"), "Модель указала неверную страницу PDF. Нужна ссылка на страницу исходного файла."),
+            (("not found on the indexed PDF page", "not found on the indexed"), "Цитата не найдена на указанной странице PDF. Проверьте страницу и распознавание текста."),
+            (("not present", "absent from its evidence"), "Предложенное значение не подтверждается приложенной цитатой PDF."),
+            (("multiple incompatible", "duplicate"), "Модель предложила противоречащие записи для одной ячейки."),
+            (("does not cite the uploaded PDF",), "Значение ссылается не на загруженный PDF."),
+            (("роль", "subject_name", "организации или ФИО"), "В цитате не подтверждена связь организации или человека с нужной ролью в проекте."),
+            (("проектное", "проектн", "выполненных работах", "фактическ"), "Для этой ячейки нужен подтверждённый факт выполнения; проектное намерение его не заменяет."),
+            (("дата",), "Дата не распознана как полная календарная дата. Нужны день, месяц и четырёхзначный год."),
+            (("ИНН", "ОГРН", "КПП", "БИК", "счёт", "счет", "реквизит"), "Реквизиты не прошли проверку формата. Проверьте цифры по PDF."),
+        )
+        detail = next((message for markers, message in translations if any(marker.casefold() in reason.casefold() for marker in markers)), "Запись модели не прошла проверку формата или доказательств. Требуется проверка специалистом.")
+        return detail + " Это не означает, что данных нет в PDF."
 
     @staticmethod
     def _validate_template_fill_call(
@@ -1257,7 +1413,10 @@ class OpenAIAgent:
                 "display_name": contract.display_name,
                 "document_kind": contract.document_kind,
                 "version": contract.version,
-                "writable_cells": contract.model_fields(),
+                "writable_cells": [field for field in contract.model_fields() if not re.fullmatch(
+                    r".+\.materials\.item_\d+\.(name|type|quantity)", field.get("semantic_id") or "",
+                )],
+                "material_tables": contract.material_tables(),
                 "manual_or_missing_cell_count": len(contract.fields) - len(contract.model_fields()),
             },
             "inventory": json.loads(manifest),
@@ -1269,6 +1428,9 @@ class OpenAIAgent:
                 "A SAP number is not a project/document cipher: never put a long hyphenated or slash-delimited project code into a SAP field.",
                 "Never select, replace, rename, or add a template, worksheet, output file, or formula.",
                 "Every assignment must cite the uploaded PDF file_id, page:N, and a short evidence fragment.",
+                "Optimize coverage of PDF-supported facts, not certainty of identical wording. First inspect the title/requisites, explanatory notes, work quantities and ALL specification pages; then map the extracted facts across the selected template. An empty execution date does not prevent filling materials or project information.",
+                "For material_tables prefer compact material_rows: one record per source position with table_id, name, type (or null), quantity WITH SOURCE UNIT (or null), source_file_id, original page:N, one full source-row evidence_fragment and value_basis. The server assigns consecutive registered rows and splits the columns. Do not repeat these positions in assignments. Return ALL usable positions up to table capacity, not just the first example. A missing quantity or type must not suppress an evidenced name. Preserve distinct sections/segments in the source quote.",
+                "For allows_mapping_review=true descriptive fields, an exact caption match is NOT required. If the PDF fact is certain and the target meaning is plausible but needs specialist review, transfer the actual source text and set mapping_review_reason to a short Russian explanation. It will be orange, not verified. Otherwise use null. This option never permits invented words/digits, conflicting scope/values, unrelated filler, actual quantities/dates, identifiers, organizations or signatories. value_basis still distinguishes document/project and all page/value proof remains required.",
                 "Maximize useful coverage of this draft: inspect all sections and repeated rows, not only the object card. Reuse a PDF fact in EVERY registered cell with the same meaning, preserving row/entity/segment associations. Never put unrelated values in spare cells just to increase the count.",
                 "For semantic_id *.materials.item_N.*, populate all found material positions consecutively in free rows. The name, type and quantity sharing item_N must refer to ONE PDF position with matching units; do not scatter one item across rows, duplicate it to inflate coverage, or provide only the first example. When capacity is insufficient, report the remaining positions as a limitation in the summary.",
                 "For each material item_N always include its name. Reuse ONE identical short evidence_fragment and page locator for all its name/type/quantity cells; quote the full source position containing those values. A quantity without its item name or columns quoted from different positions is rejected.",
@@ -1276,15 +1438,15 @@ class OpenAIAgent:
                 "Never use value_basis=project for actual dates, act numbers, quality-document identifiers, execution signatories, authority, test results or any field with allow_project_basis=false. Do not calculate an absent quantity or silently choose between conflicting values. Keep material identity, unit and work segment exactly matched.",
                 "Harmless punctuation, quotes, whitespace and район/р-н/р-он normalization is permitted. Preserve every digit, numeric separator and identifier. For long requisites quote only individually legible verified entries; omit an unreadable bank account rather than losing the whole organization block or guessing its digits.",
                 "Only the uploaded PDF supplies values. Do not use organization/customer/signatory profiles, previous jobs, external knowledge or operator identity as facts.",
-                "For organization_role_pdf, quote evidence of the exact role in semantic_id: contractor, customer, designer, laboratory or commissioning. A logo or an organization mentioned without that role is not sufficient.",
+                "For organization_role_pdf, quote evidence of the exact role in semantic_id: developer (застройщик), contractor, customer, designer, laboratory or commissioning. These are separate roles. A logo or an organization mentioned without that role is not sufficient.",
                 "For signatory_role_pdf and authority_document_pdf, prove both the organization role and the exact representative function. A project author, technical-condition signer or electronic-signature sender is not automatically an AOSR representative. Authority needs its document and applicable context.",
                 "Include context_evidence=[] normally; when role or execution context is on another page, add up to four short {locator: page:N, evidence_fragment: exact quote} items from the SAME uploaded PDF. The primary fragment must still contain the assigned value. Never combine quotes from different pages into one fragment.",
-                "For role-bound names, quote the role label followed by the entity/person name. For organization registration/address or representative position/authority, also set subject_name to the exact organization/person name. The primary value quote and role-context quote must BOTH contain that same subject; another party's role cannot support this value. Use subject_name=null for other fields.",
+                "For organization names, the matching role may precede OR follow the entity in the same party block; transcribe the PDF order, not an artificial label-first quote. For execution people keep documentary evidence of their specific role. For organization registration/address or representative position/authority, set subject_name to the exact organization/person name. The primary value quote and role-context quote must BOTH contain that same subject; another party's role cannot support this value. Use subject_name=null for other fields.",
                 "For actual_executive_document_only with value_basis=document, include actual/as-built record context in the PRIMARY quote; an unrelated act cannot turn design into an actual. The only exception is explicitly allowed value_basis=project, which stays marked and unverified.",
                 "Check all relevant pages for conflicting organization names, roles and details. Keep the affected field unresolved; occurrence count, a shared director, or a similar name cannot resolve a legal-entity conflict.",
                 "Inspect ALL writable fields, not just the first match. Submit all supported values together in one call.",
-                "For pages marked text_reliable=false, read the supplied PDF page image: its embedded text is corrupted or incomplete. Transcribe evidence faithfully from the image; do not copy corrupted glyphs. Use original page numbers from selected_visual_evidence.pages.",
-                "Do not assign a value when its meaning is unclear or the PDF evidence is missing, conflicting, or ambiguous; report that cell as unresolved.",
+                "For pages marked text_reliable=false, read the supplied PDF page image: its embedded text is corrupted or incomplete. Transcribe evidence faithfully from the image; do not copy corrupted glyphs. Cite the visible Original PDF page: N marker as page:N, never the ordinal within the shortened attachment. selected_visual_evidence.pages records the same original page numbers.",
+                "Missing evidence, conflicting values/scopes and unclear critical facts remain unresolved. Only descriptive targets explicitly allowing mapping review may contain a source-backed candidate with a review reason; this does not resolve a factual conflict.",
                 (
                     "The server marks omitted writable cells as unresolved automatically. "
                     "Omission is recorded as not_returned, NOT as proven absence. Prefer a concise missing_from_pdf record after checking the relevant pages, and always explain a specific conflict or ambiguity. "
@@ -1297,6 +1459,7 @@ class OpenAIAgent:
                     "rejected preserve at least one such evidence triple."
                 ),
                 "Do not use a planned schedule as evidence of actual dates.",
+                "A date field accepts complete valid DD.MM.YYYY or YYYY-MM-DD dates only, with explicit evidence of the applicable actual event in this PDF.",
                 "Do not derive actual quantities from design quantities.",
                 "For evidence_rule=actual_executive_document_only, document-basis requires a completed-work record. Design statements may only fill allow_project_basis=true targets using value_basis=project.",
                 "Do not invent act numbers, dates, passport/certificate identifiers, signatories, authority periods, or approvals.",

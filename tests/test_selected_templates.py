@@ -571,6 +571,8 @@ def test_recovery_keeps_verified_values_and_contains_malformed_missing_evidence(
     assert [(f.cell, f.category) for f in result.unresolved] == [("B3", "rejected"), ("B4", "rejected")]
     assert result.unresolved[0].source_values == ["P-42"]
     assert diagnostics[0]["cell"] == "B4"
+    assert "неверную страницу PDF" in result.unresolved[1].reason
+    assert "page:999" not in result.unresolved[1].reason
     assert OpenAIAgent._template_fill_rejection(state, contract, result, root) is None
 
 
@@ -582,6 +584,31 @@ def test_recovery_never_chooses_between_conflicting_duplicates_or_writes_manual_
     assert result.assignments == []
     assert {f.cell for f in result.unresolved} == {"B1", "B3", "B4"}
     assert len(diagnostics) == 2
+
+
+@pytest.mark.parametrize("value,quote,accepted", [
+    ("05.05.2026", "Фактическая дата начала работ 05.05.2026", True),
+    ("2026-05-05", "Фактическая дата начала работ 05.05.2026", True),
+    ("05.05.2026", "Проектная дата начала работ 05.05.2026", False),
+    ("06.05.2026", "Фактическая дата начала работ 05.05.2026", False),
+    ("31.02.2026", "Фактическая дата начала работ 31.02.2026", False),
+    ("05.05.26", "Фактическая дата начала работ 05.05.26", False),
+])
+def test_actual_date_recovery_requires_complete_date_and_actual_pdf_proof(tmp_path, value, quote, accepted):
+    _, contract, state, root, assignment = recovery_context(tmp_path)
+    field = replace(contract.fields[0], value_kind="date", semantic_id="actual.start", evidence_rule="actual_executive_document_only")
+    contract = replace(contract, fields=(field,))
+    result, diagnostics = OpenAIAgent._recover_template_fill(state, contract, [{"assignments": [{**assignment, "value": value, "evidence_fragment": quote}]}], root)
+    assert bool(result.assignments) is accepted
+    assert bool(diagnostics) is not accepted
+
+
+def test_customer_is_not_automatically_developer(tmp_path):
+    field = replace(build_catalog(tmp_path).get("sample").fields[0], semantic_id="customer.name", evidence_rule="organization_role_pdf")
+    assert field.evidence_context_error(["Застройщик ООО Тест"], "ООО Тест")
+    developer = replace(field, semantic_id="developer.name")
+    assert developer.evidence_context_error(["Заказчик ООО Тест"], "ООО Тест")
+    assert developer.evidence_context_error(["Застройщик ООО Тест"], "ООО Тест") is None
 
 
 def test_recovery_same_value_with_different_evidence_is_not_a_conflict(tmp_path: Path) -> None:

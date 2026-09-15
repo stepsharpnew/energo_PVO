@@ -120,6 +120,23 @@ def text_value_is_present(value: str, fragment: str) -> bool:
     return next(iter_evidence_spans(value, fragment), None) is not None
 
 
+def title_value_is_present(value: str, fragment: str) -> bool:
+    """Permit one restored closing prose parenthesis in a long project title.
+
+    PDF titles sometimes leave their descriptive aside unclosed. This does not
+    normalize identifiers, numeric punctuation, words or interior parentheses.
+    Only the object/title field validator may use this formatting exception.
+    """
+    if text_value_is_present(value, fragment):
+        return True
+    title = value.strip()
+    if (len(title) < 80 or not title.endswith(")")
+        or title.count("(") != title.count(")")
+        or not re.search(r"\([а-яА-Яa-zA-Z]", title)):
+        return False
+    return text_value_is_present(title[:-1].rstrip(), fragment)
+
+
 _MATERIAL_QUANTITY = re.compile(
     r"(?P<number>[+\-]?(?:0|[1-9][0-9]*)(?:[.,][0-9]+)?)\s*"
     r"(?P<unit>компл\.?|шт\.?|км|мм|см|м[23²³]?|кг|г|т|л)"
@@ -129,8 +146,9 @@ _MATERIAL_QUANTITY = re.compile(
 def material_quantity_is_present(value: str, fragment: str) -> bool:
     """Match one material-row quantity when unit/quantity columns are reversed.
 
-    Only the exact quantity and unit at the end of a single cited item are
-    eligible. This is not generic word reordering, arithmetic, unit conversion,
+    The exact quantity and unit must belong to a single cited item. A trailing
+    mass column is allowed, without splitting digits glued by PDF extraction.
+    This is not generic word reordering, arithmetic, unit conversion,
     or proof that independently quoted cells belong to the same material row.
     The caller must retain its name/page/shared-row checks.
     """
@@ -145,13 +163,20 @@ def material_quantity_is_present(value: str, fragment: str) -> bool:
     # Preserve digits, signs and decimal punctuation verbatim. The material
     # column must not accidentally supply a dimension or part of a type code.
     before_number = r"(?<![\w.,/×*+\-−])"
-    tail = r"\s*[.;]?\s*$"
+    # A real specification often has mass after quantity. Requiring quantity
+    # to end the quote discarded otherwise fully evidenced rows. Only a
+    # separated numeric mass column or explicitly labelled mass is permitted;
+    # another material/dimension/unit sequence is not a row continuation.
+    mass = r"(?:масса(?:\s+(?:единицы|ед\.?|изделия))?\s*[:=]?\s*)?\d+(?:[.,]\d+)?(?:\s*кг)?"
+    tail = rf"(?:\s*[;|]\s*{mass}|\s+{mass})?\s*[.;]?\s*$"
     forward = before_number + number + r"\s*" + unit + tail
     reverse = r"(?<![\w/·⋅∙×*÷∕⁄^+\-−–—])" + unit + r"\s+" + number + tail
     source = unicodedata.normalize("NFC", fragment).casefold()
     for pattern in (forward, reverse):
         for match in re.finditer(pattern, source):
             preceding = source[:match.start()].rstrip()
+            if re.search(r"масса[^;|\n]{0,45}$", preceding):
+                continue
             # Whitespace must not hide a negative sign or a composite unit,
             # e.g. "− 5 м", "кг / м 5" or "Н · м 5".
             if preceding and preceding[-1] in "/·⋅∙×*÷∕⁄^+-−–—":

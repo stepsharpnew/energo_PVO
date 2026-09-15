@@ -8,9 +8,12 @@ import shutil
 import tempfile
 import zipfile
 from dataclasses import dataclass
+from datetime import datetime
 from pathlib import Path, PurePosixPath
 
 import openpyxl
+from openpyxl.formula import Tokenizer
+from openpyxl.utils.datetime import CALENDAR_MAC_1904, CALENDAR_WINDOWS_1900, to_excel
 import yaml
 from lxml import etree
 
@@ -170,6 +173,27 @@ class OOXMLWorkbook:
         root, cell = self._cell(sheet_name, coordinate, create=True)
         assert cell is not None
         self._clear_cell_payload(cell)
+        if isinstance(value, datetime):
+            properties = etree.fromstring(self.parts["xl/workbook.xml"]).find(f"{{{MAIN_NS}}}workbookPr")
+            epoch = CALENDAR_MAC_1904 if properties is not None and properties.get("date1904") in {"1", "true"} else CALENDAR_WINDOWS_1900
+            value = to_excel(value, epoch)
+            # Preserve the original style; only give date inputs a date format.
+            styles = etree.fromstring(self.parts["xl/styles.xml"])
+            xfs = styles.find(f"{{{MAIN_NS}}}cellXfs")
+            assert xfs is not None
+            style = copy.deepcopy(xfs[int(cell.get("s", "0"))])
+            number_format_id = int(style.get("numFmtId", "0"))
+            number_format = openpyxl.styles.numbers.BUILTIN_FORMATS.get(number_format_id, "")
+            custom_formats = styles.find(f"{{{MAIN_NS}}}numFmts")
+            if custom_formats is not None:
+                number_format = next((item.get("formatCode", "") for item in custom_formats if int(item.get("numFmtId")) == number_format_id), number_format)
+            if not openpyxl.styles.numbers.is_date_format(number_format):
+                style.set("numFmtId", "14")
+            style.set("applyNumberFormat", "1")
+            xfs.append(style)
+            cell.set("s", str(len(xfs) - 1))
+            xfs.set("count", str(len(xfs)))
+            self.parts["xl/styles.xml"] = etree.tostring(styles, xml_declaration=True, encoding="UTF-8", standalone=True)
         if isinstance(value, (int, float)) and not isinstance(value, bool):
             etree.SubElement(cell, f"{{{MAIN_NS}}}v").text = str(value)
         else:
@@ -318,10 +342,6 @@ class OOXMLWorkbook:
             r"\$?[A-Z]{1,3}\$?[1-9][0-9]*"
             r")\s*$"
         )
-        cell_reference = re.compile(
-            r"(?:(?:'(?:''|[^'])+'|[A-Za-z_\u0400-\u04FF][^'!\[\],()]*)!)?"
-            r"\$?[A-Z]{1,3}\$?[1-9][0-9]*"
-        )
         changed = 0
         for sheet_name in self.sheet_parts:
             root = self._sheet_root(sheet_name)
@@ -335,18 +355,43 @@ class OOXMLWorkbook:
                     reference = direct.group("reference")
                     formula.text = f'IF({reference}="","",{reference})'
                 elif text.lstrip().upper().startswith("CONCATENATE("):
-                    references = list(dict.fromkeys(cell_reference.findall(text)))
-                    if not references:
+                    # Tokenize so quoted text like "ТП35" cannot become a
+                    # spurious cell reference. Only simple joins are safe.
+                    try:
+                        tokens = Tokenizer("=" + text.strip()).items
+                    except Exception:
                         continue
-                    formula.text = (
-                        f'IF(COUNTA({",".join(references)})=0,"",{text.strip()})'
-                    )
+                    operands = [item for item in tokens if item.type == "OPERAND"]
+                    references = list(dict.fromkeys(item.value for item in operands if item.subtype == "RANGE"))
+                    if (not references or any(not direct_reference.fullmatch(ref) for ref in references)
+                        or any(item.type not in {"FUNC", "OPERAND", "SEP", "WHITE-SPACE"} for item in tokens)
+                        or sum(item.type == "FUNC" for item in tokens) != 2
+                        or any(item.subtype not in {"RANGE", "TEXT"} for item in operands)):
+                        continue
+                    # COUNTA counts formulas returning "". Test their values
+                    # instead, and suppress empty references inside partial joins.
+                    blank_test = ",".join(f'{ref}=""' for ref in references)
+                    joined = "".join(f'IF({item.value}="","",{item.value})' if item.type == "OPERAND" and item.subtype == "RANGE" else item.value for item in tokens)
+                    formula.text = f'IF(AND({blank_test}),"",{joined})'
                 else:
                     continue
                 changed += 1
                 changed_sheet = True
             if changed_sheet:
                 self._save_sheet_root(sheet_name, root)
+        return changed
+
+    def reveal_input_rows(self, targets: dict[str, list[str]]) -> int:
+        """Reveal explicitly mapped input rows, without altering print geometry."""
+        changed = 0
+        for sheet_name, coordinates in targets.items():
+            rows = {str(openpyxl.utils.cell.coordinate_to_tuple(cell)[0]) for cell in coordinates}
+            root = self._sheet_root(sheet_name)
+            for row in root.findall(f"{{{MAIN_NS}}}sheetData/{{{MAIN_NS}}}row"):
+                if row.get("r") in rows and row.get("hidden") in {"1", "true"}:
+                    row.attrib.pop("hidden")
+                    changed += 1
+            self._save_sheet_root(sheet_name, root)
         return changed
 
     def localize_external_sheet_references(self, sheet_names: list[str]) -> int:

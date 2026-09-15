@@ -4,13 +4,17 @@ import csv
 import hashlib
 import io
 import json
+import logging
 import re
+import threading
+import warnings
 import zipfile
 from pathlib import Path
 
 import openpyxl
 from lxml import etree
-from pypdf import PdfReader, PdfWriter
+from pypdf import PageObject, PdfReader, PdfWriter, Transformation
+from pypdf.generic import DecodedStreamObject, DictionaryObject, NameObject
 
 from .domain import Artifact
 
@@ -18,7 +22,9 @@ from .domain import Artifact
 ALLOWED_EXTENSIONS = {".pdf", ".xlsx", ".docx", ".png", ".jpg", ".jpeg", ".csv", ".txt"}
 MAX_OFFICE_UNCOMPRESSED_BYTES = 300 * 1024 * 1024
 MAX_OFFICE_COMPRESSION_RATIO = 300
-EXTRACTOR_VERSION = "3"
+EXTRACTOR_VERSION = "4"
+VISUAL_PAGE_LABEL_VERSION = "original-page-labels-1"
+VISUAL_PAGE_LABEL_HEIGHT = 28
 
 PILOT_PATTERNS = {
     "kl_04": (r"(?<![а-яa-z])кл\s*[-–—]?\s*0[,.]4", r"кабельн\w*\s+лини\w*\s+0[,.]4"),
@@ -248,6 +254,44 @@ def _pdf_text_reliability(text: str) -> tuple[bool, str | None]:
     return True, None
 
 
+def _pdf_layout_text(page: PageObject, *, diagnostics: dict | None = None) -> str | None:
+    """Supplement plain extraction with column spacing, never guessed OCR.
+
+    The supported strip-rotated warning means upright table text remains
+    usable but incomplete; retain that warning. Degraded layout/font geometry
+    or extraction errors fall back to the plain text and visual route.
+    """
+    thread_id = threading.get_ident()
+
+    class LayoutWarnings(logging.Handler):
+        def __init__(self) -> None:
+            super().__init__()
+            self.messages: list[str] = []
+
+        def emit(self, record: logging.LogRecord) -> None:
+            if record.thread == thread_id and record.levelno >= logging.WARNING:
+                self.messages.append(record.getMessage())
+
+    handler = LayoutWarnings()
+    logger = logging.getLogger("pypdf")
+    logger.addHandler(handler)
+    try:
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always")
+            text = page.extract_text(extraction_mode="layout", layout_mode_strip_rotated=True) or ""
+        messages = handler.messages + [str(item.message) for item in caught]
+        if any(message != "Rotated text discovered. Output will be incomplete." for message in messages):
+            return None
+        if messages and diagnostics is not None:
+            diagnostics["layout_text_partial"] = True
+            diagnostics["layout_text_warnings"] = sorted(set(messages))
+        return text[:25_000] if text.strip() else None
+    except Exception:
+        return None
+    finally:
+        logger.removeHandler(handler)
+
+
 def _build_segments(path: Path) -> tuple[list[dict], int | None]:
     ext = path.suffix.lower()
     if ext == ".pdf":
@@ -257,6 +301,8 @@ def _build_segments(path: Path) -> tuple[list[dict], int | None]:
         segments = []
         for number, page in enumerate(reader.pages, 1):
             text = (page.extract_text() or "")[:25_000]
+            layout_diagnostics: dict = {}
+            layout_text = _pdf_layout_text(page, diagnostics=layout_diagnostics)
             text_reliable, text_reliability_reason = _pdf_text_reliability(text)
             segments.append(
                 {
@@ -264,6 +310,9 @@ def _build_segments(path: Path) -> tuple[list[dict], int | None]:
                     "page": number,
                     "sheet": None,
                     "text": text,
+                    "layout_text": layout_text,
+                    "layout_text_reliable": bool(layout_text and _pdf_text_reliability(layout_text)[0]),
+                    **layout_diagnostics,
                     "char_count": len(text),
                     "text_reliable": text_reliable,
                     "text_reliability_reason": text_reliability_reason,
@@ -369,6 +418,7 @@ def read_indexed_source(
     pages: list[int] | None = None,
     sheets: list[str] | None = None,
     max_chars: int = 18_000,
+    include_layout: bool = False,
 ) -> tuple[str, int | None]:
     index = source_index(root, artifact)
     selected = []
@@ -385,7 +435,10 @@ def read_indexed_source(
             if segment.get("text_reliable") is False
             else ""
         )
-        selected.append(f"\n--- {segment['locator']} ---\n{reliability_note}{segment['text']}")
+        layout = segment.get("layout_text") if include_layout and segment.get("layout_text_reliable") else None
+        layout_block = (f"[LAYOUT EXTRACT: same physical page; rotated text may be omitted]\n{layout}\n[PLAIN EXTRACT]\n"
+                        if layout else "")
+        selected.append(f"\n--- {segment['locator']} ---\n{layout_block}{reliability_note}{segment['text']}")
     text = "".join(selected)
     if len(text) > max_chars:
         text = text[:max_chars] + "\n[TRUNCATED BY SOURCE BUDGET]"
@@ -416,6 +469,22 @@ def _segment_context_score(segment: dict, *, project: bool) -> int:
     return score
 
 
+def _selected_template_text_score(segment: dict) -> int:
+    """Prefer useful readable PDF facts, independent of legacy KL/VRS pilots."""
+    reliable = segment.get("text_reliable", True) or segment.get("layout_text_reliable", False)
+    text = _normalized(str(segment.get("text") or "") + " " + str(segment.get("layout_text") or ""))
+    score = 1_000 if reliable else 0
+    if any(term in text for term in ("спецификац", "наименование и техническ", "количество", "кол-во")):
+        score += 650
+    if any(term in text for term in ("ведомость объем", "ведомость объём", "материал", "оборудован")):
+        score += 350
+    if any(term in text for term in ("заказчик", "проектная организация", "подрядчик", "застройщик", "реквизит", "огрн", "инн")):
+        score += 500
+    if segment.get("page") == 1:
+        score += 300
+    return score
+
+
 def build_compact_evidence(
     root: Path,
     artifacts: list[Artifact],
@@ -433,10 +502,11 @@ def build_compact_evidence(
         if not selected_pdf and artifact.category == "execution_scheme" and scope in OUT_OF_SCOPE_PATTERNS:
             continue
         is_project = selected_pdf or artifact.category in {"project", "technical_conditions"}
-        per_file = 32 if is_project else 3
+        per_file = len(index["segments"]) if selected_pdf else (32 if is_project else 3)
+        score_segment = _selected_template_text_score if selected_pdf else lambda item: _segment_context_score(item, project=is_project)
         ranked = sorted(
             index["segments"],
-            key=lambda item: (-_segment_context_score(item, project=is_project), str(item["locator"])),
+            key=lambda item: (-score_segment(item), int(item.get("page") or 0) if selected_pdf else 0, str(item["locator"])),
         )[:per_file]
         category_bonus = {
             "project": 50,
@@ -449,14 +519,14 @@ def build_compact_evidence(
         for segment in ranked:
             candidates.append(
                 (
-                    category_bonus + _segment_context_score(segment, project=is_project),
+                    category_bonus + score_segment(segment),
                     artifact,
                     segment,
                     scope,
                 )
             )
     packet: list[dict] = []
-    used = 0
+    used = 2 if selected_template else 0  # JSON list brackets in selected mode.
     for _, artifact, segment, scope in sorted(candidates, key=lambda item: -item[0]):
         if used >= max_chars:
             break
@@ -465,27 +535,56 @@ def build_compact_evidence(
         if remaining <= 0:
             break
         excerpt = segment["text"][: min(8_000, remaining)]
-        if not excerpt.strip():
+        layout_text = segment.get("layout_text") if segment.get("layout_text_reliable") else None
+        if selected_template and layout_text and re.sub(r"\s+", " ", layout_text).strip() != re.sub(r"\s+", " ", segment["text"]).strip():
+            # Keep both independently extracted views, with a shared per-page
+            # text allowance. Layout gets most space when it restores columns.
+            layout_text = layout_text[:min(6_000, remaining)]
+            excerpt = excerpt[:max(0, min(2_000, remaining - len(layout_text)))]
+        else:
+            layout_text = None
+        if not excerpt.strip() and not layout_text:
             continue
-        packet.append(
-            {
-                "file_id": artifact.id,
-                "category": artifact.category,
-                "scope_hint": scope,
-                "locator": segment["locator"],
-                "visual_required": segment["visual_required"],
-                "text_reliable": segment.get("text_reliable", True),
-                "text_reliability_reason": segment.get("text_reliability_reason"),
-                "evidence_instruction": (
-                    "Read the supplied page image for exact values. This extracted text "
-                    "is incomplete or has broken font encoding; do not quote it as reliable evidence."
-                    if segment.get("text_reliable") is False
-                    else None
-                ),
-                "text": excerpt,
-            }
-        )
-        used += len(excerpt) + record_overhead
+        record = {
+            "file_id": artifact.id,
+            "category": artifact.category,
+            "scope_hint": scope,
+            "locator": segment["locator"],
+            "visual_required": segment["visual_required"],
+            "text_reliable": segment.get("text_reliable", True),
+            "text_reliability_reason": segment.get("text_reliability_reason"),
+            "evidence_instruction": (
+                "Read the supplied page image for exact values. This extracted text "
+                "is incomplete or has broken font encoding; do not quote it as reliable evidence."
+                if segment.get("text_reliable") is False
+                else None
+            ),
+            "text": excerpt,
+        }
+        if layout_text:
+            record["layout_text"] = layout_text
+            record["layout_text_reliable"] = True
+            if segment.get("layout_text_partial"):
+                record["layout_text_partial"] = True
+                record["layout_text_warnings"] = segment.get("layout_text_warnings", [])
+        if selected_template:
+            separator = 2 if packet else 0
+            # Count actual serialized text, including escaped control chars
+            # from broken fonts, instead of assuming fixed record overhead.
+            record_size = len(json.dumps(record, ensure_ascii=False))
+            while used + separator + record_size > max_chars:
+                overflow = used + separator + record_size - max_chars
+                key = "text" if record["text"] else "layout_text"
+                if not record.get(key):
+                    break
+                record[key] = record[key][:max(0, len(record[key]) - overflow)]
+                record_size = len(json.dumps(record, ensure_ascii=False))
+            if used + separator + record_size > max_chars or not (record["text"].strip() or record.get("layout_text", "").strip()):
+                continue
+            used += separator + record_size
+        else:
+            used += len(excerpt) + record_overhead
+        packet.append(record)
     return packet
 
 
@@ -499,11 +598,65 @@ def _selected_pdf_pages(index: dict, *, project: bool, limit: int | None = None)
     return sorted(int(item["page"]) for item in ranked[:effective_limit])
 
 
-def _pdf_subset(source: Path, destination: Path, pages: list[int]) -> Path:
+def _label_visual_page(source_page: PageObject, original_page: int) -> PageObject:
+    """Add a separate top band without scaling or covering source content.
+
+    Normalize rotation on a copy, then preserve exactly the original visible
+    CropBox. Translating that viewport to the origin avoids clipping pages
+    whose media/crop boxes do not start at (0, 0).
+    """
+    # Clone into an owned writer before transforming content. This avoids
+    # mutating reader-owned streams and is compatible with pypdf's strict
+    # ownership rules for replace_contents/rotation normalization.
+    page = PdfWriter().add_page(source_page)
+    if page.rotation:
+        page.transfer_rotation_to_content()
+    left, bottom = float(page.cropbox.left), float(page.cropbox.bottom)
+    width, height = float(page.cropbox.width), float(page.cropbox.height)
+    if width <= 0 or height <= 0:
+        raise ValueError("PDF page has an invalid visible page box")
+    result = PageObject.create_blank_page(width=width, height=height + VISUAL_PAGE_LABEL_HEIGHT)
+    if "/UserUnit" in page:
+        result[NameObject("/UserUnit")] = page["/UserUnit"]
+    result.merge_transformed_page(page, Transformation().translate(-left, -bottom))
+
+    # Standard PDF font: routing must not depend on installed OS fonts or add
+    # a new runtime dependency just to label the source page number.
+    label = f"Original PDF page: {original_page}"
+    font_size = min(14.0, width / (len(label) * 0.6 + 2))
+    label_page = PageObject.create_blank_page(width=width, height=height + VISUAL_PAGE_LABEL_HEIGHT)
+    label_page[NameObject("/Resources")] = DictionaryObject({
+        NameObject("/Font"): DictionaryObject({
+            NameObject("/VisualPageLabel"): DictionaryObject({
+                NameObject("/Type"): NameObject("/Font"),
+                NameObject("/Subtype"): NameObject("/Type1"),
+                NameObject("/BaseFont"): NameObject("/Helvetica"),
+            }),
+        }),
+    })
+    stream = DecodedStreamObject()
+    stream.set_data((
+        f"q 1 1 1 rg 0 {height:g} {width:g} {VISUAL_PAGE_LABEL_HEIGHT} re f "
+        f"0 0 0 rg BT /VisualPageLabel {font_size:g} Tf "
+        f"{font_size:g} {height + 9:g} Td ({label}) Tj ET Q"
+    ).encode("ascii"))
+    label_page[NameObject("/Contents")] = stream
+    result.merge_page(label_page)
+    return result
+
+
+def _pdf_subset(source: Path, destination: Path, pages: list[int], *, label_original_pages: bool = False) -> Path:
+    source_hash = _file_sha256(source) if label_original_pages else None
     if destination.exists():
         try:
             cached = PdfReader(str(destination))
-            if not cached.is_encrypted and len(cached.pages) == len(pages):
+            metadata = cached.metadata or {}
+            labels_match = not label_original_pages or (
+                metadata.get("/ExecutiveDocsVisualVersion") == VISUAL_PAGE_LABEL_VERSION
+                and metadata.get("/ExecutiveDocsVisualPages") == json.dumps(pages)
+                and metadata.get("/ExecutiveDocsSourceSHA256") == source_hash
+            )
+            if not cached.is_encrypted and len(cached.pages) == len(pages) and labels_match:
                 return destination
         except Exception:
             pass
@@ -511,7 +664,16 @@ def _pdf_subset(source: Path, destination: Path, pages: list[int]) -> Path:
     writer = PdfWriter()
     for page in pages:
         if 1 <= page <= len(reader.pages):
-            writer.add_page(reader.pages[page - 1])
+            original = reader.pages[page - 1]
+            writer.add_page(_label_visual_page(original, page) if label_original_pages else original)
+        elif label_original_pages:
+            raise ValueError(f"Visual page {page} is outside the source PDF")
+    if label_original_pages:
+        writer.add_metadata({
+            "/ExecutiveDocsVisualVersion": VISUAL_PAGE_LABEL_VERSION,
+            "/ExecutiveDocsVisualPages": json.dumps(pages),
+            "/ExecutiveDocsSourceSHA256": source_hash,
+        })
     destination.parent.mkdir(parents=True, exist_ok=True)
     temporary = destination.with_suffix(".tmp")
     with temporary.open("wb") as stream:
@@ -567,6 +729,9 @@ def select_visual_sources(
                 if segment.get("visual_required"):
                     priority, reason = 1_300, "project page without reliable text layer"
                     required = True
+                elif selected_pdf:
+                    priority = 500 + _selected_template_text_score(segment)
+                    reason = "selected-template readable table or role evidence"
                 elif _pilot_match_count(segment.get("text", "")):
                     priority, reason = 1_100 + min(_pilot_match_count(segment.get("text", "")), 20), "pilot-family project evidence"
                 elif page == 1:
@@ -611,9 +776,15 @@ def select_visual_sources(
         visual_path = path
         if path.suffix.lower() == ".pdf":
             total_pages = int(source_index(root, artifact).get("pages") or len(pages))
-            if pages != list(range(1, total_pages + 1)):
-                suffix = hashlib.sha256(",".join(map(str, pages)).encode()).hexdigest()[:10]
-                visual_path = _pdf_subset(path, root / "extracted" / "visual" / f"{artifact.sha256}-{suffix}.pdf", pages)
+            if selected_template or pages != list(range(1, total_pages + 1)):
+                cache_key = ",".join(map(str, pages))
+                if selected_template:
+                    cache_key = f"{VISUAL_PAGE_LABEL_VERSION}:{cache_key}"
+                suffix = hashlib.sha256(cache_key.encode()).hexdigest()[:10]
+                visual_path = _pdf_subset(
+                    path, root / "extracted" / "visual" / f"{artifact.sha256}-{suffix}.pdf", pages,
+                    label_original_pages=selected_template,
+                )
         selected.append(
             {
                 "artifact": artifact,

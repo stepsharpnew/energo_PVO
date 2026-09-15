@@ -26,7 +26,7 @@ SOURCE_DIR = ROOT / "NEW_TEMPLATES" / "Attachments_vku@e-systems-4"
 ETALON_DIR = ROOT / "ETALON"
 APPROVED_DIR = ROOT / "templates" / "approved"
 CONTRACTS_DIR = ROOT / "templates" / "fill-contracts"
-VERSION = "2026-09-08-discovery-6"
+VERSION = "2026-09-15-discovery-9"
 AOSR_VL_VERSION = VERSION
 TEMPLATES = (
     ("emr", "1. ЭМР1.xlsx", "Электромонтажные работы (ЭМР)", "emr"),
@@ -523,6 +523,16 @@ def object_card_field_overrides(template_id: str, source_book) -> dict:
             ),
         )
 
+    if template_id == "ojr":
+        if normalized_sheet(str(worksheet["A10"].value)) != "наименование электроустановки" or source_book["Титульный лист"]["A178"].value != "='Данные объект'!B11":
+            raise ValueError("Изменился блок основного обозначения электроустановки ОЖР")
+        add("B11", "", _aosr_field(
+            "project.installation.primary", "Основное обозначение электроустановки (титул ОЖР)",
+            "Краткие проектные характеристики и обозначение строящейся электроустановки из PDF. "
+            "Это основное поле печатного титула; также заполнить соответствующее поле вида установки, "
+            "если оно подтверждено тем же PDF. Не дописывать отсутствующие фидер, номер или напряжение.",
+        ))
+
     # In the EMR source this lower block has shifted captions. Do not infer its
     # city/code mapping from stale example values or from another workbook.
     project_rows = {"protocols": (53, 54), "ojr": (53, 54), "avk": (39, 40)}
@@ -575,10 +585,10 @@ def material_table_field_overrides(template_id: str, source_book) -> dict:
         }.items():
             if normalized_sheet(str(worksheet[coordinate].value or "")) != normalized_sheet(expected):
                 raise ValueError(f"Изменилась подпись материальной таблицы: {sheet_name}!{coordinate}")
-        # Rows 36:76 are linked to individual acts with stale example product
-        # names and are intentionally not made writable here. These ten spare
-        # rows are genuinely blank and have no quantity/result formulas.
-        for row in range(77, 87):
+        # The candidate journal is an independent draft table. Its old links
+        # to product-specific acts are removed by avk_journal_layout_changes;
+        # no supplier, delivery or inspection fact follows the new PDF item.
+        for row in range(36, 87):
             if worksheet[f"A{row}"].value != row - 35:
                 raise ValueError(f"Изменилась строка материальной таблицы: {sheet_name}!A{row}")
             for column, part, label in (
@@ -587,13 +597,15 @@ def material_table_field_overrides(template_id: str, source_book) -> dict:
             ):
                 coordinate = f"{column}{row}"
                 cell = worksheet[coordinate]
-                if cell.value not in (None, "") or is_merged_non_anchor(worksheet, cell):
+                if is_merged_non_anchor(worksheet, cell):
+                    raise ValueError(f"Изменилась структура материальной таблицы: {sheet_name}!{coordinate}")
+                if row >= 77 and cell.value not in (None, ""):
                     raise ValueError(f"Резервная строка материальной таблицы больше не пуста: {sheet_name}!{coordinate}")
                 fields[(sheet_name, coordinate)] = _aosr_field(
-                    f"avk.materials.item_{row - 76}.{part}",
-                    f"Материал / оборудование, резервная позиция {row - 76}: {label.lower()}",
+                    f"avk.materials.item_{row - 35}.{part}",
+                    f"Материал / оборудование, позиция {row - 35}: {label.lower()}",
                     f"{label}. C/D строки {row} относятся к одной позиции текущего PDF. "
-                    "Разные позиции спецификации последовательно занимают строки 77–86. "
+                    "Разные позиции спецификации последовательно занимают строки 36–86. "
                     "Только проект: value_basis=project, не факт поставки или годности. "
                     "Единица количества — как в PDF, без расчёта отсутствующего итога.",
                     evidence_rule="actual_executive_document_only",
@@ -637,6 +649,140 @@ def material_table_field_overrides(template_id: str, source_book) -> dict:
                 required=False,
             )
     return fields
+
+
+def avk_journal_layout_changes(source_book) -> dict:
+    """Detach only the existing journal body from historical product acts.
+
+    C/D receive current-PDF draft materials. All delivery, manufacturer,
+    inspection and signature columns remain blank manual inputs. Keep the
+    individual acts, all headings, row numbering and printed layout intact.
+    """
+    sheet_name = " Журнал АВК"
+    worksheet = source_book[sheet_name]
+    captions = {
+        "B": "Дата поставки",
+        "E": "Поставщик",
+        "F": "Наименование и номер документа изготовителя",
+        "G": "Результат проверки сопроводительных документов изготовителя и визуального осмотра на соответствие требованиям утвержденной проектной документации и соответствующим документам по стандартизации",
+        "H": "Решение о необходимости проведения инструментального контроля",
+        "I": "Результат инструментального контроля",
+        "J": "Подпись лица, осуществляющего контроль со стороны лица, осуществляющего строительство, и застройщика (технического заказчика)",
+    }
+    for column, caption in captions.items():
+        if normalized_sheet(str(worksheet[f"{column}34"].value or "")) != normalized_sheet(caption):
+            raise ValueError(f"Изменилась подпись фактического поля журнала АВК: {column}34")
+    fields = {}
+    for row in range(36, 87):
+        if worksheet[f"A{row}"].value != row - 35:
+            raise ValueError(f"Изменилась строка журнала АВК: A{row}")
+        for column, caption in captions.items():
+            coordinate = f"{column}{row}"
+            if is_merged_non_anchor(worksheet, worksheet[coordinate]):
+                raise ValueError(f"Изменилась структура журнала АВК: {coordinate}")
+            fields[(sheet_name, coordinate)] = {
+                "label": f"Позиция {row - 35}: {caption.lower()}",
+                "description": f"Фактическая запись входного контроля для материала той же строки: {caption.lower()}",
+                "value_kind": "text",
+                "required": False,
+                "manual_reason": "Требуется подтверждение фактической поставки или входного контроля этой позиции. Проектная спецификация не подтверждает дату, поставщика, документ изготовителя, результат проверки или подпись.",
+            }
+    return fields
+
+
+def broken_formula_quarantine(template_id: str, source_book) -> dict:
+    """Quarantine only individually inspected, irrecoverable source formulas.
+
+    This is not a formula-error fallback or permission to guess a lost
+    precedent. Healthy formulas, including blank-safe downstream links, stay
+    intact. Each cleared cell remains a blocking manual target in the draft.
+    """
+    missing_card = "='Данные объект'!#REF!"
+    missing_representative = '=CONCATENATE(\'Данные объект\'!B41,", ",\'Данные объект\'!#REF!," - ",\'Данные объект\'!B42)'
+    expected = {
+        "emr": {
+            ("Ведомость общ", "A52"): (missing_card, "Заверяющая строка ведомости материалов: утраченная часть"),
+            ("ТП-1", "A33"): (missing_representative, "Представитель генподрядной организации"),
+            ("АСП-1", "A33"): (missing_representative, "Представитель генподрядной организации"),
+            ("КЛ-1", "A31"): (missing_card, "Утраченная служебная ссылка акта приёмки траншеи"),
+            ("ВЛ-1", "BG25"): ("=#REF!", "Обозначение сборных железобетонных фундаментов"),
+            ("ВЛ-2", "A8"): (missing_card, "Объект в акте проверки установки опор"),
+            ("ВЛ-2", "O20"): (missing_card, "Наименование ВЛ в акте проверки установки опор"),
+            **{("24 ВЛИ", f"Q{row}"): ("=#REF!", f"Фактически установленные опоры: {kind}, шт.")
+               for row, kind in ((21, "промежуточные"), (22, "анкерные"), (23, "угловые"), (24, "другие"), (25, "всего"))},
+            **{("24 ВЛИ", f"AG{row}"): ("=#REF!", f"Тип фактически установленных опор: {kind}")
+               for row, kind in ((21, "промежуточные"), (22, "анкерные"), (23, "угловые"), (24, "другие"))},
+            ("24 ВЛИ", "G29"): ("=#REF!", "ВЛ или участок фактического монтажа проводов"),
+            ("24 ВЛИ", "AG29"): ("=#REF!", "Марка и сечение фактически смонтированного провода"),
+            ("24 ВЛИ", "BT29"): ("=#REF!", "Фактическое количество смонтированного провода, м"),
+            ("24 ВЛИ", "AD61"): ("=#REF!", "Опоры с фактически смонтированными заземляющими устройствами"),
+        },
+        "avk": {
+            ("краска", "K11"): ("='[3]Провод СИП '!K11:L11", "Дата входного контроля краски"),
+            ("краска", "H14"): ("='[3]Провод СИП '!H14:L14", "Утраченная часть строки комиссии входного контроля краски"),
+        },
+    }.get(template_id, {})
+    fields = {}
+    for (sheet_name, coordinate), (formula, label) in expected.items():
+        worksheet = source_book[sheet_name]
+        cell = worksheet[coordinate]
+        if cell.value != formula or is_merged_non_anchor(worksheet, cell):
+            raise ValueError(f"Изменилась карантинируемая формула: {sheet_name}!{coordinate}")
+        fields[(sheet_name, coordinate)] = {
+            "label": label,
+            "description": label,
+            "value_kind": "text",
+            "required": True,
+            "evidence_rule": "actual_executive_document_only",
+            "manual_reason": "В исходном шаблоне утрачена ссылка формулы (#REF! или недоступная внешняя книга). Ячейка оставлена пустой для проверки и заполнения специалистом; исходная связь и фактические сведения не восстановлены.",
+        }
+    return fields
+
+
+def ojr_layout_changes(source_book) -> tuple[dict, dict]:
+    """Source-caption based repairs; ETALON entities never establish roles."""
+    title = "Титульный лист"
+    card = "Данные объект"
+    expected = {
+        "Q4": "='Данные объект'!B2", "A13": "='Данные объект'!B17",
+        "A15": "='Данные объект'!B18", "A17": "='Данные объект'!B19",
+        "A31": '=CONCATENATE(\'Данные объект\'!B30," ",\'Данные объект\'!B31)',
+        "A33": "='Данные объект'!B32", "A67": "='Данные объект'!B51",
+        "A69": "='Данные объект'!B52",
+    }
+    for coordinate, formula in expected.items():
+        if source_book[title][coordinate].value != formula:
+            raise ValueError(f"Изменилась проверяемая связь ОЖР: {title}!{coordinate}")
+    for coordinate in ("A17", "A33", "A69", "A89"):
+        caption = str(source_book[title].cell(source_book[title][coordinate].row + 1, 1).value)
+        if "саморегулируемой организации" not in caption:
+            raise ValueError(f"Изменилась подпись СРО: {title}!{coordinate}")
+    fields = {
+        (title, "Q4"): _aosr_field("actual.journal_number", "Номер общего журнала работ", "Номер именно этого общего журнала по записи в PDF. № САП, шифр проекта и номер договора не являются номером журнала.", evidence_rule="actual_executive_document_only"),
+        (title, "A13"): _aosr_field("developer.name", "Застройщик: наименование", "Юридическое лицо, прямо названное застройщиком в PDF. Подрядчик, заказчик и застройщик — отдельные роли.", evidence_rule="organization_role_pdf"),
+        (title, "A15"): _aosr_field("developer.registration", "Застройщик: реквизиты и адрес", "Реквизиты и местонахождение того же застройщика из PDF, со ссылкой на его роль. Не использовать данные монтажной организации.", evidence_rule="organization_role_pdf"),
+    }
+    for coordinate, role in (("A17", "застройщика"), ("A33", "технического заказчика"), ("A69", "проектировщика"), ("A89", "подрядчика")):
+        fields[(title, coordinate)] = {"label": f"СРО {role}", "description": f"Реквизиты СРО, членом которой является организация в роли {role}", "value_kind": "text", "manual_reason": "Нужны реквизиты СРО и подтверждение членства именно этого участника. Адрес самого участника не является сведениями о СРО."}
+
+    def joined(*coordinates):
+        return '=CONCATENATE(' + '," ",'.join(f"'{card}'!{cell}" for cell in coordinates) + ')'
+
+    formulas = {
+        (title, "A31"): joined("B30", "B31", "B32"),
+        (title, "A67"): joined("B51", "B52"),
+        (title, "A85"): f"='{card}'!B17",
+        (title, "A87"): joined("B18", "B19"),
+    }
+    # A known company must not appear as a missing representative's position.
+    for coordinate in ("C21", "C22", "C23", "C24", "C26", "C27", "C28", "C33", "C34", "C35", "C36", "C37", "C38", "C39", "C40", "C41", "C42", "C44", "C45", "C46", "C47", "C48", "C58"):
+        formula = source_book[card][coordinate].value
+        if not isinstance(formula, str) or not re.match(r"=CONCATENATE\(B\d+,", formula):
+            raise ValueError(f"Изменилась формула представителя: {card}!{coordinate}")
+        primary = re.match(r"=CONCATENATE\((B\d+),", formula).group(1)
+        # Applied after the generic blank-safe join transformation below.
+        formulas[(card, coordinate)] = (primary, formula)
+    return fields, formulas
 
 
 def digest(path: Path) -> str:
@@ -1091,6 +1237,11 @@ def register(
         references = formula_references(source_book)
         card_overrides = object_card_field_overrides(template_id, source_book)
         material_overrides = material_table_field_overrides(template_id, source_book)
+        layout_fields, layout_formulas = ojr_layout_changes(source_book) if template_id == "ojr" else ({}, {})
+        if template_id == "avk":
+            layout_fields = avk_journal_layout_changes(source_book)
+        quarantined_fields = broken_formula_quarantine(template_id, source_book)
+        layout_fields.update(quarantined_fields)
         registered_by_sheet: dict[str, set[str]] = defaultdict(set)
         for worksheet in source_book.worksheets:
             for row in worksheet.iter_rows():
@@ -1107,6 +1258,17 @@ def register(
             registered_by_sheet[sheet_name].add(coordinate)
         for sheet_name, coordinate in material_overrides:
             registered_by_sheet[sheet_name].add(coordinate)
+        for sheet_name, coordinate in layout_fields:
+            registered_by_sheet[sheet_name].add(coordinate)
+        for sheet_name, coordinate in layout_formulas:
+            registered_by_sheet[sheet_name].discard(coordinate)
+        # These column captions were already verified by the material mapper.
+        preserved_headers = {
+            "emr": {"Ведомость общ": {"E17", "AI17", "BE17"}},
+            "avk": {" Журнал АВК": {f"{column}{row}" for column in "ABCDEFGHIJ" for row in (34, 35)}},
+        }
+        for sheet_name, coordinates in preserved_headers.get(template_id, {}).items():
+            registered_by_sheet[sheet_name].difference_update(coordinates)
 
         if template_id == "aosr_vl":
             for sheet_name, coordinate in AOSR_VL_FIELD_OVERRIDES:
@@ -1138,9 +1300,9 @@ def register(
             ):
                 cell = worksheet[coordinate]
                 clear_targets[sheet_name].append(coordinate)
-                if template_id == "aosr_vl" and normalized_sheet(
-                    sheet_name
-                ) == "данные организации":
+                if (normalized_sheet(sheet_name) == "данные организации" and (
+                    template_id == "aosr_vl" or ((sheet_name, coordinate) not in card_overrides and (sheet_name, coordinate) not in references)
+                )) or (template_id == "ojr" and sheet_name == "Данные объект" and cell.column >= 3 and (sheet_name, coordinate) not in references):
                     cleanup_only_targets[sheet_name].append(coordinate)
                     continue
                 label = nearby_label(
@@ -1171,7 +1333,7 @@ def register(
                             "evidence_rule": "direct_pdf",
                         }
                     )
-                override = card_overrides.get((sheet_name, coordinate)) or material_overrides.get((sheet_name, coordinate))
+                override = layout_fields.get((sheet_name, coordinate)) or card_overrides.get((sheet_name, coordinate)) or material_overrides.get((sheet_name, coordinate))
                 if template_id == "aosr_vl":
                     override = override or AOSR_VL_FIELD_OVERRIDES.get((sheet_name, coordinate))
                 if override:
@@ -1197,7 +1359,33 @@ def register(
             for (sheet_name, coordinate), formula in AOSR_VL_FORMULA_OVERRIDES.items():
                 package.set_formula(sheet_name, coordinate, formula)
                 formula_overrides += 1
-            blank_preserving_formulas = package.guard_blank_formula_results()
+        for (sheet_name, coordinate), formula in layout_formulas.items():
+            if isinstance(formula, str):
+                package.set_formula(sheet_name, coordinate, formula)
+                formula_overrides += 1
+        if template_id == "emr":
+            # This date offset must not add three days to an absent source
+            # date (nor fail when its blank-safe precedent returns "").
+            if source_book["Акт опробования"]["C84"].value != "=Y82+3":
+                raise ValueError("Изменилась формула даты ЭМР: Акт опробования!C84")
+            package.set_formula("Акт опробования", "C84", '=IF(Y82="","",Y82+3)')
+            formula_overrides += 1
+        blank_preserving_formulas = package.guard_blank_formula_results()
+        if template_id == "ojr":
+            for (sheet_name, coordinate), formula in layout_formulas.items():
+                if isinstance(formula, tuple):
+                    primary, _ = formula
+                    root, cell = package._cell(sheet_name, coordinate, create=False)
+                    from executive_docs.excel import MAIN_NS
+                    guarded = cell.find(f"{{{MAIN_NS}}}f").text
+                    package.set_formula(sheet_name, coordinate, f'IF({primary}="","",{guarded})')
+                    formula_overrides += 1
+        visible_inputs: dict[str, list[str]] = defaultdict(list)
+        for field in fields:
+            if not field["manual_reason"]:
+                original_sheet = next((old for old, new in sheet_renames.items() if new == field["sheet"]), field["sheet"])
+                visible_inputs[original_sheet].append(field["cell"])
+        revealed_rows = package.reveal_input_rows(visible_inputs)
         for old_name, new_name in sheet_renames.items():
             package.rename_sheet(old_name, new_name)
         removed_external_links = package.remove_external_links()
@@ -1299,18 +1487,19 @@ def register(
                     "renamed_candidate_sheets": sorted(sheet_renames.values()),
                 }
             )
-            if template_id == "aosr_vl":
-                findings.update(
+            findings.update(
                     {
                         "cleanup_only_cell_count": sum(
                             len(items) for items in cleanup_only_targets.values()
                         ),
                         "blank_preserving_formula_count": blank_preserving_formulas,
                         "formula_override_count": formula_overrides,
+                        "revealed_input_row_count": revealed_rows,
                         "cleared_broken_formula_count": sum(
                             len(items)
-                            for items in AOSR_VL_BROKEN_FORMULA_CELLS.values()
-                        ),
+                            for items in (AOSR_VL_BROKEN_FORMULA_CELLS.values() if template_id == "aosr_vl" else [])
+                        ) + len(quarantined_fields),
+                        "quarantined_broken_formula_count": len(quarantined_fields),
                         "unsafe_blank_formula_count": len(unsafe_blank_formulas),
                         "unsafe_blank_formula_examples": unsafe_blank_formulas[:25],
                     }

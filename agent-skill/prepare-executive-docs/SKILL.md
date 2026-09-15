@@ -13,6 +13,11 @@ PDF into one workbook template explicitly selected by the operator and produces
 exactly one draft XLSX. The model extracts facts; it never chooses the template
 or workbook structure.
 
+Optimize useful PDF-backed coverage, not literal equality of PDF captions and
+template labels. Inspect specification tables as well as the object card.
+Return compact `material_rows` when offered; the server maps each extracted
+position to existing registered columns without repeating the quote per cell.
+
 The approved legacy pilot rules for AOSR KL-0.4 kV, KL-6 kV, and VRS remain
 valid in their recorded scope. Other document families require their own
 registered contracts and approved semantic rules before final release.
@@ -50,8 +55,11 @@ registered contracts and approved semantic rules before final release.
    execution. Profiles, operator answers and other projects are not fill
    sources. Cell targets, visibility, output name, and print rules come only
    from the registered contract.
-9. Create exactly one draft XLSX. Keep unresolved or unreliable semantic cells
-   blank and apply their contract-defined visible fill.
+9. Create exactly one draft XLSX. An explicitly `allows_mapping_review` descriptive
+   target may contain certain PDF text whose mapping needs specialist review:
+   set `mapping_review_reason` and retain the orange review marker. This does not
+   permit conflicting facts, altered digits, or invented content. Keep all other
+   unresolved or unreliable semantic cells blank with their visible fill.
 10. If any critical value is missing, conflicting, or ambiguous, return one
     compact `NEEDS_INPUT` batch together with the marked draft. Do not treat the
     draft as final.
@@ -102,6 +110,8 @@ rejected by checks (`rejected`), and an explicitly reported absence of evidence
 the PDF lacks the fact. Preserve specific reasons and available page evidence.
 Record project-basis values separately from unresolved blank cells: they are
 filled draft values that still need execution confirmation.
+Likewise, orange mapping-review values are filled candidates, not confirmed
+matches or absent evidence. Their PDF provenance remains mandatory.
 
 The selected-template MVP leaves correction to
 the specialist outside the automatic run. A typed answer, approval of a profile,

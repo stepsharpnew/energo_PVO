@@ -144,6 +144,7 @@ def write_report(state: ProjectState, job_root: Path) -> tuple[Path, Path, Path]
                 "template_assignments": [
                     item.model_dump(mode="json") for item in state.template_assignments
                 ],
+                "template_analysis_summary": state.template_analysis_summary,
                 "unresolved_template_cells": [
                     item.model_dump(mode="json")
                     for item in state.unresolved_template_cells
@@ -170,7 +171,8 @@ def write_report(state: ProjectState, job_root: Path) -> tuple[Path, Path, Path]
         claim_rows = "".join(
             f"<tr><td>{html.escape(item.sheet)}!{html.escape(item.cell)}</td>"
             f"<td>{html.escape(item.value)}{' — по проекту, не факт выполнения' if item.value_basis == 'project' else ''}</td>"
-            f"<td>{html.escape(item.locator)}: {html.escape(item.evidence_fragment)}</td></tr>"
+            f"<td>{html.escape(item.locator)}: {html.escape(item.evidence_fragment)}"
+            f"{' — ПРОВЕРИТЬ ПРИВЯЗКУ: ' + html.escape(item.mapping_review_reason) if item.mapping_review_reason else ''}</td></tr>"
             for item in state.template_assignments
         )
     usage_rows = "".join(

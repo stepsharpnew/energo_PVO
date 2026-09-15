@@ -1,7 +1,7 @@
 template_id: emr
 display_name: Электромонтажные работы (ЭМР)
 document_kind: emr
-version: 2026-09-08-discovery-6
+version: 2026-09-15-discovery-9
 status: DISCOVERY_REVIEW_REQUIRED
 approved: false
 source_template: NEW_TEMPLATES/Attachments_vku@e-systems-4/1. ЭМР1.xlsx
@@ -9,7 +9,7 @@ source_sha256: ddac9419de5e73f44187d2d8371081907a123578462fd10b4441e62ee858723d
 etalon_example: ETALON/1. ЭМР1.xlsx
 etalon_sha256: af573b2a6b23a9e970a69960625a34ae6af9a94653b888cb67c326917c51e0bb
 candidate_template: templates/approved/1. ЭМР1.xlsx
-candidate_sha256: fede15f15cfa47f9ced9cdde24ec19c56aedd353071fbf3c467552f48b6477cf
+candidate_sha256: a769b531fd20a0b11eb98bf8aaed9714996e7999f62c1ba5f0931a6016481b3a
 output_filename: 1. ЭМР1.xlsx
 warning_fill_rgb: FFFFE699
 structural_findings:
@@ -18,21 +18,21 @@ structural_findings:
   candidate_vs_etalon_sheet_names_match: false
   candidate_only_sheet_count: 1
   etalon_only_sheet_count: 1
-  candidate_vs_etalon_formula_differences: 381
-  candidate_vs_etalon_nonformula_differences: 1562
-  formula_errors_observed: 20
+  candidate_vs_etalon_formula_differences: 1709
+  candidate_vs_etalon_nonformula_differences: 1559
+  formula_errors_observed: 0
   etalon_external_links: 7
   target_derivation: source_structure_plus_reviewed_pdf_role_overrides
   value_source_policy: uploaded_pdf_only
   project_basis_target_count: 69
   reviewed_material_target_count: 69
-  discovery_target_count: 1747
-  cleared_cell_count: 1747
+  discovery_target_count: 1710
+  cleared_cell_count: 1764
   localized_external_formula_references: 6
   removed_external_links: 7
   removed_broken_defined_names: 189
   removed_broken_data_validations: 0
-  pruned_shared_string_count: 316
+  pruned_shared_string_count: 314
   scrubbed_document_property_count: 5
   removed_custom_part_count: 3
   source_external_links: 7
@@ -43,7 +43,15 @@ structural_findings:
   renamed_sheet_count: 1
   renamed_candidate_sheets:
   - Титульный подрядчик
-  raw_ref_error_count: 20
+  cleanup_only_cell_count: 54
+  blank_preserving_formula_count: 1487
+  formula_override_count: 1
+  revealed_input_row_count: 15
+  cleared_broken_formula_count: 20
+  quarantined_broken_formula_count: 20
+  unsafe_blank_formula_count: 0
+  unsafe_blank_formula_examples: []
+  raw_ref_error_count: 0
   package_forbidden_token_count: 0
   package_forbidden_token_examples: []
 fields:
@@ -84,12 +92,6 @@ fields:
   required: true
   manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
 - sheet: Данные организации
-  cell: E1
-  label: организация · реквизиты
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
   cell: G1
   label: Данные организации!G1
   value_kind: text
@@ -103,12 +105,6 @@ fields:
   manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
 - sheet: Данные организации
   cell: D2
-  label: реквизиты · адрес
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
-  cell: E2
   label: реквизиты · адрес
   value_kind: text
   required: true
@@ -140,12 +136,6 @@ fields:
   required: true
   manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
 - sheet: Данные организации
-  cell: E3
-  label: адрес · район
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
   cell: G3
   label: 'Заказчик / технический заказчик: адрес'
   value_kind: text
@@ -160,48 +150,6 @@ fields:
   value_pattern: null
   allow_project_basis: false
 - sheet: Данные организации
-  cell: G4
-  label: Данные организации!G4
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
-  cell: I4
-  label: Данные организации!I4
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
-  cell: G5
-  label: Данные организации!G5
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
-  cell: I5
-  label: Данные организации!I5
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
-  cell: C6
-  label: директор · директор ФИО
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
-  cell: D6
-  label: директор · директор ФИО
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
-  cell: E6
-  label: директор · директор ФИО
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
   cell: G6
   label: Данные организации!G6
   value_kind: text
@@ -210,24 +158,6 @@ fields:
 - sheet: Данные организации
   cell: I6
   label: Данные организации!I6
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
-  cell: C7
-  label: директор ФИО · Строй.контроль
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
-  cell: D7
-  label: директор ФИО · Строй.контроль
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
-  cell: E7
-  label: директор ФИО · Строй.контроль
   value_kind: text
   required: true
   manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
@@ -244,12 +174,6 @@ fields:
   required: true
   manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
 - sheet: Данные организации
-  cell: B8
-  label: Строй.контроль · Приказ стр.контр.
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
   cell: C8
   label: Строй.контроль · Приказ стр.контр.
   value_kind: text
@@ -262,24 +186,6 @@ fields:
   required: true
   manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
 - sheet: Данные организации
-  cell: E8
-  label: Строй.контроль · Приказ стр.контр.
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
-  cell: I8
-  label: Данные организации!I8
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
-  cell: B9
-  label: Приказ стр.контр. · Строй.контроль
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
   cell: C9
   label: Приказ стр.контр. · Строй.контроль
   value_kind: text
@@ -287,12 +193,6 @@ fields:
   manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
 - sheet: Данные организации
   cell: D9
-  label: Приказ стр.контр. · Строй.контроль
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
-  cell: E9
   label: Приказ стр.контр. · Строй.контроль
   value_kind: text
   required: true
@@ -316,12 +216,6 @@ fields:
   required: true
   manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
 - sheet: Данные организации
-  cell: B10
-  label: ФИО стр.контр. · Представитель
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
   cell: C10
   label: ФИО стр.контр. · Представитель
   value_kind: text
@@ -329,12 +223,6 @@ fields:
   manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
 - sheet: Данные организации
   cell: D10
-  label: ФИО стр.контр. · Представитель
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
-  cell: E10
   label: ФИО стр.контр. · Представитель
   value_kind: text
   required: true
@@ -372,60 +260,6 @@ fields:
 - sheet: Данные организации
   cell: I11
   label: Данные организации!I11
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
-  cell: G12
-  label: Данные организации!G12
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
-  cell: I12
-  label: Данные организации!I12
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
-  cell: C13
-  label: Геодезист · ФИО
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
-  cell: D13
-  label: Геодезист · ФИО
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
-  cell: E13
-  label: Геодезист · ФИО
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
-  cell: G13
-  label: Данные организации!G13
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
-  cell: C14
-  label: ФИО · Геодезист
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
-  cell: D14
-  label: ФИО · Геодезист
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
-  cell: E14
-  label: ФИО · Геодезист
   value_kind: text
   required: true
   manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
@@ -472,12 +306,6 @@ fields:
   required: true
   manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
 - sheet: Данные организации
-  cell: E18
-  label: Прораб · Приказ прораб
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
   cell: G18
   label: Данные организации!G18
   value_kind: text
@@ -496,12 +324,6 @@ fields:
   required: true
   manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
 - sheet: Данные организации
-  cell: E19
-  label: Приказ прораб · Прораб
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
   cell: C20
   label: ФИО прораб · Приказ прораб
   value_kind: text
@@ -514,146 +336,8 @@ fields:
   required: true
   manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
 - sheet: Данные организации
-  cell: E20
-  label: ФИО прораб · Приказ прораб
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
-  cell: A32
-  label: ДЛЯ АРК (актов раб.комиссии)
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
-  cell: B32
-  label: ДЛЯ АРК (актов раб.комиссии)
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
-  cell: A33
-  label: ДЛЯ АРК (актов раб.комиссии) · Начальник СРЭС
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
-  cell: B33
-  label: ДЛЯ АРК (актов раб.комиссии) · Начальник СРЭС
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
-  cell: A34
-  label: Начальник СРЭС · ДЛЯ АРК (актов раб.комиссии)
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
-  cell: B34
-  label: Начальник СРЭС · ДЛЯ АРК (актов раб.комиссии)
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
-  cell: B36
-  label: Начальник СРЭС
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
-  cell: A37
-  label: Начальник СРЭС
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
-  cell: B37
-  label: Начальник СРЭС
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
-  cell: A38
-  label: Начальник СРЭС
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
-  cell: B38
-  label: Начальник СРЭС
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
   cell: A40
   label: Данные организации!A40
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
-  cell: A42
-  label: Данные организации!A42
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
-  cell: B42
-  label: Данные организации!B42
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
-  cell: A43
-  label: Данные организации!A43
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
-  cell: B43
-  label: Данные организации!B43
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
-  cell: A44
-  label: Данные организации!A44
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
-  cell: B44
-  label: Данные организации!B44
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
-  cell: A46
-  label: Гл.специалист ССК УКС
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
-  cell: B46
-  label: Гл.специалист ССК УКС
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
-  cell: A47
-  label: Гл.специалист ССК УКС
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
-  cell: B47
-  label: Гл.специалист ССК УКС
-  value_kind: text
-  required: true
-  manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
-- sheet: Данные организации
-  cell: B48
-  label: Гл.специалист ССК УКС
   value_kind: text
   required: true
   manual_reason: Не установлена однозначная связь этой ячейки справочного листа с ролью в выбранном документе
@@ -9709,26 +9393,8 @@ fields:
   required: true
   manual_reason: Для этой ячейки ещё не проверены смысл поля и сопоставление записи PDF со строкой выбранного шаблона
 - sheet: Ведомость общ
-  cell: E17
-  label: Ведомость общ!E17
-  value_kind: text
-  required: true
-  manual_reason: Для этой ячейки ещё не проверены смысл поля и сопоставление записи PDF со строкой выбранного шаблона
-- sheet: Ведомость общ
-  cell: AI17
-  label: Ведомость общ!AI17
-  value_kind: text
-  required: true
-  manual_reason: Для этой ячейки ещё не проверены смысл поля и сопоставление записи PDF со строкой выбранного шаблона
-- sheet: Ведомость общ
   cell: AU17
   label: Ведомость общ!AU17
-  value_kind: text
-  required: true
-  manual_reason: Для этой ячейки ещё не проверены смысл поля и сопоставление записи PDF со строкой выбранного шаблона
-- sheet: Ведомость общ
-  cell: BE17
-  label: Ведомость общ!BE17
   value_kind: text
   required: true
   manual_reason: Для этой ячейки ещё не проверены смысл поля и сопоставление записи PDF со строкой выбранного шаблона
@@ -10852,6 +10518,15 @@ fields:
   required: true
   manual_reason: Для этой ячейки ещё не проверены смысл поля и сопоставление записи PDF со строкой выбранного шаблона
 - sheet: Ведомость общ
+  cell: A52
+  label: 'Заверяющая строка ведомости материалов: утраченная часть'
+  value_kind: text
+  required: true
+  manual_reason: В исходном шаблоне утрачена ссылка формулы (#REF! или недоступная внешняя книга). Ячейка оставлена пустой
+    для проверки и заполнения специалистом; исходная связь и фактические сведения не восстановлены.
+  description: 'Заверяющая строка ведомости материалов: утраченная часть'
+  evidence_rule: actual_executive_document_only
+- sheet: Ведомость общ
   cell: A53
   label: Ведомость общ!A53
   value_kind: text
@@ -10924,6 +10599,15 @@ fields:
   required: true
   manual_reason: Для этой ячейки ещё не проверены смысл поля и сопоставление записи PDF со строкой выбранного шаблона
 - sheet: ТП-1
+  cell: A33
+  label: Представитель генподрядной организации
+  value_kind: text
+  required: true
+  manual_reason: В исходном шаблоне утрачена ссылка формулы (#REF! или недоступная внешняя книга). Ячейка оставлена пустой
+    для проверки и заполнения специалистом; исходная связь и фактические сведения не восстановлены.
+  description: Представитель генподрядной организации
+  evidence_rule: actual_executive_document_only
+- sheet: ТП-1
   cell: BC66
   label: ТП-1!BC66
   value_kind: text
@@ -10954,6 +10638,15 @@ fields:
   required: true
   manual_reason: Для этой ячейки ещё не проверены смысл поля и сопоставление записи PDF со строкой выбранного шаблона
 - sheet: АСП-1
+  cell: A33
+  label: Представитель генподрядной организации
+  value_kind: text
+  required: true
+  manual_reason: В исходном шаблоне утрачена ссылка формулы (#REF! или недоступная внешняя книга). Ячейка оставлена пустой
+    для проверки и заполнения специалистом; исходная связь и фактические сведения не восстановлены.
+  description: Представитель генподрядной организации
+  evidence_rule: actual_executive_document_only
+- sheet: АСП-1
   cell: BC66
   label: АСП-1!BC66
   value_kind: text
@@ -10971,6 +10664,15 @@ fields:
   value_kind: text
   required: true
   manual_reason: Для этой ячейки ещё не проверены смысл поля и сопоставление записи PDF со строкой выбранного шаблона
+- sheet: КЛ-1
+  cell: A31
+  label: Утраченная служебная ссылка акта приёмки траншеи
+  value_kind: text
+  required: true
+  manual_reason: В исходном шаблоне утрачена ссылка формулы (#REF! или недоступная внешняя книга). Ячейка оставлена пустой
+    для проверки и заполнения специалистом; исходная связь и фактические сведения не восстановлены.
+  description: Утраченная служебная ссылка акта приёмки траншеи
+  evidence_rule: actual_executive_document_only
 - sheet: КЛ-3
   cell: H36
   label: КЛ-3!H36
@@ -11095,6 +10797,24 @@ fields:
   value_kind: text
   required: true
   manual_reason: Для этой ячейки ещё не проверены смысл поля и сопоставление записи PDF со строкой выбранного шаблона
+- sheet: ВЛ-1
+  cell: BG25
+  label: Обозначение сборных железобетонных фундаментов
+  value_kind: text
+  required: true
+  manual_reason: В исходном шаблоне утрачена ссылка формулы (#REF! или недоступная внешняя книга). Ячейка оставлена пустой
+    для проверки и заполнения специалистом; исходная связь и фактические сведения не восстановлены.
+  description: Обозначение сборных железобетонных фундаментов
+  evidence_rule: actual_executive_document_only
+- sheet: ВЛ-2
+  cell: A8
+  label: Объект в акте проверки установки опор
+  value_kind: text
+  required: true
+  manual_reason: В исходном шаблоне утрачена ссылка формулы (#REF! или недоступная внешняя книга). Ячейка оставлена пустой
+    для проверки и заполнения специалистом; исходная связь и фактические сведения не восстановлены.
+  description: Объект в акте проверки установки опор
+  evidence_rule: actual_executive_document_only
 - sheet: ВЛ-2
   cell: A15
   label: 'в том, что сего числа нами произведен осмотр подземной части опоры перед закрытием котлована, причем установлено
@@ -11108,6 +10828,15 @@ fields:
   value_kind: text
   required: true
   manual_reason: Для этой ячейки ещё не проверены смысл поля и сопоставление записи PDF со строкой выбранного шаблона
+- sheet: ВЛ-2
+  cell: O20
+  label: Наименование ВЛ в акте проверки установки опор
+  value_kind: text
+  required: true
+  manual_reason: В исходном шаблоне утрачена ссылка формулы (#REF! или недоступная внешняя книга). Ячейка оставлена пустой
+    для проверки и заполнения специалистом; исходная связь и фактические сведения не восстановлены.
+  description: Наименование ВЛ в акте проверки установки опор
+  evidence_rule: actual_executive_document_only
 - sheet: ВЛ-2
   cell: A26
   label: (железобетонная, металлическая, деревянная) · ТЕХНИЧЕСКИЕ ДАННЫЕ
@@ -11133,6 +10862,114 @@ fields:
   required: true
   manual_reason: Для этой ячейки ещё не проверены смысл поля и сопоставление записи PDF со строкой выбранного шаблона
 - sheet: 24 ВЛИ
+  cell: Q21
+  label: 'Фактически установленные опоры: промежуточные, шт.'
+  value_kind: text
+  required: true
+  manual_reason: В исходном шаблоне утрачена ссылка формулы (#REF! или недоступная внешняя книга). Ячейка оставлена пустой
+    для проверки и заполнения специалистом; исходная связь и фактические сведения не восстановлены.
+  description: 'Фактически установленные опоры: промежуточные, шт.'
+  evidence_rule: actual_executive_document_only
+- sheet: 24 ВЛИ
+  cell: AG21
+  label: 'Тип фактически установленных опор: промежуточные'
+  value_kind: text
+  required: true
+  manual_reason: В исходном шаблоне утрачена ссылка формулы (#REF! или недоступная внешняя книга). Ячейка оставлена пустой
+    для проверки и заполнения специалистом; исходная связь и фактические сведения не восстановлены.
+  description: 'Тип фактически установленных опор: промежуточные'
+  evidence_rule: actual_executive_document_only
+- sheet: 24 ВЛИ
+  cell: Q22
+  label: 'Фактически установленные опоры: анкерные, шт.'
+  value_kind: text
+  required: true
+  manual_reason: В исходном шаблоне утрачена ссылка формулы (#REF! или недоступная внешняя книга). Ячейка оставлена пустой
+    для проверки и заполнения специалистом; исходная связь и фактические сведения не восстановлены.
+  description: 'Фактически установленные опоры: анкерные, шт.'
+  evidence_rule: actual_executive_document_only
+- sheet: 24 ВЛИ
+  cell: AG22
+  label: 'Тип фактически установленных опор: анкерные'
+  value_kind: text
+  required: true
+  manual_reason: В исходном шаблоне утрачена ссылка формулы (#REF! или недоступная внешняя книга). Ячейка оставлена пустой
+    для проверки и заполнения специалистом; исходная связь и фактические сведения не восстановлены.
+  description: 'Тип фактически установленных опор: анкерные'
+  evidence_rule: actual_executive_document_only
+- sheet: 24 ВЛИ
+  cell: Q23
+  label: 'Фактически установленные опоры: угловые, шт.'
+  value_kind: text
+  required: true
+  manual_reason: В исходном шаблоне утрачена ссылка формулы (#REF! или недоступная внешняя книга). Ячейка оставлена пустой
+    для проверки и заполнения специалистом; исходная связь и фактические сведения не восстановлены.
+  description: 'Фактически установленные опоры: угловые, шт.'
+  evidence_rule: actual_executive_document_only
+- sheet: 24 ВЛИ
+  cell: AG23
+  label: 'Тип фактически установленных опор: угловые'
+  value_kind: text
+  required: true
+  manual_reason: В исходном шаблоне утрачена ссылка формулы (#REF! или недоступная внешняя книга). Ячейка оставлена пустой
+    для проверки и заполнения специалистом; исходная связь и фактические сведения не восстановлены.
+  description: 'Тип фактически установленных опор: угловые'
+  evidence_rule: actual_executive_document_only
+- sheet: 24 ВЛИ
+  cell: Q24
+  label: 'Фактически установленные опоры: другие, шт.'
+  value_kind: text
+  required: true
+  manual_reason: В исходном шаблоне утрачена ссылка формулы (#REF! или недоступная внешняя книга). Ячейка оставлена пустой
+    для проверки и заполнения специалистом; исходная связь и фактические сведения не восстановлены.
+  description: 'Фактически установленные опоры: другие, шт.'
+  evidence_rule: actual_executive_document_only
+- sheet: 24 ВЛИ
+  cell: AG24
+  label: 'Тип фактически установленных опор: другие'
+  value_kind: text
+  required: true
+  manual_reason: В исходном шаблоне утрачена ссылка формулы (#REF! или недоступная внешняя книга). Ячейка оставлена пустой
+    для проверки и заполнения специалистом; исходная связь и фактические сведения не восстановлены.
+  description: 'Тип фактически установленных опор: другие'
+  evidence_rule: actual_executive_document_only
+- sheet: 24 ВЛИ
+  cell: Q25
+  label: 'Фактически установленные опоры: всего, шт.'
+  value_kind: text
+  required: true
+  manual_reason: В исходном шаблоне утрачена ссылка формулы (#REF! или недоступная внешняя книга). Ячейка оставлена пустой
+    для проверки и заполнения специалистом; исходная связь и фактические сведения не восстановлены.
+  description: 'Фактически установленные опоры: всего, шт.'
+  evidence_rule: actual_executive_document_only
+- sheet: 24 ВЛИ
+  cell: G29
+  label: ВЛ или участок фактического монтажа проводов
+  value_kind: text
+  required: true
+  manual_reason: В исходном шаблоне утрачена ссылка формулы (#REF! или недоступная внешняя книга). Ячейка оставлена пустой
+    для проверки и заполнения специалистом; исходная связь и фактические сведения не восстановлены.
+  description: ВЛ или участок фактического монтажа проводов
+  evidence_rule: actual_executive_document_only
+- sheet: 24 ВЛИ
+  cell: AG29
+  label: Марка и сечение фактически смонтированного провода
+  value_kind: text
+  required: true
+  manual_reason: В исходном шаблоне утрачена ссылка формулы (#REF! или недоступная внешняя книга). Ячейка оставлена пустой
+    для проверки и заполнения специалистом; исходная связь и фактические сведения не восстановлены.
+  description: Марка и сечение фактически смонтированного провода
+  evidence_rule: actual_executive_document_only
+- sheet: 24 ВЛИ
+  cell: BT29
+  label: Фактическое количество смонтированного провода, м
+  value_kind: text
+  required: true
+  manual_reason: В исходном шаблоне утрачена ссылка формулы (#REF! или недоступная внешняя книга). Ячейка оставлена пустой
+    для проверки и заполнения специалистом; исходная связь и фактические сведения не восстановлены.
+  description: Фактическое количество смонтированного провода, м
+  evidence_rule: actual_executive_document_only
+- sheet: 24 ВЛИ
   cell: C45
   label: 24 ВЛИ!C45
   value_kind: text
@@ -11157,6 +10994,15 @@ fields:
   value_kind: text
   required: true
   manual_reason: Для этой ячейки ещё не проверены смысл поля и сопоставление записи PDF со строкой выбранного шаблона
+- sheet: 24 ВЛИ
+  cell: AD61
+  label: Опоры с фактически смонтированными заземляющими устройствами
+  value_kind: text
+  required: true
+  manual_reason: В исходном шаблоне утрачена ссылка формулы (#REF! или недоступная внешняя книга). Ячейка оставлена пустой
+    для проверки и заполнения специалистом; исходная связь и фактические сведения не восстановлены.
+  description: Опоры с фактически смонтированными заземляющими устройствами
+  evidence_rule: actual_executive_document_only
 - sheet: 24 ВЛИ
   cell: C63
   label: Протоколы и измерения сопротивления заземляющих устройств, предъявленные комиссии, хранятся у заказчика (в наладочной

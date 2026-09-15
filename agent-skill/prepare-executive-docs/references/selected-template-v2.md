@@ -54,7 +54,8 @@ evidence. Factual profiles remain retired.
   results never gain this permission merely because a related design fact is
   available.
 - A missing, conflicting, ambiguous, rejected, or otherwise unreliable value
-  stays blank in its semantic cell.
+  stays blank in its semantic cell. The user-approved descriptive mapping
+  extension below is about target wording, not uncertainty in the source fact.
 - Apply the contract-defined visible fill to every unresolved writable target.
   Do not replace a missing fact with `НЕ ПОДТВЕРЖДЕНО`, a guessed value, a value
   copied from another workbook, or an empty-looking formula.
@@ -91,6 +92,37 @@ evidence. Factual profiles remain retired.
 - The current MVP has no selected-template approval or revision route. It
   therefore cannot promote even a technically successful selected-template run
   to final output.
+
+## Coverage-first draft policy, 2026-09-14
+
+Increase the number of useful values extracted from the current PDF. Inspect
+title/requisites, explanatory notes, work statements and every relevant material
+specification; missing actual dates or certificates do not prevent filling the
+other fields. Do not optimize the count by duplicating items or mixing work
+segments. PDF-supported coverage and raw filled-cell count are different metrics.
+
+- For `allows_mapping_review=true` descriptive targets, exact caption wording
+  is not required. A plausible target match for certain source text may be
+  written with a concise Russian `mapping_review_reason`. Orange means
+  «проверить привязку», not verified. Keep `value_basis` document/project, source
+  page, quote and `NEEDS_INPUT`. All source-text and digit checks still apply.
+- This permission never applies to organization/representative roles, legal
+  identifiers, actual dates, quantities, measured results, act/passport/certificate
+  numbers or authority. A conflict in the PDF, even for a descriptive field,
+  stays unresolved. An organization role may follow its entity in the same PDF
+  block; label order alone is not grounds to discard documentary evidence.
+- When `material_tables` is offered, prefer one compact `material_rows` record
+  per PDF position. Include its table ID, name, optional type and quantity with
+  source unit, file ID, original physical page, full row quote and value basis.
+  The server splits values into registered columns. Do not duplicate these
+  records in assignments. Missing quality documents must not suppress a
+  permitted project material name/quantity. Report table overflow, never
+  overwrite occupied rows or combine different source positions.
+- On visual packets use the visible `Original PDF page: N` label as `page:N`.
+  A shortened packet's ordinal is not an original physical page locator.
+- Use independent PDFs, including the operator-provided `example2/`, for
+  offline coverage regression. Completed XLSX files are comparison only;
+  neither they nor corpus findings may enter a filling request.
 
 ## User-approved PDF-only policy, 2026-09-07
 

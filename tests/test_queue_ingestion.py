@@ -223,6 +223,16 @@ def test_unreliable_text_pages_remain_required_visual_evidence(
 def test_selected_template_keeps_vl_pdf_evidence_excluded_from_legacy_pilot(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, category: str,
 ) -> None:
+    # Selected-template visual packets label even a full one-page PDF now.
+    # Keep a real source behind the mocked routing index for that operation.
+    from pypdf import PdfWriter
+
+    source = tmp_path / "input" / "aosr-vl.pdf"
+    source.parent.mkdir()
+    writer = PdfWriter()
+    writer.add_blank_page(width=595, height=842)
+    with source.open("wb") as stream:
+        writer.write(stream)
     artifact = Artifact(
         id="aosr-vl",
         original_name="АОСР ВЛ.pdf",

@@ -5,6 +5,7 @@ import hashlib
 import re
 import zipfile
 from dataclasses import dataclass
+from datetime import datetime
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
 
@@ -27,14 +28,17 @@ CELL_ADDRESS = re.compile(r"[A-Z]{1,3}[1-9][0-9]*")
 SEMANTIC_ID = re.compile(r"[a-z][a-z0-9_.-]{2,127}")
 WARNING_FILL_RGB = "FFFFE699"
 PROJECT_FILL_RGB = "FFBDD7EE"
+MAPPING_REVIEW_FILL_RGB = "FFF4B183"
 PROJECT_DRAFT_HEADER = "&L&7ЧЕРНОВИК: синие ячейки — по проекту. Факт выполнения не подтверждён."
+MAPPING_REVIEW_HEADER = "&L&7ЧЕРНОВИК: оранжевые ячейки — проверить соответствие полю; данные из PDF."
 PDF_EVIDENCE_RULES = {
     "direct_pdf", "actual_executive_document_only", "organization_role_pdf",
     "signatory_role_pdf", "authority_document_pdf",
 }
 ORGANIZATION_ROLE_PATTERNS = {
     "contractor": r"монтажн\w*\s+организац|подрядчик|лицо[^.;\n]{0,70}осуществляющ\w*\s+строительств",
-    "customer": r"заказчик|застройщик",
+    "customer": r"заказчик",
+    "developer": r"застройщик",
     "designer": r"проектн\w*\s+организац|проектировщик|подготовк\w*\s+проектн\w*\s+документац|разработчик\w*\s+проект",
     "laboratory": r"электролаборатор|испытательн\w*\s+лаборатор|испытательн\w*\s+организац",
     "commissioning": r"пусконаладочн\w*\s+организац|наладочн\w*\s+организац",
@@ -58,6 +62,22 @@ class TemplateField:
     @property
     def coordinate(self) -> tuple[str, str]:
         return self.sheet, self.cell
+
+    @property
+    def allows_mapping_review(self) -> bool:
+        # A weaker wording match is acceptable only for descriptive draft
+        # targets, never for legal roles, identifiers, quantities or actuals.
+        return not self.manual_reason and self.value_kind == "text" and (
+            (self.evidence_rule == "direct_pdf" and self.semantic_id in {
+                "project.object_name", "project.design_document_title", "project.district",
+                "project.object_address", "project.line_designation", "project.installation.primary",
+                "project.installation.overhead_line_04kv", "project.installation.overhead_line_10kv",
+                "project.installation.cable_line", "project.installation.switchboard",
+            })
+            or bool(self.allow_project_basis and re.fullmatch(
+                r".+\.materials\.item_\d+\.(?:name|type)", self.semantic_id or "",
+            ))
+        )
 
     @classmethod
     def load(cls, data: dict) -> "TemplateField":
@@ -111,6 +131,7 @@ class TemplateField:
     def evidence_context_error(
         self, fragments: list[str], raw_value: str, subject_name: str | None = None,
         value_basis: str = "document",
+        mapping_review_reason: str | None = None,
     ) -> str | None:
         """Reject obvious context substitutions; the model still reconciles meaning.
 
@@ -118,6 +139,8 @@ class TemplateField:
         source-checked by the analyzer before this bounded semantic guard runs.
         These checks do not turn a matching keyword into final document approval.
         """
+        if mapping_review_reason and not self.allows_mapping_review:
+            return "Для этого поля требуется однозначное соответствие, а не предположение для проверки"
         if value_basis == "project":
             if not self.allow_project_basis:
                 return "Для этого поля нельзя подставлять проектное значение"
@@ -150,17 +173,23 @@ class TemplateField:
         if not subject_raw or not fragments or not entity_value_is_present(subject_raw, fragments[0]):
             return "Основная цитата должна связывать значение с названием организации или ФИО представителя (subject_name)"
         # A quote about a different entity cannot establish this value's role.
-        # Require role -> subject order without another party label in between.
+        # Accept either label order within one party block. PDF tables may
+        # place the role in the right column; order alone is not evidence.
         role_quotes: list[str] = []
         for raw_fragment, fragment in zip(fragments, normalized):
             if not pattern:
                 continue
             subject_positions = list(iter_evidence_spans(subject_raw, raw_fragment, require_entity_boundaries=True))
             for role_match in re.finditer(pattern, fragment):
-                for subject_at, _ in subject_positions:
-                    if not 0 <= subject_at - role_match.end() <= 240:
+                for subject_at, subject_end in subject_positions:
+                    if 0 <= subject_at - role_match.end() <= 240:
+                        between = fragment[role_match.end():subject_at]
+                    elif self.evidence_rule == "organization_role_pdf" and 0 <= role_match.start() - subject_end <= 100:
+                        between = fragment[subject_end:role_match.start()]
+                        if re.search(r"[.;:]|\b(?:ооо|пао|оао|зао|ао)\b", between):
+                            continue
+                    else:
                         continue
-                    between = fragment[role_match.end():subject_at]
                     if re.search(r"\bне\b", between) or any(
                         re.search(other_pattern, between)
                         for other_role, other_pattern in ORGANIZATION_ROLE_PATTERNS.items()
@@ -294,10 +323,28 @@ class SelectedTemplateContract:
                 "value_kind": field.value_kind,
                 "value_pattern": field.value_pattern,
                 "allow_project_basis": field.allow_project_basis,
+                "allows_mapping_review": field.allows_mapping_review,
             }
             for field in self.fields
             if not field.manual_reason
         ]
+
+    def material_tables(self) -> list[dict]:
+        tables: dict[str, dict] = {}
+        for field in self.fields:
+            match = re.fullmatch(r"(.+\.materials)\.item_(\d+)\.(name|type|quantity)", field.semantic_id or "")
+            if field.manual_reason or not match:
+                continue
+            table = tables.setdefault(match[1], {"table_id": match[1], "rows": {}, "columns": set()})
+            table["rows"].setdefault(int(match[2]), {})[match[3]] = field
+            table["columns"].add(match[3])
+        return [{
+            "table_id": table["table_id"], "capacity": len(table["rows"]),
+            "columns": sorted(table["columns"]),
+            "allow_project_basis": all(f.allow_project_basis for row in table["rows"].values() for f in row.values()),
+            "allows_mapping_review": all(f.allows_mapping_review for row in table["rows"].values()
+                                         for part, f in row.items() if part in {"name", "type"}),
+        } for table in tables.values()]
 
 
 class TemplateCatalog:
@@ -411,7 +458,7 @@ class SelectedTemplateGenerator:
             context_error = field.evidence_context_error([
                 assignment.evidence_fragment,
                 *(item.evidence_fragment for item in assignment.context_evidence),
-            ], assignment.value, assignment.subject_name, assignment.value_basis)
+            ], assignment.value, assignment.subject_name, assignment.value_basis, assignment.mapping_review_reason)
             if context_error:
                 raise ValueError(context_error)
             assignment_map[coordinate] = assignment
@@ -524,11 +571,19 @@ class SelectedTemplateGenerator:
             workbook.highlight_cells(warning_targets, rgb=contract.warning_fill_rgb)
         project_targets: dict[str, list[str]] = {}
         for item in assignments:
-            if item.value_basis == "project":
+            if item.value_basis == "project" and not item.mapping_review_reason:
                 project_targets.setdefault(item.sheet, []).append(item.cell.upper())
         if project_targets:
             workbook.highlight_cells(project_targets, rgb=PROJECT_FILL_RGB)
+        if any(item.value_basis == "project" for item in assignments):
             _mark_project_headers(workbook)
+        review_targets: dict[str, list[str]] = {}
+        for item in assignments:
+            if item.mapping_review_reason:
+                review_targets.setdefault(item.sheet, []).append(item.cell.upper())
+        if review_targets:
+            workbook.highlight_cells(review_targets, rgb=MAPPING_REVIEW_FILL_RGB)
+            _mark_project_headers(workbook, MAPPING_REVIEW_HEADER)
         workbook.enable_full_calculation()
         destination.mkdir(parents=True, exist_ok=True)
         output = destination / f"ЧЕРНОВИК - {contract.output_filename}"
@@ -536,14 +591,24 @@ class SelectedTemplateGenerator:
         return output, unresolved
 
     @staticmethod
-    def _typed_value(field: TemplateField, raw_value: str) -> str | int | float:
+    def _typed_value(field: TemplateField, raw_value: str) -> str | int | float | datetime:
         field.validate_raw_value(raw_value)
         if field.value_kind == "text":
             return raw_value
         if field.value_kind == "date":
+            # Eligibility and actual-vs-planned provenance are checked by the
+            # contract/evidence validator, not by an unconditional type ban.
+            value = raw_value.strip()
+            for pattern, fmt in ((r"\d{2}\.\d{2}\.\d{4}", "%d.%m.%Y"), (r"\d{4}-\d{2}-\d{2}", "%Y-%m-%d")):
+                if re.fullmatch(pattern, value):
+                    try:
+                        parsed = datetime.strptime(value, fmt)
+                    except ValueError:
+                        break
+                    if parsed.year >= 1900:
+                        return parsed
             raise ValueError(
-                f"Дата может быть внесена только после отдельного подтверждения: "
-                f"{field.sheet}!{field.cell}"
+                "Нужна действительная полная дата в формате ДД.ММ.ГГГГ или ГГГГ-ММ-ДД"
             )
         if field.value_kind != "number":
             raise ValueError(
@@ -563,7 +628,7 @@ class SelectedTemplateGenerator:
         return int(value) if value == value.to_integral_value() else float(value)
 
 
-def _mark_project_headers(workbook: OOXMLWorkbook) -> None:
+def _mark_project_headers(workbook: OOXMLWorkbook, marker: str = PROJECT_DRAFT_HEADER) -> None:
     """Keep the distinction visible on printed acts, not only in the web report."""
     later_tags = {
         "rowBreaks", "colBreaks", "customProperties", "cellWatches", "ignoredErrors",
@@ -585,7 +650,7 @@ def _mark_project_headers(workbook: OOXMLWorkbook) -> None:
                 position = next((i for i, child in enumerate(headers) if etree.QName(child).localname in header_order and header_order.index(etree.QName(child).localname) > header_order.index(name)), len(headers))
                 headers.insert(position, header)
             original = header.text or ""
-            header.text = PROJECT_DRAFT_HEADER + ("\n" + original if original else "")
+            header.text = marker + ("\n" + original if original else "")
         workbook._save_sheet_root(sheet_name, root)
 
 
@@ -659,6 +724,7 @@ def validate_selected_template_output(
             for item in assignments
         }
         project_set = {(item.sheet, item.cell.upper()) for item in assignments if item.value_basis == "project"}
+        review_set = {(item.sheet, item.cell.upper()) for item in assignments if item.mapping_review_reason}
         unresolved_set = {(item.sheet, item.cell.upper()) for item in unresolved}
         expected_unresolved = set(contract.field_map) - set(assignment_map)
         if unresolved_set != expected_unresolved:
@@ -706,7 +772,11 @@ def validate_selected_template_output(
                     default_style = (0, 0, 0, 0, 0, 0, 0, 0, 0)
                     source_style = list(source_cell._style or default_style)
                     output_style = list(output_cell._style or default_style)
-                    if coordinate in unresolved_set | project_set and len(source_style) == len(output_style):
+                    if isinstance(assignment_map.get(coordinate), datetime) and output_cell.is_date and output_cell.number_format == "mm-dd-yy":
+                        # Date serialization may supply Excel's built-in date
+                        # format where the source was an unformatted blank.
+                        output_style[3] = source_style[3]
+                    if coordinate in unresolved_set | project_set | review_set and len(source_style) == len(output_style):
                         # StyleArray index 1 is fillId. Every other style component
                         # must remain byte-for-byte equivalent.
                         output_style[1] = source_style[1]
@@ -743,12 +813,20 @@ def validate_selected_template_output(
                         locator=f"{sheet_name}!{cell}",
                     )
                 )
-        for sheet_name, cell in project_set:
+        for sheet_name, cell in project_set - review_set:
             target = output_book[sheet_name][cell]
             if target.fill.fill_type != "solid" or target.fill.fgColor.rgb != PROJECT_FILL_RGB:
                 issues.append(ValidationIssue(
                     code="PROJECT_CELL_NOT_HIGHLIGHTED", severity="error",
                     message="Проектное значение должно быть выделено синим и не считаться фактическим",
+                    artifact=output.name, locator=f"{sheet_name}!{cell}",
+                ))
+        for sheet_name, cell in review_set:
+            target = output_book[sheet_name][cell]
+            if target.fill.fill_type != "solid" or target.fill.fgColor.rgb != MAPPING_REVIEW_FILL_RGB:
+                issues.append(ValidationIssue(
+                    code="MAPPING_REVIEW_CELL_NOT_HIGHLIGHTED", severity="error",
+                    message="Значение с неоднозначной привязкой должно быть выделено оранжевым",
                     artifact=output.name, locator=f"{sheet_name}!{cell}",
                 ))
         if len(getattr(source_book, "_external_links", [])) != len(
@@ -767,7 +845,7 @@ def validate_selected_template_output(
         output_book.close()
 
     try:
-        source_structure = _package_structure(source, project_draft=bool(project_set))
+        source_structure = _package_structure(source, project_draft=bool(project_set), mapping_review=bool(review_set))
         output_structure = _package_structure(output)
         if source_structure["workbook"] != output_structure["workbook"]:
             issues.append(
@@ -806,7 +884,8 @@ def validate_selected_template_output(
             output,
             warning_rgb=contract.warning_fill_rgb,
             unresolved=unresolved_set,
-            project=project_set,
+            project=project_set - review_set,
+            mapping_review=review_set,
         )
         if not styles_preserved:
             issues.append(
@@ -986,6 +1065,7 @@ def _style_definitions_preserved(
     warning_rgb: str,
     unresolved: set[tuple[str, str]],
     project: set[tuple[str, str]] | None = None,
+    mapping_review: set[tuple[str, str]] | None = None,
 ) -> tuple[bool, str]:
     """Allow only warning-fill styles derived from original cellXfs."""
 
@@ -1053,6 +1133,7 @@ def _style_definitions_preserved(
             return False, "Изменено исходное определение заливки"
 
     project = project or set()
+    mapping_review = mapping_review or set()
 
     def is_warning_fill(fill: etree._Element, rgb: str) -> bool:
         pattern = fill.find(f"{{{MAIN_NS}}}patternFill")
@@ -1073,7 +1154,7 @@ def _style_definitions_preserved(
 
     permitted_fill_ids: set[str] = set()
     expected_fill_count = len(source_fills)
-    for rgb, targets in ((warning_rgb, unresolved), (PROJECT_FILL_RGB, project)):
+    for rgb, targets in ((warning_rgb, unresolved), (PROJECT_FILL_RGB, project), (MAPPING_REVIEW_FILL_RGB, mapping_review)):
         if not targets:
             continue
         fill_id = next((i for i, fill in enumerate(source_fills) if is_warning_fill(fill, rgb)), None)
@@ -1112,7 +1193,7 @@ def _style_definitions_preserved(
 
     expected_extra_ids = set(range(len(source_xfs), len(output_xfs)))
     referenced_extra_ids: set[int] = set()
-    for sheet_name, coordinate in unresolved | project:
+    for sheet_name, coordinate in unresolved | project | mapping_review:
         root = output_package._sheet_root(sheet_name)
         cells = root.xpath(
             f"//x:c[@r='{coordinate}']",
@@ -1166,12 +1247,14 @@ def _immutable_package_parts_preserved(
     return True, ""
 
 
-def _package_structure(path: Path, *, project_draft: bool = False) -> dict[str, object]:
+def _package_structure(path: Path, *, project_draft: bool = False, mapping_review: bool = False) -> dict[str, object]:
     """Canonical workbook structure with writable cell payloads removed."""
 
     package = OOXMLWorkbook(path)
     if project_draft:
         _mark_project_headers(package)
+    if mapping_review:
+        _mark_project_headers(package, MAPPING_REVIEW_HEADER)
     workbook = etree.fromstring(package.parts["xl/workbook.xml"])
     for calc_properties in workbook.findall(f"{{{MAIN_NS}}}calcPr"):
         workbook.remove(calc_properties)
