@@ -1,10 +1,16 @@
 from __future__ import annotations
 
+from decimal import Decimal
 from pathlib import Path
 import re
 
 from .domain import NeedInputQuestion, ProjectState
 from .questions import is_internal_question
+
+
+# Public service pricing is separate from provider usage and budget accounting.
+# Apply only to a serialized copy; never persist it back into ProjectState.
+SERVICE_PRICE_FACTOR = Decimal("2.5")
 
 
 SHA_REFERENCE = re.compile(r"\s*\(\s*SHA-?256\s*[:=]?\s*[0-9a-f]{64}\s*\)", re.IGNORECASE)
@@ -111,6 +117,10 @@ def public_state(state: ProjectState) -> ProjectState:
 
 def public_payload(state: ProjectState) -> dict:
     payload = public_state(state).model_dump(mode="json")
+    for usage in payload["model_usage"]:
+        cost = usage["estimated_cost_usd"]
+        if cost is not None:
+            usage["estimated_cost_usd"] = float(Decimal(str(cost)) * SERVICE_PRICE_FACTOR)
     payload["job_id"] = state.public_ref
     payload["draft_excel_files"] = [Path(path).name for path in state.draft_excel_files]
     payload.pop("selected_template_sha256", None)

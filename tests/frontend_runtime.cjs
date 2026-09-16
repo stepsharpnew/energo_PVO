@@ -112,5 +112,14 @@ const settle = () => new Promise((resolve) => setImmediate(resolve));
   await settle();
   assert.equal(fixture.element("status").textContent, "Агент изучает PDF");
   assert.equal(fixture.timers.at(-1).delay, 2000, "preview failure must not stop job polling");
+  // The API already returns service prices: the browser only totals/formats.
+  vm.runInContext('updateUsage({processing_profile:"balanced", model_usage:[{estimated_cost_usd:0.75},{estimated_cost_usd:0.125}]})', fixture.context);
+  assert.match(fixture.element("usage-summary").textContent, /около \$0\.875$/);
+  vm.runInContext('updateUsage({model_usage:[{estimated_cost_usd:0.75},{estimated_cost_usd:null}]})', fixture.context);
+  assert.match(fixture.element("usage-summary").textContent, /оценка стоимости недоступна$/);
+  vm.runInContext('updateUsage({model_usage:[{estimated_cost_usd:0}]})', fixture.context);
+  assert.match(fixture.element("usage-summary").textContent, /около \$0\.000$/);
+  vm.runInContext('updateUsage({model_usage:[]})', fixture.context);
+  assert.equal(fixture.element("usage-summary").textContent, "Платных вызовов пока не было.");
   console.log("Frontend runtime checks passed");
 })().catch((error) => { console.error(error); process.exitCode = 1; });

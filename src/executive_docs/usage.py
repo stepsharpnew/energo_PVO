@@ -14,8 +14,8 @@ class ModelPrice:
     output_per_million: float
 
 
-# Snapshot used only for an on-screen estimate. Deployment operators can still
-# enforce token limits when a custom/unknown model has no price entry.
+# Provider cost snapshot for usage accounting and budget enforcement. Public
+# service pricing is applied separately at the presentation boundary.
 MODEL_PRICES: dict[str, ModelPrice] = {
     "gpt-5.6": ModelPrice(5.0, 0.50, 6.25, 30.0),
     "gpt-5.6-sol": ModelPrice(5.0, 0.50, 6.25, 30.0),

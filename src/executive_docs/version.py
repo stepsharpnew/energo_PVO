@@ -3,7 +3,7 @@
 import os
 import re
 
-VERSION = "0.2.0"
+VERSION = "0.2.1"
 
 
 def release_revision() -> str:
